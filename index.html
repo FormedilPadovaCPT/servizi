@@ -152,6 +152,7 @@
 
     .home-hero {
       width: 100%;
+      max-height: 160px;
       overflow: hidden;
       display: block;
       margin-bottom: 0;
@@ -159,13 +160,61 @@
     }
     .home-hero img {
       width: 100%;
-      height: auto;
+      height: 160px;
       display: block;
       object-fit: cover;
+      object-position: center 30%;
     }
 
     .services-grid-wrap { padding: 24px 32px 0; max-width: 880px; }
     .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+    /* Card con immagine di sfondo (CDS, MyApp) */
+    .service-card-img {
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.3);
+      cursor: pointer;
+      transition: all .2s; position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      overflow: hidden;
+      min-height: 160px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      background-size: cover; background-position: center;
+      text-decoration: none;
+    }
+    .service-card-img:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,.3);
+      transform: translateY(-3px);
+    }
+    .service-card-img .sci-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
+    }
+    .service-card-img .sci-body {
+      position: relative; z-index: 1;
+      padding: 14px 16px;
+    }
+    .service-card-img .sci-tag {
+      display: inline-block; margin-bottom: 6px;
+      font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 4px; background: var(--orange); color: #fff;
+    }
+    .service-card-img .sci-tag.blue { background: #2855a0; }
+    .service-card-img .sci-title {
+      font-size: 13px; font-weight: 700; color: #fff; line-height: 1.35;
+      margin-bottom: 4px;
+    }
+    .service-card-img .sci-desc {
+      font-size: 11px; color: rgba(255,255,255,.78); line-height: 1.5;
+    }
+    .service-card-img .sci-arrow {
+      position: absolute; top: 12px; right: 12px; z-index: 1;
+      width: 26px; height: 26px; background: rgba(255,255,255,.15);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: #fff;
+      transition: background .2s;
+    }
+    .service-card-img:hover .sci-arrow { background: var(--orange); }
 
     .service-card {
       background: var(--white); border-radius: var(--radius);
@@ -614,6 +663,30 @@
           <span class="sc-tag anon">Anonimo</span>
           <span class="sc-arrow">→</span>
         </div>
+
+        <!-- CDS -->
+        <a class="service-card-img" href="https://www.edilcds.it/" target="_blank"
+           style="background-image:url('CDS.jpg')">
+          <div class="sci-overlay"></div>
+          <div class="sci-arrow">→</div>
+          <div class="sci-body">
+            <span class="sci-tag blue">Piattaforma digitale</span>
+            <div class="sci-title">CDS – Gestione Sicurezza<br>sul Lavoro</div>
+            <div class="sci-desc">Lo strumento intelligente messo a disposizione da Formedil per imprese e lavoratori edili.</div>
+          </div>
+        </a>
+
+        <!-- FORMEDIL MYAPP -->
+        <a class="service-card-img" href="https://app.formedil.it/" target="_blank"
+           style="background-image:url('FormedilMyApp.jpg')">
+          <div class="sci-overlay"></div>
+          <div class="sci-arrow">→</div>
+          <div class="sci-body">
+            <span class="sci-tag">App iOS &amp; Android</span>
+            <div class="sci-title">Formedil MyApp</div>
+            <div class="sci-desc">Il tuo percorso formativo sempre con te. Disponibile su App Store, Google Play e versione web.</div>
+          </div>
+        </a>
       </div>
       </div><!-- /services-grid-wrap -->
 
