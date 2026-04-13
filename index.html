@@ -547,6 +547,10 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
+      <!-- Logo visibile solo in home-mode (topbar verde) -->
+      <img src="Formedil_Padova_Positivo_colori.png" alt="Formedil Padova"
+           id="topbarLogo"
+           style="height:42px;width:auto;display:none;object-fit:contain;mix-blend-mode:screen;">
       <span class="topbar-title" id="topbarTitle">Area Sicurezza e Salute</span>
       <span class="topbar-sub" id="topbarSub"></span>
       <div class="topbar-spacer"></div>
@@ -2275,10 +2279,19 @@ function showPage(id) {
   const titles = PAGE_TITLES[id] || ['', ''];
   document.getElementById('topbarTitle').textContent = titles[0];
   document.getElementById('topbarSub').textContent   = titles[1];
-  // Topbar verde solo nella home
+  // Topbar verde + logo solo nella home
   const topbar = document.querySelector('.topbar');
-  if (id === 'home') topbar.classList.add('home-mode');
-  else               topbar.classList.remove('home-mode');
+  const logo   = document.getElementById('topbarLogo');
+  const title  = document.getElementById('topbarTitle');
+  if (id === 'home') {
+    topbar.classList.add('home-mode');
+    logo.style.display  = 'block';
+    title.style.display = 'none';
+  } else {
+    topbar.classList.remove('home-mode');
+    logo.style.display  = 'none';
+    title.style.display = '';
+  }
   closeSidebar();
   window.scrollTo(0, 0);
   // Init date fields
@@ -2715,8 +2728,10 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
 // ══════════════════════════════════════════════════════
 document.getElementById('rlst-data_comp').valueAsDate = new Date();
 FORM_PREFIXES.forEach(p => calcProgressForm(p));
-// Topbar verde sulla home all'avvio
+// Topbar verde + logo sulla home all'avvio
 document.querySelector('.topbar').classList.add('home-mode');
+document.getElementById('topbarLogo').style.display  = 'block';
+document.getElementById('topbarTitle').style.display = 'none';
 </script>
 </body>
 </html>
