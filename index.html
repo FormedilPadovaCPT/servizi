@@ -104,41 +104,28 @@
 
     /* ── TOP BAR ── */
     .topbar {
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
+      background: var(--green); /* Barra verde di default */
+      border-bottom: 1px solid #7da824; /* Bordo verde scuro */
       padding: 0 32px;
       height: 56px;
       display: flex; align-items: center; gap: 16px;
       position: sticky; top: 0; z-index: 50;
-      transition: background .25s, border-color .25s;
     }
-    .topbar-title { font-size: 14px; font-weight: 600; color: var(--text); transition: color .25s; }
-    .topbar-sub { font-size: 12px; color: var(--muted); margin-left: 2px; transition: color .25s; }
     .topbar-spacer { flex: 1; }
-    .topbar-contact {
-      font-size: 11.5px; color: var(--muted);
-      display: flex; align-items: center; gap: 6px;
-      transition: color .25s;
-    }
-    .topbar-contact a { color: var(--orange); text-decoration: none; font-weight: 500; transition: color .25s; }
 
-    /* topbar verde solo nella home */
-    .topbar.home-mode {
-      background: var(--green);
-      border-bottom-color: #7da824;
-      padding-top: 0;
-      padding-bottom: 0;
+    /* Stile per il logo nella barra verde */
+    #topbarLogo {
+      height: 100% !important; /* Forza l'altezza al 100% della barra */
+      max-height: 56px;         /* Deve corrispondere all'altezza della .topbar */
+      width: auto;
+      display: block;          /* Sempre visibile */
+      object-fit: cover;        /* Copre l'intero spazio senza distorsioni */
     }
-    .topbar.home-mode .topbar-title { color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .01em; }
-    .topbar.home-mode .topbar-sub   { color: rgba(255,255,255,.7); }
-    .topbar.home-mode .topbar-contact { color: rgba(255,255,255,.8); }
-    .topbar.home-mode .topbar-contact a { color: #fff; font-weight: 600; }
-    .topbar.home-mode .hamburger { color: #fff; }
 
     /* ── HAMBURGER (mobile) ── */
     .hamburger {
       display: none; background: none; border: none; cursor: pointer;
-      padding: 6px; color: var(--text); transition: color .25s;
+      padding: 6px; color: #fff; /* Colore bianco per contrasto sul verde */
     }
     .hamburger svg { width: 22px; height: 22px; }
 
@@ -466,7 +453,6 @@
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
       .col-full { grid-column: 1; }
       .request-grid { grid-template-columns: 1fr; }
-      .home-intro { padding: 20px 16px 18px; }
       .services-grid-wrap { padding: 16px 16px 0; }
       #page-home .page-footer { padding: 16px 16px 0; }
       .services-grid { grid-template-columns: 1fr 1fr; }
@@ -546,15 +532,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
-      <img src="Formedil_Padova_Positivo_colori.png" alt="Formedil Padova"
-           id="topbarLogo"
-           style="height:100%; width:auto; display:none; object-fit:cover;">
-      <span class="topbar-title" id="topbarTitle">Area Sicurezza e Salute</span>
-      <span class="topbar-sub" id="topbarSub"></span>
+      
+      <img src="Formedil_Padova_Positivo_colori.png" alt="Formedil Padova" id="topbarLogo">
+      
       <div class="topbar-spacer"></div>
-      <div class="topbar-contact">
-        </div>
-    </div>
+      
+      </div>
 
     <div class="page active" id="page-home">
       <div class="home-hero">
@@ -655,6 +638,5 @@
         <a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a>
         &nbsp;·&nbsp; Formedil Padova – Scuola Costruzioni Giuseppe Jappelli
         &nbsp;·&nbsp; Via Basilicata 10, 35127 Padova &nbsp;·&nbsp; Tel. 049 761168 &nbsp;·&nbsp; 
-        <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
-      </div>
+        <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a> </div>
     </div>
