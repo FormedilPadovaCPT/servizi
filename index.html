@@ -152,7 +152,6 @@
 
     .home-hero {
       width: 100%;
-      max-height: 160px;
       overflow: hidden;
       display: block;
       margin-bottom: 0;
@@ -160,16 +159,19 @@
     }
     .home-hero img {
       width: 100%;
-      height: 160px;
+      height: auto;
       display: block;
-      object-fit: cover;
-      object-position: center 30%;
+      /* proporzioni originali, nessun crop né zoom */
+      max-height: 180px;
+      object-fit: contain;
+      object-position: center center;
+      background: #2c2c2a;
     }
 
-    .services-grid-wrap { padding: 24px 32px 0; max-width: 880px; }
-    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .services-grid-wrap { padding: 24px 32px 0; max-width: 100%; }
+    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-    /* Card con immagine di sfondo (CDS, MyApp) */
+    /* Card con immagine di sfondo (non usate - tenute per compatibilità) */
     .service-card-img {
       border-radius: var(--radius);
       border: 1px solid rgba(255,255,255,.3);
@@ -182,39 +184,6 @@
       background-size: cover; background-position: center;
       text-decoration: none;
     }
-    .service-card-img:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,.3);
-      transform: translateY(-3px);
-    }
-    .service-card-img .sci-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
-    }
-    .service-card-img .sci-body {
-      position: relative; z-index: 1;
-      padding: 14px 16px;
-    }
-    .service-card-img .sci-tag {
-      display: inline-block; margin-bottom: 6px;
-      font-size: 9.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 4px; background: var(--orange); color: #fff;
-    }
-    .service-card-img .sci-tag.blue { background: #2855a0; }
-    .service-card-img .sci-title {
-      font-size: 13px; font-weight: 700; color: #fff; line-height: 1.35;
-      margin-bottom: 4px;
-    }
-    .service-card-img .sci-desc {
-      font-size: 11px; color: rgba(255,255,255,.78); line-height: 1.5;
-    }
-    .service-card-img .sci-arrow {
-      position: absolute; top: 12px; right: 12px; z-index: 1;
-      width: 26px; height: 26px; background: rgba(255,255,255,.15);
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; color: #fff;
-      transition: background .2s;
-    }
-    .service-card-img:hover .sci-arrow { background: var(--orange); }
 
     .service-card {
       background: var(--white); border-radius: var(--radius);
@@ -503,6 +472,7 @@
       .home-intro { padding: 20px 16px 18px; }
       .services-grid-wrap { padding: 16px 16px 0; }
       #page-home .page-footer { padding: 16px 16px 0; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 480px) {
       .services-grid { grid-template-columns: 1fr; }
@@ -558,6 +528,9 @@
       <div class="nav-section-label">Qualità</div>
       <a class="nav-item" onclick="showPage('questionario')" href="#">
         <span class="ni-icon">⭐</span> Valutazione Sopralluogo
+      </a>
+      <a class="nav-item" onclick="showPage('asseverazione')" href="#">
+        <span class="ni-icon">✅</span> Asseverazione
       </a>
     </nav>
 
@@ -665,28 +638,31 @@
         </div>
 
         <!-- CDS -->
-        <a class="service-card-img" href="https://www.edilcds.it/" target="_blank"
-           style="background-image:url('CDS.jpg')">
-          <div class="sci-overlay"></div>
-          <div class="sci-arrow">→</div>
-          <div class="sci-body">
-            <span class="sci-tag blue">Piattaforma digitale</span>
-            <div class="sci-title">CDS – Gestione Sicurezza<br>sul Lavoro</div>
-            <div class="sci-desc">Lo strumento intelligente messo a disposizione da Formedil per imprese e lavoratori edili.</div>
-          </div>
-        </a>
+        <div class="service-card" onclick="window.open('https://www.edilcds.it/','_blank')">
+          <span class="sc-icon">💻</span>
+          <div class="sc-title">CDS – Gestione Sicurezza sul Lavoro</div>
+          <div class="sc-desc">Lo strumento intelligente per la gestione della sicurezza. Piattaforma a disposizione di imprese e lavoratori edili.</div>
+          <span class="sc-tag anon">Servizio Formedil Nazionale</span>
+          <span class="sc-arrow">↗</span>
+        </div>
 
         <!-- FORMEDIL MYAPP -->
-        <a class="service-card-img" href="https://app.formedil.it/" target="_blank"
-           style="background-image:url('FormedilMyApp.jpg')">
-          <div class="sci-overlay"></div>
-          <div class="sci-arrow">→</div>
-          <div class="sci-body">
-            <span class="sci-tag">App iOS &amp; Android</span>
-            <div class="sci-title">Formedil MyApp</div>
-            <div class="sci-desc">Il tuo percorso formativo sempre con te. Disponibile su App Store, Google Play e versione web.</div>
-          </div>
-        </a>
+        <div class="service-card" onclick="window.open('https://app.formedil.it/','_blank')">
+          <span class="sc-icon">📱</span>
+          <div class="sc-title">Formedil MyApp</div>
+          <div class="sc-desc">Il tuo percorso formativo sempre con te. Disponibile su App Store, Google Play e versione web.</div>
+          <span class="sc-tag anon">Servizio Formedil Nazionale</span>
+          <span class="sc-arrow">↗</span>
+        </div>
+
+        <!-- ASSEVERAZIONE -->
+        <div class="service-card" onclick="showPage('asseverazione')">
+          <span class="sc-icon">✅</span>
+          <div class="sc-title">Asseverazione</div>
+          <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
+          <span class="sc-tag free">Gratuito CEIV</span>
+          <span class="sc-arrow">→</span>
+        </div>
       </div>
       </div><!-- /services-grid-wrap -->
 
@@ -2134,6 +2110,84 @@
       <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
     </div>
 
+    <!-- ════════════════════════════════
+         10. ASSEVERAZIONE
+    ════════════════════════════════ -->
+    <div class="page" id="page-asseverazione">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>✅ Asseverazione</h2>
+        <p>Attestazione dell'adozione di un modello di organizzazione e gestione della salute e sicurezza · art. 51 D.Lgs. 81/08</p>
+      </div>
+
+      <div class="info-box">
+        L'asseverazione è una <strong>scelta volontaria</strong> dell'impresa edile, promossa da <strong>Formedil</strong> e regolamentata da UNI, che attesta l'adozione di un modello di organizzazione e gestione della salute e sicurezza sul lavoro.<br><br>
+        È prevista dal "Testo Unico per la salute e sicurezza nei luoghi di lavoro" (art. 51 D.Lgs. 81/08 e s.m.i.), che assegna agli organismi paritetici il compito di rilasciare, su richiesta delle imprese, un attestato comprovante l'adozione e l'efficace attuazione dei modelli di organizzazione e gestione della sicurezza.
+      </div>
+
+      <div class="section-title">Cosa garantisce l'asseverazione</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">🛡️</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Conformità normativa</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Garantisce la conformità e la corretta applicazione del modello adottato dall'impresa alle norme vigenti.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">📣</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Comunicazione dell'impegno</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Comunica l'impegno dell'impresa per la prevenzione e per la salute e sicurezza nei luoghi di lavoro.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">⚖️</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Efficacia esimente (D.Lgs. 231/2001)</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Può avere efficacia esimente della responsabilità amministrativa e offre vantaggi economici.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">🔎</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Riconoscimento ispettivo</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Gli organi di vigilanza possono tenerne conto ai fini delle loro attività ispettive.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Richiesta di preventivo</div>
+      <div style="background:#eaf3de;border:1px solid var(--green);border-radius:var(--radius);padding:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:14px;font-weight:600;color:#3b6d11;margin-bottom:6px">📄 Modulo richiesta di preventivo</div>
+          <div style="font-size:12.5px;color:#3b6d11;line-height:1.6">
+            Per avviare la procedura di asseverazione scarica e compila il modulo di richiesta, quindi invialo a <a href="mailto:cpt@formedilpadova.it" style="color:#3b6d11;font-weight:600">cpt@formedilpadova.it</a>.
+          </div>
+        </div>
+        <a href="Modulo_Richiesta_Asseverazione.docx" download="Modulo_Richiesta_Asseverazione.docx"
+           style="display:inline-flex;align-items:center;gap:8px;background:#3b6d11;color:#fff;
+                  font-family:'Barlow',sans-serif;font-size:13.5px;font-weight:700;
+                  padding:11px 22px;border-radius:6px;text-decoration:none;
+                  transition:opacity .15s;white-space:nowrap;flex-shrink:0"
+           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ⬇ Scarica il modulo Word
+        </a>
+      </div>
+
+      <div class="section-title">Contatti</div>
+      <div class="conditions-box">
+        <p>Per ulteriori informazioni sull'asseverazione contatta l'Area Sicurezza e Salute di Formedil Padova:<br>
+        📧 <a href="mailto:cpt@formedilpadova.it" style="color:var(--orange);font-weight:600">cpt@formedilpadova.it</a>
+        &nbsp;·&nbsp; 📞 049 761168 (int. 4)
+        &nbsp;·&nbsp; <a href="https://www.formedilpadova.it" target="_blank" style="color:var(--orange);font-weight:600">www.formedilpadova.it</a></p>
+      </div>
+
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /shell -->
 
@@ -2207,6 +2261,7 @@ const PAGE_TITLES = {
   notifica: ['Notifica Cantiere', ''],
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
+  asseverazione: ['Asseverazione', ''],
 };
 
 function showPage(id) {
