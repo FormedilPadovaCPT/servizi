@@ -161,11 +161,6 @@
       width: 100%;
       height: auto;
       display: block;
-      /* proporzioni originali, nessun crop né zoom */
-      max-height: 180px;
-      object-fit: contain;
-      object-position: center center;
-      background: #2c2c2a;
     }
 
     .services-grid-wrap { padding: 24px 32px 0; max-width: 100%; }
@@ -657,10 +652,10 @@
 
         <!-- ASSEVERAZIONE -->
         <div class="service-card" onclick="showPage('asseverazione')">
-          <span class="sc-icon">✅</span>
+          <span class="sc-icon" style="color:#1e2d5e">✅</span>
           <div class="sc-title">Asseverazione</div>
           <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
-          <span class="sc-tag free">Gratuito CEIV</span>
+          <span class="sc-tag" style="background:#1e2d5e;color:#fff">Riservato imprese CEIV</span>
           <span class="sc-arrow">→</span>
         </div>
       </div>
@@ -2115,9 +2110,15 @@
     ════════════════════════════════ -->
     <div class="page" id="page-asseverazione">
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
-      <div class="form-header">
-        <h2>✅ Asseverazione</h2>
-        <p>Attestazione dell'adozione di un modello di organizzazione e gestione della salute e sicurezza · art. 51 D.Lgs. 81/08</p>
+
+      <!-- Header con logo -->
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap">
+        <img src="logo_asseverazione_cpt.jpg" alt="Asseverazione Cncpt Sicurezza in Edilizia – CPT-PD"
+             style="width:110px;height:110px;object-fit:contain;flex-shrink:0">
+        <div class="form-header" style="flex:1;margin-bottom:0;border-bottom:3px solid #1e2d5e">
+          <h2 style="color:#1e2d5e">Asseverazione</h2>
+          <p>Attestazione dell'adozione di un modello di organizzazione e gestione della salute e sicurezza · art. 51 D.Lgs. 81/08</p>
+        </div>
       </div>
 
       <div class="info-box">
@@ -2125,7 +2126,7 @@
         È prevista dal "Testo Unico per la salute e sicurezza nei luoghi di lavoro" (art. 51 D.Lgs. 81/08 e s.m.i.), che assegna agli organismi paritetici il compito di rilasciare, su richiesta delle imprese, un attestato comprovante l'adozione e l'efficace attuazione dei modelli di organizzazione e gestione della sicurezza.
       </div>
 
-      <div class="section-title">Cosa garantisce l'asseverazione</div>
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Cosa garantisce l'asseverazione</div>
       <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div style="display:flex;gap:10px;align-items:flex-start">
@@ -2159,7 +2160,7 @@
         </div>
       </div>
 
-      <div class="section-title">Richiesta di preventivo</div>
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Richiesta di preventivo</div>
       <div style="background:#eaf3de;border:1px solid var(--green);border-radius:var(--radius);padding:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
         <div style="flex:1;min-width:200px">
           <div style="font-size:14px;font-weight:600;color:#3b6d11;margin-bottom:6px">📄 Modulo richiesta di preventivo</div>
@@ -2168,7 +2169,7 @@
           </div>
         </div>
         <a href="Modulo_Richiesta_Asseverazione.docx" download="Modulo_Richiesta_Asseverazione.docx"
-           style="display:inline-flex;align-items:center;gap:8px;background:#3b6d11;color:#fff;
+           style="display:inline-flex;align-items:center;gap:8px;background:#1e2d5e;color:#fff;
                   font-family:'Barlow',sans-serif;font-size:13.5px;font-weight:700;
                   padding:11px 22px;border-radius:6px;text-decoration:none;
                   transition:opacity .15s;white-space:nowrap;flex-shrink:0"
@@ -2177,7 +2178,7 @@
         </a>
       </div>
 
-      <div class="section-title">Contatti</div>
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Contatti</div>
       <div class="conditions-box">
         <p>Per ulteriori informazioni sull'asseverazione contatta l'Area Sicurezza e Salute di Formedil Padova:<br>
         📧 <a href="mailto:cpt@formedilpadova.it" style="color:var(--orange);font-weight:600">cpt@formedilpadova.it</a>
