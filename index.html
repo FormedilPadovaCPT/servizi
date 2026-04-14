@@ -215,7 +215,7 @@
       font-size: 16px; color: var(--border);
       transition: color .2s, transform .2s;
     }
-    .service-card:hover .sc-arrow { color: var(--green); transform: translateX(5px); }
+    .service-card:hover .sc-arrow { color: var(--green); transform: translateX(3px); }
 
     /* ═══════════════════════════════════════════
        FORM COMMONS
@@ -572,7 +572,7 @@
       <div class="topbar-spacer"></div>
       <div class="topbar-contact">
         <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
-        &nbsp;·&nbsp; 049 761168 (int.4)
+        &nbsp;·&nbsp; 049 761168
       </div>
     </div>
 
@@ -690,7 +690,7 @@
         <a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a>
         &nbsp;·&nbsp; Formedil Padova – Scuola Costruzioni Giuseppe Jappelli
         &nbsp;·&nbsp; Via Basilicata 10, 35127 Padova
-        &nbsp;·&nbsp; Tel. 049 761168 (int.4)
+        &nbsp;·&nbsp; Tel. 049 761168
         &nbsp;·&nbsp; <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
       </div>
     </div>
@@ -884,7 +884,24 @@
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
         <h2>👷 Comunicazione del nominativo RLS</h2>
-        <p>Comunicazione del Rappresentante dei Lavoratori per la Sicurezza · art. 47 D.Lgs. 81/2008 · Verbale di accordo 3 marzo 2022</p>
+        <p>Rappresentante dei Lavoratori per la Sicurezza · art. 47 D.Lgs. 81/08</p>
+      </div>
+
+      <div class="info-box">
+        <strong>Aggiornamento Contratto Collettivo Provinciale di Lavoro – 3 marzo 2022, Roma</strong><br><br>
+        Le parti convengono di creare un'<strong>anagrafe di categoria aggiornata degli RLS</strong> eletti in ciascuna impresa del sistema, attraverso l'obbligo dell'invio del verbale di elezione da parte dell'impresa all'ente unico formazione e sicurezza territoriale di riferimento.<br><br>
+        Utilizza questo modulo per comunicare il nominativo del Rappresentante dei Lavoratori per la Sicurezza eletto nella tua impresa.
+      </div>
+
+      <div style="margin-bottom:20px">
+        <a href="https://www.formedilpadova.it" target="_blank"
+           style="display:inline-flex;align-items:center;gap:7px;font-family:'Barlow',sans-serif;
+                  font-size:13px;font-weight:600;color:var(--orange);text-decoration:none;
+                  border:1px solid var(--orange);padding:8px 16px;border-radius:6px;
+                  transition:background .15s"
+           onmouseover="this.style.background='#fdf3ee'" onmouseout="this.style.background='transparent'">
+          ⬇ Scarica il CCNL – Verbale di accordo
+        </a>
       </div>
       <div class="prog-wrap">
         <div class="prog-label" id="rls-progLabel">Compilazione: 0%</div>
@@ -1271,17 +1288,68 @@
     <div class="page" id="page-visita">
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
-        <h2>🔍 Richiesta visita in cantiere</h2>
-        <p>Sopralluogo tecnico da parte di Formedil Padova – Area Sicurezza e Salute</p>
+        <h2>🔍 Richiesta Visita in Cantiere / Consulenza Tecnica</h2>
+        <p>Formedil Padova – Area Sicurezza e Salute · Organismo Paritetico (art. 51 D.Lgs. 81/08)</p>
       </div>
+
+      <!-- Testo descrittivo -->
       <div class="info-box">
+        Formedil Padova offre sopralluoghi e consulenze tecniche nei cantieri con l'obiettivo di migliorare la sicurezza e la salute dei lavoratori.<br>
+        Le visite sono effettuate da <strong>tecnici qualificati</strong> e hanno carattere <strong>esclusivamente consulenziale</strong>, non ispettivo.
         Il servizio è <strong>gratuito</strong> per le imprese iscritte alla <strong>CEIV</strong> in regola con i versamenti. Per le imprese non iscritte potrebbe essere richiesta una quota di 150 € (IVA esclusa).
       </div>
+
+      <!-- Quando richiedere -->
+      <div class="section-title">Quando richiedere una visita</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--green);font-size:15px;flex-shrink:0">✅</span>
+          <span>All'inizio dell'attività di cantiere, per una <strong>valutazione preliminare</strong>.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--green);font-size:15px;flex-shrink:0">✅</span>
+          <span>In previsione di <strong>fasi lavorative critiche</strong>, che richiedano un supporto tecnico specifico.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--green);font-size:15px;flex-shrink:0">✅</span>
+          <span>Per ricevere un <strong>parere tecnico</strong> su problematiche legate alla sicurezza o all'organizzazione del lavoro.</span>
+        </div>
+      </div>
+
+      <!-- Come funziona -->
+      <div class="section-title">Come funziona la verifica</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--orange);font-weight:700;flex-shrink:0">1.</span>
+          <span>La <strong>prima visita</strong> consente di analizzare le condizioni di sicurezza del cantiere.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--orange);font-weight:700;flex-shrink:0">2.</span>
+          <span>A prescindere dalla situazione riscontrata, viene sempre programmata una <strong>seconda verifica</strong> per valutare eventuali azioni correttive adottate dall'impresa.</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+          <span style="color:var(--orange);font-weight:700;flex-shrink:0">3.</span>
+          <span>Il tutto avviene nel pieno rispetto della <strong>privacy</strong> e delle normative sui dati personali.</span>
+        </div>
+      </div>
+
       <div class="prog-wrap">
         <div class="prog-label" id="vis-progLabel">Compilazione: 0%</div>
         <div class="prog-bar"><div class="prog-fill" id="vis-progFill"></div></div>
       </div>
       <form id="form-visita" novalidate>
+
+        <div class="section-title">Tipo di richiesta</div>
+        <div class="radio-group" style="margin-bottom:4px">
+          <label class="radio-opt">
+            <input type="radio" name="vis_tipo_visita" value="Visita singola" required>
+            <span><strong>Visita singola</strong> — un sopralluogo una tantum</span>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="vis_tipo_visita" value="Serie di visite con periodicità da concordare">
+            <span><strong>Serie di visite</strong> — con periodicità da concordare con i nostri tecnici</span>
+          </label>
+        </div>
 
         <div class="section-title">Dati aziendali</div>
         <div class="grid-2">
@@ -1363,7 +1431,7 @@
 
         <div class="section-title">Note</div>
         <div class="field">
-          <textarea id="vis-note" name="note" placeholder="Eventuali note..."></textarea>
+          <textarea id="vis-note" name="note" placeholder="Eventuali note o informazioni aggiuntive sul cantiere..."></textarea>
         </div>
 
         <div class="privacy-box">
@@ -1391,12 +1459,49 @@
     <div class="page" id="page-consulenza">
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
-        <h2>💼 Richiesta di consulenza gratuita</h2>
-        <p>Consulenza personalizzata su sicurezza, ambiente e sistemi di gestione</p>
+        <h2>💼 Servizio di Consulenza ed Informazione</h2>
+        <p>Formedil Padova – Area Sicurezza e Salute · Gratuito per imprese e lavoratori iscritti CEIV</p>
       </div>
+
+      <!-- Cosa offriamo -->
       <div class="info-box">
-        Il servizio è <strong>completamente gratuito</strong> per le imprese iscritte alla <strong>CEIV</strong> previa autorizzazione della direzione.<br>
-        La consulenza è da intendersi a scopo informativo e non costituirà un parere professionale esaustivo.
+        Formedil Padova offre un servizio gratuito di informazione e consulenza dedicato a <strong>imprese e lavoratori iscritti a C.E.I.V.</strong>
+      </div>
+
+      <!-- Modalità e orari -->
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+            <span style="color:var(--green);flex-shrink:0">✅</span>
+            <span>Consulenza su <strong>appuntamento</strong> presso la nostra sede di Via Basilicata, 10 – Padova.</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+            <span style="color:var(--green);flex-shrink:0">✅</span>
+            <span><strong>Supporto telefonico</strong> per chiarimenti normativi e tecnici.</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)">
+            <span style="color:var(--green);flex-shrink:0">✅</span>
+            <span>Assistenza su <strong>sicurezza, normative</strong> e dispositivi di protezione.</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;gap:20px;flex-wrap:wrap">
+          <div style="font-size:13px;color:var(--text)"><span style="font-size:15px">📅</span> <strong>Lunedì:</strong> 09:00 – 16:00</div>
+          <div style="font-size:13px;color:var(--text)"><span style="font-size:15px">📅</span> <strong>Martedì – Giovedì:</strong> 09:00 – 18:00</div>
+        </div>
+      </div>
+
+      <!-- Cosa offriamo -->
+      <div class="section-title">Cosa offriamo</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)"><span style="color:var(--orange);flex-shrink:0">🔹</span><span>Consulenza personalizzata per imprenditori e lavoratori su <strong>sicurezza nei luoghi di lavoro</strong>.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)"><span style="color:var(--orange);flex-shrink:0">🔹</span><span>Informazioni sui <strong>rischi specifici</strong> legati alle attività edili e sulle misure di protezione e prevenzione.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)"><span style="color:var(--orange);flex-shrink:0">🔹</span><span><strong>Aggiornamenti normativi</strong> sulle leggi in materia di sicurezza.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)"><span style="color:var(--orange);flex-shrink:0">🔹</span><span>Supporto nella scelta dei <strong>dispositivi di protezione individuale e collettiva</strong> più idonei.</span></div>
+        <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text)"><span style="color:var(--orange);flex-shrink:0">🔹</span><span>Indicazioni tecniche su <strong>lavorazioni edili</strong> e attività particolari legate alla sicurezza.</span></div>
+      </div>
+
+      <div class="form-note" style="margin-bottom:20px">
+        📌 <strong>Prenota un appuntamento!</strong> Compila il modulo sottostante per ricevere la nostra consulenza gratuita.
       </div>
       <div class="prog-wrap">
         <div class="prog-label" id="cons-progLabel">Compilazione: 0%</div>
@@ -2687,7 +2792,12 @@ document.getElementById('form-conferenza').addEventListener('submit', e => {
 // 4. VISITA
 document.getElementById('form-visita').addEventListener('submit', e => {
   e.preventDefault();
-  submitForm('form-visita', 'vis', async form => collectFields(form));
+  submitForm('form-visita', 'vis', async form => {
+    const f = collectFields(form);
+    const tipoVisita = form.querySelector('input[name=vis_tipo_visita]:checked');
+    f.tipo_visita = tipoVisita ? tipoVisita.value : '';
+    return f;
+  });
 });
 
 // 5. CONSULENZA
