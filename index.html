@@ -122,19 +122,19 @@
     }
     .topbar-contact a { color: var(--orange); text-decoration: none; font-weight: 500; transition: color .25s; }
 
-    /* topbar verde solo nella home */
+    /* topbar bianca nella home */
     .topbar.home-mode {
-      background: var(--green);
-      border-bottom-color: var(--green);
-      padding: 0;
-      gap: 0;
+      background: var(--white);
+      border-bottom-color: var(--border);
+      padding: 0 32px;
+      gap: 16px;
     }
-    .topbar.home-mode .topbar-title { color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .01em; }
-    .topbar.home-mode .topbar-sub   { color: rgba(255,255,255,.7); }
-    .topbar.home-mode .topbar-contact { display: none; }
-    .topbar.home-mode .topbar-spacer  { display: none; }
+    .topbar.home-mode .topbar-title { color: var(--text); font-size: 16px; font-weight: 700; letter-spacing: .01em; }
+    .topbar.home-mode .topbar-sub   { color: var(--muted); }
+    .topbar.home-mode .topbar-contact { display: flex; }
+    .topbar.home-mode .topbar-spacer  { flex: 1; }
     .topbar.home-mode .hamburger {
-      color: #fff;
+      color: var(--text);
       height: 56px; width: 56px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; padding: 0;
@@ -154,8 +154,25 @@
     .page.active { display: block; }
 
     /* ── HOMEPAGE ── */
-    /* sfondo arancio Formedil per la pagina home */
-    #page-home { background: var(--orange); min-height: calc(100vh - 56px); padding: 0 0 48px; max-width: 100%; }
+    /* sfondo verde Formedil per la pagina home con bagliore arancio */
+    #page-home {
+      background: linear-gradient(135deg, #95C22F 0%, #7aa52a 50%, #5c8a1a 100%);
+      min-height: calc(100vh - 56px); padding: 0 0 48px; max-width: 100%;
+      position: relative;
+    }
+    #page-home::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at 30% 70%, rgba(231,80,15,0.2) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 30%, rgba(249,115,22,0.15) 0%, transparent 45%);
+      pointer-events: none;
+      animation: glowPulse 8s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
 
     .home-hero {
       width: 100%;
@@ -171,7 +188,7 @@
     }
 
     .services-grid-wrap { padding: 24px 32px 0; max-width: 100%; }
-    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .services-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 
     /* Card con immagine di sfondo (non usate - tenute per compatibilità) */
     .service-card-img {
@@ -195,8 +212,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
     .service-card:hover {
-      border-color: var(--green);
-      box-shadow: 0 6px 24px rgba(149,194,47,.35);
+      border-color: var(--orange);
+      box-shadow: 0 6px 24px rgba(231,80,15,.35);
       transform: translateY(-3px);
     }
     .service-card .sc-icon { font-size: 26px; margin-bottom: 12px; display: block; }
@@ -215,7 +232,7 @@
       font-size: 16px; color: var(--border);
       transition: color .2s, transform .2s;
     }
-    .service-card:hover .sc-arrow { color: var(--green); transform: translateX(3px); }
+    .service-card:hover .sc-arrow { color: var(--orange); transform: translateX(3px); }
 
     /* ═══════════════════════════════════════════
        FORM COMMONS
@@ -1175,7 +1192,7 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
             <label for="conf-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="conf-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -1183,6 +1200,10 @@
           <div class="field">
             <label for="conf-rl_cog">Cognome <span class="req">*</span></label>
             <input type="text" id="conf-rl_cog" name="rl_cognome" placeholder="Cognome" required>
+          </div>
+          <div class="field">
+            <label for="conf-rl_cf">Codice fiscale R.L. <span class="req">*</span></label>
+            <input type="text" id="conf-rl_cf" name="rl_cf" placeholder="RSSMRA80A01L781V" maxlength="16" style="text-transform:uppercase" required>
           </div>
         </div>
 
@@ -1388,7 +1409,7 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
             <label for="vis-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="vis-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -1396,6 +1417,10 @@
           <div class="field">
             <label for="vis-rl_cog">Cognome <span class="req">*</span></label>
             <input type="text" id="vis-rl_cog" name="rl_cognome" placeholder="Cognome" required>
+          </div>
+          <div class="field">
+            <label for="vis-rl_cf">Codice fiscale R.L. <span class="req">*</span></label>
+            <input type="text" id="vis-rl_cf" name="rl_cf" placeholder="RSSMRA80A01L781V" maxlength="16" style="text-transform:uppercase" required>
           </div>
         </div>
 
@@ -1530,7 +1555,7 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
             <label for="cons-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="cons-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -1539,6 +1564,14 @@
             <label for="cons-rl_cog">Cognome <span class="req">*</span></label>
             <input type="text" id="cons-rl_cog" name="rl_cognome" placeholder="Cognome" required>
           </div>
+          <div class="field">
+            <label for="cons-rl_cf">Codice fiscale R.L. <span class="req">*</span></label>
+            <input type="text" id="cons-rl_cf" name="rl_cf" placeholder="RSSMRA80A01L781V" maxlength="16" style="text-transform:uppercase" required>
+          </div>
+        </div>
+
+        <div class="section-title">Dati di contatto</div>
+        <div class="grid-2">
           <div class="field">
             <label for="cons-cell">Cellulare</label>
             <input type="tel" id="cons-cell" name="cellulare" placeholder="333 0000000">
@@ -1610,7 +1643,7 @@
       <form id="form-attestazione" novalidate>
 
         <div class="section-title">Dati impresa</div>
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
             <label for="att-rl_nome">Rappresentante Legale – Nome <span class="req">*</span></label>
             <input type="text" id="att-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -1618,6 +1651,10 @@
           <div class="field">
             <label for="att-rl_cog">Rappresentante Legale – Cognome <span class="req">*</span></label>
             <input type="text" id="att-rl_cog" name="rl_cognome" placeholder="Cognome" required>
+          </div>
+          <div class="field">
+            <label for="att-rl_cf">Codice fiscale R.L. <span class="req">*</span></label>
+            <input type="text" id="att-rl_cf" name="rl_cf" placeholder="RSSMRA80A01L781V" maxlength="16" style="text-transform:uppercase" required>
           </div>
           <div class="field col-full">
             <label for="att-rag_soc">Ragione sociale <span class="req">*</span></label>
