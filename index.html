@@ -695,21 +695,21 @@
         </div>
 
         <!-- CDS -->
-        <div class="service-card" onclick="window.open('https://www.edilcds.it/','_blank')">
+        <div class="service-card" onclick="showPage('cds')">
           <span class="sc-icon">💻</span>
           <div class="sc-title">CDS – Gestione Sicurezza sul Lavoro</div>
           <div class="sc-desc">Lo strumento intelligente per la gestione della sicurezza. Piattaforma a disposizione di imprese e lavoratori edili.</div>
           <span class="sc-tag anon">Servizio Formedil Nazionale</span>
-          <span class="sc-arrow">↗</span>
+          <span class="sc-arrow">→</span>
         </div>
 
         <!-- FORMEDIL MYAPP -->
-        <div class="service-card" onclick="window.open('https://app.formedil.it/','_blank')">
+        <div class="service-card" onclick="showPage('myapp')">
           <span class="sc-icon">📱</span>
           <div class="sc-title">Formedil MyApp</div>
           <div class="sc-desc">Il tuo percorso formativo sempre con te. Disponibile su App Store, Google Play e versione web.</div>
           <span class="sc-tag anon">Servizio Formedil Nazionale</span>
-          <span class="sc-arrow">↗</span>
+          <span class="sc-arrow">→</span>
         </div>
 
         <!-- ASSEVERAZIONE -->
@@ -2572,6 +2572,162 @@
       <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
     </div>
 
+    <!-- ════════════════════════════════
+         11. CDS – DIGITAL SERVICE
+    ════════════════════════════════ -->
+    <div class="page" id="page-cds">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap">
+        <img src="logo_cpt.jpg" alt="CDS – Digital Service"
+             style="width:110px;height:110px;object-fit:contain;flex-shrink:0">
+        <div class="form-header" style="flex:1;margin-bottom:0;border-bottom:3px solid #1e2d5e">
+          <h2 style="color:#1e2d5e">CDS – Digital Service</h2>
+          <p>Piattaforma tecnologica per la gestione della sicurezza sul lavoro nel settore edile</p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>Digital Service (CDS)</strong> è una piattaforma tecnologica gratuita progettata per semplificare la gestione della sicurezza sul lavoro nel settore edile. Il sistema permette alle imprese di monitorare le scadenze documentali e organizzare i dati relativi a personale, cantieri e attrezzature attraverso un'interfaccia intuitiva basata sul cloud. Tramite la dashboard, gli utenti ricevono avvisi immediati sui documenti in scadenza, facilitando la conformità alle normative vigenti. Il portale consente inoltre di richiedere direttamente servizi di consulenza tecnica e corsi di formazione obbligatoria agli enti territoriali competenti. Infine, la sezione amministrativa offre la possibilità di creare profili personalizzati per diverse figure professionali, promuovendo una collaborazione digitale efficiente tra tutti i soggetti coinvolti.
+      </div>
+
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Funzionalità principali</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">📋</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Monitoraggio scadenze</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Verifica automatica delle scadenze documentali con avvisi immediati.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">👥</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Gestione personale e cantieri</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Organizzazione dei dati relativi a personale, cantieri e attrezzature.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">📚</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Consulenza e formazione</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Richiesta di servizi di consulenza tecnica e corsi di formazione obbligatoria.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">⚙️</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Profili personalizzati</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Creazione di profili per diverse figure professionali.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#eaf3de;border:1px solid var(--green);border-radius:var(--radius);padding:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:14px;font-weight:600;color:#3b6d11;margin-bottom:6px">🌐 Accedi al servizio CDS</div>
+          <div style="font-size:12.5px;color:#3b6d11;line-height:1.6">
+            Accedi alla piattaforma Digital Service per gestire la sicurezza sul lavoro nel tuo cantiere.
+          </div>
+        </div>
+        <a href="https://www.edilcds.it/" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;background:#1e2d5e;color:#fff;
+                  font-family:'Barlow',sans-serif;font-size:13.5px;font-weight:700;
+                  padding:11px 22px;border-radius:6px;text-decoration:none;
+                  transition:opacity .15s;white-space:nowrap;flex-shrink:0"
+           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ➡ Accedi a CDS
+        </a>
+      </div>
+
+      <div class="page-footer"><a href="https://www.edilcds.it/" target="_blank">www.edilcds.it</a> · CDS – Digital Service Formedil</div>
+    </div>
+
+    <!-- ════════════════════════════════
+         12. FORMEDIL MYAPP
+    ════════════════════════════════ -->
+    <div class="page" id="page-myapp">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap">
+        <img src="logo_cpt.jpg" alt="Formedil MyApp"
+             style="width:110px;height:110px;object-fit:contain;flex-shrink:0">
+        <div class="form-header" style="flex:1;margin-bottom:0;border-bottom:3px solid #1e2d5e">
+          <h2 style="color:#1e2d5e">Formedil MyApp</h2>
+          <p>L'applicazione del Sistema Formedil per lavoratori, imprese e enti territoriali</p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>Formedil MyApp</strong> è l'applicazione del Sistema Formedil pensata per lavoratori, imprese e enti territoriali del settore delle costruzioni. Consente di avere sempre a disposizione il proprio libretto formativo digitale, consultare le competenze acquisite, le certificazioni e i percorsi svolti, oltre a ricevere notizie e aggiornamenti dal Formedil e dalle Scuole edili di riferimento. Attraverso l'app, le imprese possono verificare in modo semplice e immediato la formazione dei lavoratori, mentre gli utenti possono gestire il proprio profilo e rimanere informati sulle attività del sistema. Per l'attivazione e l'utilizzo dell'app, i lavoratori sono invitati a rivolgersi al proprio ente territoriale di riferimento, che fornirà le indicazioni operative e i codici necessari per l'associazione del profilo. Gli enti territoriali dispongono inoltre di una sezione dedicata per l'invio di notifiche, la gestione degli utenti e la pubblicazione delle notizie, integrate con i contenuti dei propri siti.
+      </div>
+
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Funzionalità principali</div>
+      <div style="background:#f9f8f5;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">📄</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Libretto formativo digitale</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Tieni sempre a disposizione il tuo libretto formativo e consultalo ovunque.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">🏆</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Competenze e certificazioni</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Consulta le competenze acquisite, le certificazioni e i percorsi formativi svolti.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">📰</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Notizie e aggiornamenti</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Ricevi notizie e aggiornamenti dal Formedil e dalle Scuole edili di riferimento.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">🏗️</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Verifica formazione imprese</div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.6">Le imprese possono verificare in modo semplice la formazione dei lavoratori.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Attivazione per i lavoratori</div>
+      <div style="background:#fef6e4;border:1px solid var(--orange);border-radius:var(--radius);padding:20px;margin-bottom:20px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px;flex-shrink:0">ℹ️</span>
+          <div style="font-size:12.5px;color:var(--text);line-height:1.6">
+            Per l'attivazione e l'utilizzo dell'app, i lavoratori sono invitati a rivolgersi al proprio ente territoriale di riferimento, che fornirà le indicazioni operative e i codici necessari per l'associazione del profilo.
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#eaf3de;border:1px solid var(--green);border-radius:var(--radius);padding:20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:14px;font-weight:600;color:#3b6d11;margin-bottom:6px">📲 Scarica l'app</div>
+          <div style="font-size:12.5px;color:#3b6d11;line-height:1.6">
+            Disponibile su App Store, Google Play e versione web.
+          </div>
+        </div>
+        <a href="https://app.formedil.it/" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;background:#1e2d5e;color:#fff;
+                  font-family:'Barlow',sans-serif;font-size:13.5px;font-weight:700;
+                  padding:11px 22px;border-radius:6px;text-decoration:none;
+                  transition:opacity .15s;white-space:nowrap;flex-shrink:0"
+           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+          ➡ Accedi a MyApp
+        </a>
+      </div>
+
+      <div class="page-footer"><a href="https://app.formedil.it/" target="_blank">app.formedil.it</a> · Formedil MyApp</div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /shell -->
 
@@ -2647,6 +2803,7 @@ const PAGE_TITLES = {
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
   asseverazione: ['Asseverazione', ''],
+  myapp: ['Formedil MyApp', ''],
 };
 
 function showPage(id) {
