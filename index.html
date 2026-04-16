@@ -430,6 +430,35 @@
       font-size: 12.5px; color: #2855a0; line-height: 1.6; margin: 12px 0;
     }
 
+    /* TEAM */
+    .team-section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 24px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .team-grid-dir { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .team-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .team-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(0,0,0,.13); }
+    .team-photo { width: 100%; aspect-ratio: 1; overflow: hidden; background: var(--light); }
+    .team-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .team-info { padding: 14px 14px 16px; }
+    .team-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .team-role { font-size: 12px; font-weight: 600; color: var(--orange); margin-bottom: 6px; }
+    .team-body { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .team-email { font-size: 11px; }
+    .team-email a { color: var(--gray); text-decoration: none; }
+    .team-email a:hover { color: var(--orange); }
+
     /* request cards */
     .request-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 4px; }
     .request-card {
@@ -544,6 +573,11 @@
       </a>
       <a class="nav-item" onclick="showPage('segnalazione')" href="#">
         <span class="ni-icon">📍</span> Segnala un Cantiere
+      </a>
+
+      <div class="nav-section-label">Chi Siamo</div>
+      <a class="nav-item" onclick="showPage('team')" href="#">
+        <span class="ni-icon">👥</span> Il Team
       </a>
 
       <div class="nav-section-label">Qualità</div>
@@ -709,6 +743,92 @@
         &nbsp;·&nbsp; Via Basilicata 10, 35127 Padova
         &nbsp;·&nbsp; Tel. 049 761168
         &nbsp;·&nbsp; <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         TEAM
+    ════════════════════════════════ -->
+    <div class="page" id="page-team">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>👥 Il Team</h2>
+        <p>Formedil Padova – Area Sicurezza e Salute</p>
+      </div>
+
+      <div class="team-section-label">Direzione</div>
+      <div class="team-grid team-grid-dir">
+        <div class="team-card">
+          <div class="team-photo"><img src="Andrea Pagnacco.jpg" alt="Andrea Pagnacco"></div>
+          <div class="team-info">
+            <div class="team-name">Andrea Pagnacco</div>
+            <div class="team-role">Direttore</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:direzione@formedilpadova.it">direzione@formedilpadova.it</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-section-label">Coordinamento e Segreteria</div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-photo"><img src="Paolo Balladore.jpg" alt="Paolo Balladore"></div>
+          <div class="team-info">
+            <div class="team-name">Paolo Balladore</div>
+            <div class="team-role">Coordinatore</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:paolo.balladore@did.scuolaedilepadova.net">paolo.balladore@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><img src="Renato Squizzato.jpg" alt="Renato Squizzato"></div>
+          <div class="team-info">
+            <div class="team-name">Renato Squizzato</div>
+            <div class="team-role">Segreteria</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-section-label">Tecnici</div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
+          <div class="team-info">
+            <div class="team-name">Nicola De Marco</div>
+            <div class="team-role">Tecnico</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:nicola.demarco@did.scuolaedilepadova.net">nicola.demarco@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><img src="Camuffo Marco.jpg" alt="Marco Camuffo"></div>
+          <div class="team-info">
+            <div class="team-name">Marco Camuffo</div>
+            <div class="team-role">Tecnico</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:marco.camuffo@did.scuolaedilepadova.net">marco.camuffo@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><img src="Canova Mirco 20241013-.jpg" alt="Mirco Canova"></div>
+          <div class="team-info">
+            <div class="team-name">Mirco Canova</div>
+            <div class="team-role">Tecnico</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:mirco.canova@did.scuolaedilepadova.net">mirco.canova@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><img src="Caon Franco.jpg" alt="Franco Caon"></div>
+          <div class="team-info">
+            <div class="team-name">Franco Caon</div>
+            <div class="team-role">Tecnico</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:franco.caon@did.scuolaedilepadova.net">franco.caon@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2422,6 +2542,7 @@ comuniSelects.forEach(id => {
 // ══════════════════════════════════════════════════════
 const PAGE_TITLES = {
   home: ['Area Sicurezza e Salute', ''],
+  team: ['Il Team', ''],
   rlst: ['Affidamento RLST', ''],
   rls:  ['Comunicazione RLS', ''],
   conferenza: ['Conferenza di Cantiere', ''],
