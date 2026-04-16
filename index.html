@@ -294,6 +294,13 @@
     .radio-opt input:focus, .check-opt input:focus { box-shadow: none; border: none; }
     .radio-opt span, .check-opt span { font-size: 13px; color: var(--text); line-height: 1.5; }
     .radio-opt.sel, .check-opt.sel { border-color: var(--orange); background: #fdf3ee; }
+    .check-children { display: none; margin-top: 6px; }
+    .check-children.open { display: block; }
+    .parent-check { font-weight: 600; }
+    .parent-check .arrow { display: inline-block; width: 14px; font-size: 10px; color: var(--muted); transition: transform .2s; }
+    .parent-check.open .arrow { transform: rotate(90deg); }
+    .sub-check { font-weight: 400; }
+    .subsub-check { font-weight: 400; padding-left: 8px; font-size: 12.5px; }
 
     /* scale */
     .scale-wrap { display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
@@ -1254,7 +1261,7 @@
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
         <h2>🏗️ Richiesta Conferenza di Cantiere</h2>
-        <p>Sopralluogo tecnico · Formazione · Informazione in cantiere</p>
+        <p>Sopralluogo tecnico · Informazione in cantiere</p>
       </div>
       <div class="info-box">
         Il servizio è <strong>completamente gratuito</strong> per le imprese iscritte alla <strong>CEIV</strong> in regola con i versamenti e previa autorizzazione della direzione.
@@ -1352,11 +1359,6 @@
               <input type="checkbox" value="Informazione in cantiere">
               <span class="rc-icon">📋</span>
               <div class="rc-label">Informazione<br>in cantiere</div>
-            </div>
-            <div class="request-card" data-value="Formazione in cantiere" onclick="toggleCard(this)">
-              <input type="checkbox" value="Formazione in cantiere">
-              <span class="rc-icon">🎓</span>
-              <div class="rc-label">Formazione<br>in cantiere</div>
             </div>
           </div>
           <div class="request-err" id="conf-requestErr">Selezionare almeno un tipo di richiesta.</div>
@@ -1711,12 +1713,107 @@
 
         <div class="section-title">Tipo di consulenza richiesta</div>
         <div class="check-group" id="cons-tipi">
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Consulenza Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)"><span>Consulenza "Salute e sicurezza sul lavoro"</span></label>
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Consulenza Sistemi di Gestione e Certificazioni" onchange="updateCheckSel(this)"><span>Consulenza Sistemi di Gestione e Certificazioni</span></label>
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Corsi Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)"><span>Corsi "Salute e sicurezza sul lavoro"</span></label>
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Consulenza Ambiente" onchange="updateCheckSel(this)"><span>Consulenza "Ambiente"</span></label>
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Misure strumentali Ambiente" onchange="updateCheckSel(this)"><span>Misure strumentali "Ambiente"</span></label>
-          <label class="check-opt"><input type="checkbox" name="cons_tipo" value="Misure strumentali Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)"><span>Misure strumentali "Salute e sicurezza sul lavoro"</span></label>
+
+          <!-- Consulenza Salute e sicurezza sul lavoro -->
+          <label class="check-opt parent-check" onclick="toggleChildren(this)">
+            <input type="checkbox" name="cons_tipo" value="Consulenza Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)">
+            <span><span class="arrow">▶</span> Consulenza "Salute e sicurezza sul lavoro"</span>
+          </label>
+          <div class="check-children" style="margin-left:24px;border-left:2px solid var(--border);padding-left:12px">
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Check-up adempimenti sicurezza sul lavoro" onchange="updateCheckSel(this)"><span>Check-up adempimenti sicurezza sul lavoro</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Valutazione dei rischi per la sicurezza sul lavoro e redazione dei relativi documenti" onchange="updateCheckSel(this)"><span>Valutazione dei rischi per la sicurezza sul lavoro e redazione dei relativi documenti</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Consulenza per la scelta dei Dispositivi di Protezione Individuale (DPI) e altro materiale antinfortunistico" onchange="updateCheckSel(this)"><span>Consulenza per la scelta dei Dispositivi di Protezione Individuale (DPI) e altro materiale antinfortunistico</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Assunzione del ruolo di RSPP" onchange="updateCheckSel(this)"><span>Assunzione del ruolo di RSPP (Responsabile del Servizio Prevenzione e Protezione)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Assunzione del ruolo di CSP" onchange="updateCheckSel(this)"><span>Assunzione del ruolo di CSP (Coordinatore per la Sicurezza in fase di Progettazione)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Assunzione del ruolo di CSE" onchange="updateCheckSel(this)"><span>Assunzione del ruolo di CSE (Coordinatore per la Sicurezza in fase di Esecuzione)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Redazione PSC" onchange="updateCheckSel(this)"><span>Redazione PSC (Piano di Sicurezza e Coordinamento)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Redazione POS" onchange="updateCheckSel(this)"><span>Redazione POS (Piano Operativo di Sicurezza)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Redazione piano antincendio" onchange="updateCheckSel(this)"><span>Redazione piano antincendio</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Consulenza per il rilascio del Certificato Prevenzione Incendi (C.P.I.)" onchange="updateCheckSel(this)"><span>Consulenza per il rilascio del Certificato Prevenzione Incendi (C.P.I.) da parte dei Vigili del Fuoco</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Statistiche su infortuni e malattie professionali" onchange="updateCheckSel(this)"><span>Statistiche su infortuni e malattie professionali</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Assistenza in caso di ispezioni e prescrizioni" onchange="updateCheckSel(this)"><span>Assistenza in caso di ispezioni e prescrizioni da parte degli Organi di Vigilanza</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Consulenza Sistemi di Gestione e Certificazioni" onchange="updateCheckSel(this)"><span>Consulenza Sistemi di Gestione e Certificazioni</span></label>
+            <div style="margin-left:20px;margin-top:4px">
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Qualità ISO 9000" onchange="updateCheckSel(this)"><span>Qualità ISO 9000</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Responsabilità Sociale SA 8000" onchange="updateCheckSel(this)"><span>Responsabilità Sociale SA 8000</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Sistemi gestione della sicurezza OHSAS 18000" onchange="updateCheckSel(this)"><span>Sistemi gestione della sicurezza OHSAS 18000</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Sistemi gestione della sicurezza UNI-INAIL-Regioni" onchange="updateCheckSel(this)"><span>Sistemi gestione della sicurezza UNI-INAIL-Regioni</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Sistemi di gestione ambientale ISO 14000" onchange="updateCheckSel(this)"><span>Sistemi di gestione ambientale ISO 14000</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_sg" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+            </div>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ssl" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+          </div>
+
+          <!-- Corsi Salute e sicurezza sul lavoro -->
+          <label class="check-opt parent-check" onclick="toggleChildren(this)">
+            <input type="checkbox" name="cons_tipo" value="Corsi Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)">
+            <span><span class="arrow">▶</span> Corsi "Salute e sicurezza sul lavoro"</span>
+          </label>
+          <div class="check-children" style="margin-left:24px;border-left:2px solid var(--border);padding-left:12px">
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per datori di lavoro che assumono in proprio il ruolo di RSPP" onchange="updateCheckSel(this)"><span>Corso per datori di lavoro che assumono in proprio il ruolo di RSPP</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per Rappresentanti dei Lavoratori per la Sicurezza (RLS)" onchange="updateCheckSel(this)"><span>Corso per Rappresentanti dei Lavoratori per la Sicurezza (RLS)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per Preposto" onchange="updateCheckSel(this)"><span>Corso per Preposto (addetto alla sorveglianza dei lavoratori)</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti antincendio ALTO" onchange="updateCheckSel(this)"><span>Corso per addetti antincendio ALTO</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti antincendio MEDIO" onchange="updateCheckSel(this)"><span>Corso per addetti antincendio MEDIO</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti antincendio BASSO" onchange="updateCheckSel(this)"><span>Corso per addetti antincendio BASSO</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti pronto soccorso aziende A" onchange="updateCheckSel(this)"><span>Corso per addetti pronto soccorso: aziende "A"</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti pronto soccorso aziende B-C" onchange="updateCheckSel(this)"><span>Corso per addetti pronto soccorso: aziende "B-C"</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti pronto soccorso corso completo" onchange="updateCheckSel(this)"><span>Corso per addetti pronto soccorso corso completo</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso per addetti pronto soccorso aggiornamento triennale" onchange="updateCheckSel(this)"><span>Corso per addetti pronto soccorso aggiornamento triennale</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Corso salute e sicurezza per tutti i lavoratori" onchange="updateCheckSel(this)"><span>Corso salute e sicurezza per tutti i lavoratori</span></label>
+            <div style="margin-left:20px;margin-top:4px">
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Diritti e doveri in materia di salute e sicurezza" onchange="updateCheckSel(this)"><span>diritti e doveri in materia di salute e sicurezza</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Rischi danni e prevenzione" onchange="updateCheckSel(this)"><span>rischi danni e prevenzione</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Rumore" onchange="updateCheckSel(this)"><span>rumore</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Vibrazioni" onchange="updateCheckSel(this)"><span>vibrazioni</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Rischio chimico" onchange="updateCheckSel(this)"><span>rischio chimico</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Videoterminali" onchange="updateCheckSel(this)"><span>videoterminali</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Carrelli elevatori" onchange="updateCheckSel(this)"><span>carrelli elevatori</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Gru" onchange="updateCheckSel(this)"><span>gru</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Movimentazione manuale dei carichi" onchange="updateCheckSel(this)"><span>movimentazione manuale dei carichi</span></label>
+              <label class="check-opt subsub-check"><input type="checkbox" name="cons_cor_lav" value="Tecnica della comunicazione per il ruolo partecipativo" onchange="updateCheckSel(this)"><span>tecnica della comunicazione per il ruolo partecipativo nella gestione della sicurezza</span></label>
+            </div>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_corsi" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+          </div>
+
+          <!-- Consulenza Ambiente -->
+          <label class="check-opt parent-check" onclick="toggleChildren(this)">
+            <input type="checkbox" name="cons_tipo" value="Consulenza Ambiente" onchange="updateCheckSel(this)">
+            <span><span class="arrow">▶</span> Consulenza "Ambiente"</span>
+          </label>
+          <div class="check-children" style="margin-left:24px;border-left:2px solid var(--border);padding-left:12px">
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_amb" value="Pratiche autorizzazione emissioni in atmosfera" onchange="updateCheckSel(this)"><span>Pratiche autorizzazione emissioni in atmosfera</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_amb" value="Pratiche autorizzazione scarichi idrici" onchange="updateCheckSel(this)"><span>Pratiche autorizzazione scarichi idrici</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_amb" value="Gestione pratiche rifiuti" onchange="updateCheckSel(this)"><span>Gestione pratiche rifiuti</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_amb" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+          </div>
+
+          <!-- Misure strumentali Ambiente -->
+          <label class="check-opt parent-check" onclick="toggleChildren(this)">
+            <input type="checkbox" name="cons_tipo" value="Misure strumentali Ambiente" onchange="updateCheckSel(this)">
+            <span><span class="arrow">▶</span> Misure strumentali "Ambiente"</span>
+          </label>
+          <div class="check-children" style="margin-left:24px;border-left:2px solid var(--border);padding-left:12px">
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_amb" value="Misura dell'impatto acustico" onchange="updateCheckSel(this)"><span>Misura dell'impatto acustico</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_amb" value="Misura dell'impatto elettromagnetico" onchange="updateCheckSel(this)"><span>Misura dell'impatto elettromagnetico</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_amb" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+          </div>
+
+          <!-- Misure strumentali Salute e sicurezza sul lavoro -->
+          <label class="check-opt parent-check" onclick="toggleChildren(this)">
+            <input type="checkbox" name="cons_tipo" value="Misure strumentali Salute e sicurezza sul lavoro" onchange="updateCheckSel(this)">
+            <span><span class="arrow">▶</span> Misure strumentali "Salute e sicurezza sul lavoro"</span>
+          </label>
+          <div class="check-children" style="margin-left:24px;border-left:2px solid var(--border);padding-left:12px">
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Rumore" onchange="updateCheckSel(this)"><span>Rumore</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Vibrazioni" onchange="updateCheckSel(this)"><span>Vibrazioni</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Illuminazione" onchange="updateCheckSel(this)"><span>Illuminazione</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Campi elettromagnetici" onchange="updateCheckSel(this)"><span>Campi elettromagnetici</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Microclima" onchange="updateCheckSel(this)"><span>Microclima</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Polveri" onchange="updateCheckSel(this)"><span>Polveri</span></label>
+            <label class="check-opt sub-check"><input type="checkbox" name="cons_ms_ssl" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
+          </div>
+
         </div>
 
         <div class="section-title">Note e/o altre richieste</div>
@@ -2671,6 +2768,14 @@ function toggleCard(card) {
   const cb = card.querySelector('input[type=checkbox]');
   if (cb) cb.checked = card.classList.contains('selected');
   calcProgressForm('conf');
+}
+
+function toggleChildren(label) {
+  const children = label.nextElementSibling;
+  if (children && children.classList.contains('check-children')) {
+    children.classList.toggle('open');
+    label.classList.toggle('open');
+  }
 }
 
 // ══════════════════════════════════════════════════════
