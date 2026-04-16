@@ -154,24 +154,9 @@
     .page.active { display: block; }
 
     /* ── HOMEPAGE ── */
-    /* sfondo verde Formedil per la pagina home con bagliore arancio */
     #page-home {
-      background: linear-gradient(135deg, #95C22F 0%, #7aa52a 50%, #5c8a1a 100%);
+      background: var(--white);
       min-height: calc(100vh - 56px); padding: 0 0 48px; max-width: 100%;
-      position: relative;
-    }
-    #page-home::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(ellipse at 30% 70%, rgba(231,80,15,0.2) 0%, transparent 50%),
-                  radial-gradient(ellipse at 70% 30%, rgba(249,115,22,0.15) 0%, transparent 45%);
-      pointer-events: none;
-      animation: glowPulse 8s ease-in-out infinite;
-    }
-    @keyframes glowPulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
     }
 
     .home-hero {
@@ -179,14 +164,6 @@
       overflow: hidden;
       display: block;
       margin-bottom: 0;
-      position: relative;
-    }
-    .home-hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(149, 194, 47, 0.38);
-      pointer-events: none;
     }
     .home-hero img {
       width: 100%;
@@ -213,7 +190,7 @@
 
     .service-card {
       background: var(--white); border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.3);
+      border: 1px solid var(--border);
       padding: 20px; cursor: pointer;
       transition: all .2s; position: relative;
       box-shadow: 0 2px 8px rgba(0,0,0,.12);
@@ -494,14 +471,14 @@
     }
     .page-footer a { color: var(--orange); text-decoration: none; }
     #page-home .page-footer {
-      background: var(--green);
-      border-top: none;
-      color: rgba(255,255,255,.75);
+      background: transparent;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
       padding: 14px 32px;
       max-width: 100%;
       margin-top: 24px;
     }
-    #page-home .page-footer a { color: rgba(255,255,255,.9); }
+    #page-home .page-footer a { color: var(--orange); }
 
     /* ═══════════════════════════════════════════
        MOBILE OVERLAY
