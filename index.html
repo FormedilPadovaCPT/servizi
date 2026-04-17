@@ -3142,18 +3142,21 @@ async function submitForm(formId, prefix, buildPayload) {
     payload.timestamp   = new Date().toISOString();
     payload.privacy     = 'Sì – autorizzo il trattamento dei dati personali';
 
-    const resp = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload) });
-    const data = await resp.json();
+    const resp = await fetch(GAS_URL, { 
+      method: 'POST', 
+      mode: 'no-cors',
+      body: JSON.stringify(payload) 
+    });
 
-    if (data.status === 'ok') {
-      okBox.style.display = 'block';
-      btn.textContent = '✓ Inviata';
-      const fill = document.getElementById(prefix + '-progFill');
-      const lbl  = document.getElementById(prefix + '-progLabel');
-      if (fill) fill.style.width = '100%';
-      if (lbl)  lbl.textContent  = 'Compilazione: 100%';
-      okBox.scrollIntoView({ behavior:'smooth' });
-    } else throw new Error(data.message || 'Errore');
+    // Con 'no-cors' la risposta è opaca, quindi non possiamo estrarre data.status
+    // Diamo per confermato che l'invio sia andato a buon fine se non lancia eccezioni
+    okBox.style.display = 'block';
+    btn.textContent = '✓ Inviata';
+    const fill = document.getElementById(prefix + '-progFill');
+    const lbl  = document.getElementById(prefix + '-progLabel');
+    if (fill) fill.style.width = '100%';
+    if (lbl)  lbl.textContent  = 'Compilazione: 100%';
+    okBox.scrollIntoView({ behavior:'smooth' });
   } catch (err) {
     console.error(err);
     errBox.style.display = 'block';
@@ -3293,3 +3296,5 @@ document.getElementById('topbarTitle').style.display = 'none';
 </script>
 </body>
 </html>
+
+
