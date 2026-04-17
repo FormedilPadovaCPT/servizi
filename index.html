@@ -588,6 +588,14 @@
           </svg>
         </span> Asseverazione
       </a>
+
+      <div class="nav-section-label">Applicativi Formedil</div>
+      <a class="nav-item" onclick="showPage('cds')" href="#">
+        <span class="ni-icon">💻</span> CDS
+      </a>
+      <a class="nav-item" onclick="showPage('myapp')" href="#">
+        <span class="ni-icon">📱</span> Formedil MyApp
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -631,7 +639,16 @@
       <div class="services-grid-wrap">
       <div class="services-grid">
         <div class="service-card" onclick="showPage('rlst')">
-          <span class="sc-icon">🛡️</span>
+          <span class="sc-icon">
+            <svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 14C3 9.58172 6.58172 6 11 6H15C19.4183 6 23 9.58172 23 14V16H3V14Z" stroke="#E7500F" stroke-width="2" fill="none"/>
+              <path d="M1 16H25" stroke="#E7500F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3 16V20H9V16" stroke="#E7500F" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M17 16V20H23V16" stroke="#E7500F" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M9 10H17" stroke="#E7500F" stroke-width="1.5" stroke-linecap="round"/>
+              <text x="13" y="13" text-anchor="middle" font-size="4.5" font-weight="900" fill="#E7500F" font-family="Barlow, sans-serif">RLST</text>
+            </svg>
+          </span>
           <div class="sc-title">Affidamento RLST</div>
           <div class="sc-desc">Richiesta di affidamento al Rappresentante dei Lavoratori per la Sicurezza Territoriale.</div>
           <span class="sc-tag free">Gratuito CEIV</span>
@@ -680,7 +697,13 @@
           <span class="sc-arrow">→</span>
         </div>
         <div class="service-card" onclick="showPage('segnalazione')">
-          <span class="sc-icon">📍</span>
+          <span class="sc-icon">
+            <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 19H21L11 1L1 19Z" stroke="#E7500F" stroke-width="2" stroke-linejoin="round" fill="none"/>
+              <path d="M11 8V12" stroke="#E7500F" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="11" cy="15" r="1" fill="#E7500F"/>
+            </svg>
+          </span>
           <div class="sc-title">Segnala un Cantiere</div>
           <div class="sc-desc">Segnalazione anonima o nominativa di un cantiere a Formedil Padova.</div>
           <span class="sc-tag anon">Anche anonima</span>
@@ -714,11 +737,8 @@
 
         <!-- ASSEVERAZIONE -->
         <div class="service-card" onclick="showPage('asseverazione')">
-          <span class="sc-icon">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#1e2d5e"/>
-              <path d="M9 16.5L13.5 21L23 11" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <span class="sc-icon" style="display:flex;align-items:center;justify-content:center">
+            <img src="logo_asseverazione_cpt.jpg" alt="Asseverazione" style="width:34px;height:34px;object-fit:contain;border-radius:4px">
           </span>
           <div class="sc-title">Asseverazione</div>
           <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
@@ -2579,7 +2599,7 @@
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
 
       <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap">
-        <img src="logo_cpt.jpg" alt="CDS – Digital Service"
+        <img src="CDS.jpg" alt="CDS – Digital Service"
              style="width:110px;height:110px;object-fit:contain;flex-shrink:0">
         <div class="form-header" style="flex:1;margin-bottom:0;border-bottom:3px solid #1e2d5e">
           <h2 style="color:#1e2d5e">CDS – Digital Service</h2>
@@ -2652,7 +2672,7 @@
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
 
       <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap">
-        <img src="logo_cpt.jpg" alt="Formedil MyApp"
+        <img src="FormedilMyApp.jpg" alt="Formedil MyApp"
              style="width:110px;height:110px;object-fit:contain;flex-shrink:0">
         <div class="form-header" style="flex:1;margin-bottom:0;border-bottom:3px solid #1e2d5e">
           <h2 style="color:#1e2d5e">Formedil MyApp</h2>
@@ -2661,7 +2681,7 @@
       </div>
 
       <div class="info-box">
-        <strong>Formedil MyApp</strong> è l'applicazione del Sistema Formedil pensata per lavoratori, imprese e enti territoriali del settore delle costruzioni. Consente di avere sempre a disposizione il proprio libretto formativo digitale, consultare le competenze acquisite, le certificazioni e i percorsi svolti, oltre a ricevere notizie e aggiornamenti dal Formedil e dalle Scuole edili di riferimento. Attraverso l'app, le imprese possono verificare in modo semplice e immediato la formazione dei lavoratori, mentre gli utenti possono gestire il proprio profilo e rimanere informati sulle attività del sistema. Per l'attivazione e l'utilizzo dell'app, i lavoratori sono invitati a rivolgersi al proprio ente territoriale di riferimento, che fornirà le indicazioni operative e i codici necessari per l'associazione del profilo. Gli enti territoriali dispongono inoltre di una sezione dedicata per l'invio di notifiche, la gestione degli utenti e la pubblicazione delle notizie, integrate con i contenuti dei propri siti.
+        <strong>Formedil MyApp</strong> è l'applicazione del Sistema Formedil pensata per lavoratori, imprese e enti territoriali del settore delle costruzioni. Consente di avere sempre a disposizione il proprio libretto formativo digitale, consultare le competenze acquisite, le certificazioni e i percorsi svolti, oltre a ricevere notizie e aggiornamenti dal Formedil e dalle Scuole edili di riferimento. Attraverso l'app, le imprese possono verificare in modo semplice e immediato la formazione dei lavoratori, mentre gli utenti possono gestire il proprio profilo e rimanere informati sulle attività del sistema.
       </div>
 
       <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Funzionalità principali</div>
@@ -2694,16 +2714,6 @@
               <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">Verifica formazione imprese</div>
               <div style="font-size:12px;color:var(--muted);line-height:1.6">Le imprese possono verificare in modo semplice la formazione dei lavoratori.</div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title" style="color:#1e2d5e;border-color:#1e2d5e20">Attivazione per i lavoratori</div>
-      <div style="background:#fef6e4;border:1px solid var(--orange);border-radius:var(--radius);padding:20px;margin-bottom:20px">
-        <div style="display:flex;gap:10px;align-items:flex-start">
-          <span style="font-size:18px;flex-shrink:0">ℹ️</span>
-          <div style="font-size:12.5px;color:var(--text);line-height:1.6">
-            Per l'attivazione e l'utilizzo dell'app, i lavoratori sono invitati a rivolgersi al proprio ente territoriale di riferimento, che fornirà le indicazioni operative e i codici necessari per l'associazione del profilo.
           </div>
         </div>
       </div>
@@ -2803,6 +2813,7 @@ const PAGE_TITLES = {
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
   asseverazione: ['Asseverazione', ''],
+  cds: ['CDS – Digital Service', ''],
   myapp: ['Formedil MyApp', ''],
 };
 
