@@ -3158,9 +3158,10 @@ async function submitForm(formId, prefix, buildPayload) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const data = await resp.json();
+    const data = await resp.json().catch(() => null);
+    console.log('GAS response:', resp.status, data);
 
-    if (data.status === 'ok') {
+    if (data && data.status === 'ok') {
       okBox.style.display = 'block';
       btn.textContent = '✓ Inviata';
       const fill = document.getElementById(prefix + '-progFill');
@@ -3168,7 +3169,12 @@ async function submitForm(formId, prefix, buildPayload) {
       if (fill) fill.style.width = '100%';
       if (lbl)  lbl.textContent  = 'Compilazione: 100%';
       okBox.scrollIntoView({ behavior:'smooth' });
-    } else throw new Error(data.message || 'Errore');
+    } else {
+      console.error('GAS error:', data && data.message ? data.message : 'HTTP ' + resp.status);
+      errBox.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Riprova';
+    }
   } catch (err) {
     console.error(err);
     errBox.style.display = 'block';
