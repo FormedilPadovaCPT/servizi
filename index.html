@@ -3155,26 +3155,19 @@ async function submitForm(formId, prefix, buildPayload) {
 
     const resp = await fetch(GAS_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const data = await resp.json().catch(() => null);
-    console.log('GAS response:', resp.status, data);
-
-    if (data && data.status === 'ok') {
-      okBox.style.display = 'block';
-      btn.textContent = '✓ Inviata';
-      const fill = document.getElementById(prefix + '-progFill');
-      const lbl  = document.getElementById(prefix + '-progLabel');
-      if (fill) fill.style.width = '100%';
-      if (lbl)  lbl.textContent  = 'Compilazione: 100%';
-      okBox.scrollIntoView({ behavior:'smooth' });
-    } else {
-      console.error('GAS error:', data && data.message ? data.message : 'HTTP ' + resp.status);
-      errBox.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Riprova';
-    }
+    // Con no-cors non possiamo leggere la risposta (risposta opaca), quindi consideriamo ok se fetch non ha lanciato
+    console.log('GAS fetch completed, status:', resp.status, resp.type);
+    okBox.style.display = 'block';
+    btn.textContent = '✓ Inviata';
+    const fill = document.getElementById(prefix + '-progFill');
+    const lbl  = document.getElementById(prefix + '-progLabel');
+    if (fill) fill.style.width = '100%';
+    if (lbl)  lbl.textContent  = 'Compilazione: 100%';
+    okBox.scrollIntoView({ behavior:'smooth' });
   } catch (err) {
     console.error(err);
     errBox.style.display = 'block';
