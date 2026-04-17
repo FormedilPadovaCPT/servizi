@@ -1014,7 +1014,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-rlst','rlst')">Cancella</button>
-          <button type="submit" class="btn-send" id="rlst-btnSend" disabled>Invia richiesta</button>
+          <button type="submit" class="btn-send" id="rlst-btnSend">Invia richiesta</button>
         </div>
         <div class="error-banner" id="rlst-error">Errore durante l'invio. Riprova o contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="rlst-success">
@@ -1252,7 +1252,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-rls','rls')">Cancella</button>
-          <button type="submit" class="btn-send" id="rls-btnSend" disabled>Invia comunicazione</button>
+          <button type="submit" class="btn-send" id="rls-btnSend">Invia comunicazione</button>
         </div>
         <div class="error-banner" id="rls-error">Errore durante l'invio. Riprova o contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="rls-success">
@@ -1419,7 +1419,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-conferenza','conf')">Cancella</button>
-          <button type="submit" class="btn-send" id="conf-btnSend" disabled>Invia richiesta</button>
+          <button type="submit" class="btn-send" id="conf-btnSend">Invia richiesta</button>
         </div>
         <div class="error-banner" id="conf-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="conf-success">
@@ -1595,7 +1595,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-visita','vis')">Cancella</button>
-          <button type="submit" class="btn-send" id="vis-btnSend" disabled>Invia richiesta</button>
+          <button type="submit" class="btn-send" id="vis-btnSend">Invia richiesta</button>
         </div>
         <div class="error-banner" id="vis-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="vis-success">
@@ -1839,7 +1839,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-consulenza','cons')">Cancella</button>
-          <button type="submit" class="btn-send" id="cons-btnSend" disabled>Invia richiesta</button>
+          <button type="submit" class="btn-send" id="cons-btnSend">Invia richiesta</button>
         </div>
         <div class="error-banner" id="cons-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="cons-success">
@@ -1994,7 +1994,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-attestazione','att')">Cancella</button>
-          <button type="submit" class="btn-send" id="att-btnSend" disabled>Invia richiesta</button>
+          <button type="submit" class="btn-send" id="att-btnSend">Invia richiesta</button>
         </div>
         <div class="error-banner" id="att-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="att-success">
@@ -2205,7 +2205,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-notifica','not')">Cancella</button>
-          <button type="submit" class="btn-send" id="not-btnSend" disabled>Invia notifica</button>
+          <button type="submit" class="btn-send" id="not-btnSend">Invia notifica</button>
         </div>
         <div class="error-banner" id="not-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="not-success">
@@ -2299,7 +2299,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-segnalazione','seg')">Cancella</button>
-          <button type="submit" class="btn-send" id="seg-btnSend" disabled>Invia segnalazione</button>
+          <button type="submit" class="btn-send" id="seg-btnSend">Invia segnalazione</button>
         </div>
         <div class="error-banner" id="seg-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="seg-success">
@@ -2493,7 +2493,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn-reset" onclick="resetForm('form-questionario','qst')">Cancella</button>
-          <button type="submit" class="btn-send" id="qst-btnSend" disabled>Invia questionario</button>
+          <button type="submit" class="btn-send" id="qst-btnSend">Invia questionario</button>
         </div>
         <div class="error-banner" id="qst-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="qst-success">
@@ -2894,7 +2894,6 @@ function calcProgressForm(prefix) {
   const pct = total > 0 ? Math.round(n / total * 100) : 0;
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = 'Compilazione: ' + pct + '%';
-  if (btn)   btn.disabled = !(privCb && privCb.checked);
 }
 
 // Attach listeners to all forms
@@ -3114,8 +3113,8 @@ async function submitForm(formId, prefix, buildPayload) {
   reqRadios.forEach(name => {
     if (!form.querySelector(`input[type=radio][name="${name}"]:checked`)) ok = false;
   });
-  // Checkbox required (non privacy)
-  form.querySelectorAll('input[type=checkbox][required]:not([name=privacy])').forEach(cb => {
+  // Checkbox required
+  form.querySelectorAll('input[type=checkbox][required]').forEach(cb => {
     if (!cb.checked) ok = false;
   });
   // Card selection (conferenza)
@@ -3128,7 +3127,11 @@ async function submitForm(formId, prefix, buildPayload) {
 
   if (!ok) {
     const first = form.querySelector('.err');
-    if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
+    if (first) {
+      first.scrollIntoView({ behavior:'smooth', block:'center' });
+    } else {
+      alert("Per favore, compila tutti i campi obbligatori prima di inviare (inclusi i campi a selezione multipla/singola).");
+    }
     return;
   }
 
@@ -3296,5 +3299,6 @@ document.getElementById('topbarTitle').style.display = 'none';
 </script>
 </body>
 </html>
+
 
 
