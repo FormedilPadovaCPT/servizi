@@ -25,6 +25,42 @@
 
     html { scroll-behavior: smooth; }
 
+    /* ── Splash Screen ── */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      transition: opacity 0.7s ease;
+    }
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #splash img {
+      width: 120px;
+      height: auto;
+    }
+    #splash .tagline {
+      font-size: 1.05rem;
+      color: var(--orange);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-align: center;
+      line-height: 1.4;
+    }
+    #splash .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 300px;
+    }
+
     body {
       font-family: 'Barlow', sans-serif;
       background: var(--bg);
@@ -537,6 +573,19 @@
   </style>
 </head>
 <body>
+
+<div id="splash">
+  <img src="foto/Logo_Formedil_pd_piccolo.png" alt="Formedil Padova">
+  <div class="tagline">Formedil Padova</div>
+  <div class="sub">Sempre al servizio di lavoratori e imprese edili<br>nella provincia di Padova</div>
+</div>
+<script>
+(function () {
+  var s = document.getElementById('splash');
+  setTimeout(function () { s.classList.add('hidden'); }, 2200);
+  setTimeout(function () { s.style.display = 'none'; }, 3000);
+})();
+</script>
 
 <div class="shell">
 
