@@ -635,6 +635,11 @@
         <span class="ni-icon">⭐</span> Valutazione Sopralluogo
       </a>
 
+      <div class="nav-section-label">Formazione</div>
+      <a class="nav-item" onclick="showPage('cor')" href="#">
+        <span class="ni-icon">📚</span> Avvio Corsi Art.37
+      </a>
+
       <div class="nav-section-label">MOG</div>
       <a class="nav-item" onclick="showPage('asseverazione')" href="#">
         <span class="ni-icon">
@@ -789,6 +794,15 @@
           </span>
           <div class="sc-title">Asseverazione</div>
           <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
+          <span class="sc-tag" style="background:#1e2d5e;color:#fff">Riservato imprese CEIV</span>
+          <span class="sc-arrow">→</span>
+        </div>
+
+        <!-- AVVIO CORSI ART.37 -->
+        <div class="service-card" onclick="showPage('cor')">
+          <span class="sc-icon">📚</span>
+          <div class="sc-title">Avvio Corsi Art.37</div>
+          <div class="sc-desc">Richiesta di collaborazione con Formedil Padova per la formazione dei lavoratori (art. 37 comma 12 D.Lgs. 81/08).</div>
           <span class="sc-tag" style="background:#1e2d5e;color:#fff">Riservato imprese CEIV</span>
           <span class="sc-arrow">→</span>
         </div>
@@ -2572,7 +2586,157 @@
     </div>
 
     <!-- ════════════════════════════════
-         10. ASSEVERAZIONE
+         10. AVVIO CORSI ART.37
+    ════════════════════════════════ -->
+    <div class="page" id="page-cor">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>📚 Avvio Corsi di Formazione – Art.37 comma 12</h2>
+        <p>Richiesta di collaborazione con Formedil Padova per la formazione dei lavoratori (art. 37 comma 12 D.Lgs. 81/08)</p>
+      </div>
+      <div class="info-box">
+        Il servizio è <strong>gratuito</strong> per le imprese iscritte alla Cassa Edile di Padova (CEIV).<br>
+        La richiesta deve essere inviata almeno <strong>15 giorni prima</strong> dell'inizio del corso.
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-label" id="cor-progLabel">Compilazione: 0%</div>
+        <div class="prog-bar"><div class="prog-fill" id="cor-progFill"></div></div>
+      </div>
+      <form id="form-cor" novalidate>
+
+        <div class="section-title">Dati impresa</div>
+        <div class="grid-3">
+          <div class="field">
+            <label for="cor-rag_soc">Ragione sociale <span class="req">*</span></label>
+            <input type="text" id="cor-rag_soc" name="ragione_sociale" placeholder="Denominazione impresa" required>
+          </div>
+          <div class="field">
+            <label for="cor-codice">Codice CEIV <span class="req">*</span></label>
+            <input type="text" id="cor-codice" name="codice_ceiv" placeholder="es. PD-000123" required>
+          </div>
+          <div class="field">
+            <label for="cor-piva">Partita IVA <span class="req">*</span></label>
+            <input type="text" id="cor-piva" name="piva" placeholder="00000000000" required>
+          </div>
+          <div class="field">
+            <label for="cor-cf">Codice fiscale <span class="req">*</span></label>
+            <input type="text" id="cor-cf" name="cf_impresa" placeholder="CF impresa" maxlength="16" style="text-transform:uppercase" required>
+          </div>
+          <div class="field">
+            <label for="cor-tel">Telefono <span class="req">*</span></label>
+            <input type="tel" id="cor-tel" name="telefono" placeholder="049 / 333 0000000" required>
+          </div>
+          <div class="field">
+            <label for="cor-cell">Cellulare</label>
+            <input type="tel" id="cor-cell" name="cellulare" placeholder="333 0000000">
+          </div>
+          <div class="field col-full">
+            <label for="cor-email">E-mail <span class="req">*</span></label>
+            <input type="email" id="cor-email" name="email" placeholder="nome@impresa.it" required>
+          </div>
+          <div class="field">
+            <label for="cor-ind-leg">Indirizzo sede legale <span class="req">*</span></label>
+            <input type="text" id="cor-ind-leg" name="indirizzo_legale" placeholder="Via / Piazza, numero civico" required>
+          </div>
+          <div class="field">
+            <label for="cor-com-leg">Comune sede legale <span class="req">*</span></label>
+            <select id="cor-com-leg" name="comune_legale" required>
+              <option value="">— seleziona comune —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title">Responsabile del progetto formativo</div>
+        <div class="grid-3">
+          <div class="field">
+            <label for="cor-resp-nome">Nome <span class="req">*</span></label>
+            <input type="text" id="cor-resp-nome" name="resp_corso" placeholder="Nome" required>
+          </div>
+          <div class="field">
+            <label for="cor-resp-ruolo">Ruolo <span class="req">*</span></label>
+            <input type="text" id="cor-resp-ruolo" name="ruolo_resp_corso" placeholder="es. Datore di lavoro, RSPP, Funzione aziendale..." required>
+          </div>
+        </div>
+
+        <div class="section-title">Docenti</div>
+        <div class="grid-2">
+          <div class="field col-full">
+            <label for="cor-docenti">Nomi e cognomi dei docenti <span class="req">*</span></label>
+            <textarea id="cor-docenti" name="docenti_nomi" placeholder="Elencare nome e cognome di ogni docente" rows="2" required></textarea>
+          </div>
+          <div class="field col-full">
+            <label for="cor-cv">Note su curriculum docenti</label>
+            <textarea id="cor-cv" name="docenti_cv" placeholder="Breve descrizione dei requisiti normativi dei docenti (o riferimento a documentazione già in possesso di Formedil)" rows="2"></textarea>
+          </div>
+        </div>
+
+        <div class="section-title">Partecipanti al corso</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="cor-num-par">Numero partecipanti (max 35) <span class="req">*</span></label>
+            <input type="number" id="cor-num-par" name="num_partecipanti" placeholder="es. 20" min="1" max="35" required>
+          </div>
+          <div class="field col-full">
+            <label for="cor-mansioni">Mansioni dei partecipanti <span class="req">*</span></label>
+            <input type="text" id="cor-mansioni" name="mansioni_partecipanti" placeholder="es. Operai edili, autisti, ponteggiatori..." required>
+          </div>
+        </div>
+
+        <div class="section-title">Dettagli del corso</div>
+        <div class="grid-2">
+          <div class="field col-full">
+            <label for="cor-sede">Sede di svolgimento <span class="req">*</span></label>
+            <input type="text" id="cor-sede" name="sede_corso" placeholder="Indirizzo completo della sede del corso" required>
+          </div>
+          <div class="field">
+            <label for="cor-data-inizio">Data inizio corso <span class="req">*</span></label>
+            <input type="date" id="cor-data-inizio" name="data_inizio_corso" required>
+          </div>
+          <div class="field">
+            <label for="cor-data-fine">Data fine corso <span class="req">*</span></label>
+            <input type="date" id="cor-data-fine" name="data_fine_corso" required>
+          </div>
+          <div class="field">
+            <label for="cor-durata">Durata del corso (ore) <span class="req">*</span></label>
+            <input type="text" id="cor-durata" name="durata_corso" placeholder="es. 16 ore" required>
+          </div>
+          <div class="field">
+            <label for="cor-modalita">Modalità didattiche <span class="req">*</span></label>
+            <input type="text" id="cor-modalita" name="modalita_didattiche" placeholder="es. Lezioni frontali, esercitazioni pratiche, e-learning..." required>
+          </div>
+          <div class="field col-full">
+            <label for="cor-programma">Programma dettagliato del corso <span class="req">*</span></label>
+            <textarea id="cor-programma" name="programma_corso" placeholder="Descrivere il programma incluse le modalità didattiche previste" rows="3" required></textarea>
+          </div>
+        </div>
+
+        <div class="section-title">Note aggiuntive</div>
+        <div class="field col-full">
+          <label for="cor-note">Note o comunicazioni</label>
+          <textarea id="cor-note" name="note" placeholder="Ulteriori informazioni utili..."></textarea>
+        </div>
+
+        <div class="privacy-box">
+          <input type="checkbox" id="cor-privacy" name="privacy" required>
+          <p><strong>Informativa privacy – D.Lgs. 196/2003 e GDPR (Reg. UE 2016/679)</strong><br>
+          Con l'invio autorizzo il trattamento dei dati personali da parte di <strong>Formedil Padova</strong> per le finalità connesse alla richiesta di collaborazione per la formazione.</p>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-reset" onclick="resetForm('form-cor','cor')">Cancella</button>
+          <button type="submit" class="btn-send" id="cor-btnSend" disabled>Invia richiesta</button>
+        </div>
+        <div class="error-banner" id="cor-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
+        <div class="success-banner" id="cor-success">
+          <h2>✓ Richiesta inviata</h2>
+          <p>Formedil Padova ha ricevuto la richiesta. Riceverete risposta entro 15 giorni con numero di protocollo.</p>
+          <button class="btn-new" onclick="showPage('home')">Torna alla home</button>
+        </div>
+      </form>
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
+    </div>
+
+    <!-- ════════════════════════════════
+         11. ASSEVERAZIONE
     ════════════════════════════════ -->
     <div class="page" id="page-asseverazione">
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
@@ -2875,6 +3039,7 @@ const PAGE_TITLES = {
   notifica: ['Notifica Cantiere', ''],
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
+  cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
   myapp: ['Formedil MyApp', ''],
@@ -2922,7 +3087,7 @@ function closeSidebar() {
 // ══════════════════════════════════════════════════════
 //  PROGRESS BAR GENERICA
 // ══════════════════════════════════════════════════════
-const FORM_PREFIXES = ['rlst','rls','conf','vis','cons','att','not','seg','qst'];
+const FORM_PREFIXES = ['rlst','rls','conf','vis','cons','att','not','seg','qst','cor'];
 
 function calcProgressForm(prefix) {
   const form = document.getElementById('form-' + (prefix === 'conf' ? 'conferenza' :
@@ -3346,6 +3511,15 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
     });
     // Scale values
     Object.keys(scaleValues).forEach(k => { f['scala_' + k] = scaleValues[k]; });
+    return f;
+  });
+});
+
+// 10. AVVIO CORSI ART.37
+document.getElementById('form-cor').addEventListener('submit', e => {
+  e.preventDefault();
+  submitForm('form-cor', 'cor', async form => {
+    const f = collectFields(form);
     return f;
   });
 });
