@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Test - Formedil Padova</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1e2d5e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Formedil PD">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1e2d5e; font-size: 24px; }
+    h2 { color: #333; font-size: 18px; margin-top: 0; }
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .status.ok { background: #e8f5e9; color: #2e7d32; }
+    .status.error { background: #ffebee; color: #c62828; }
+    .status.pending { background: #fff3e0; color: #ef6c00; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin-bottom: 8px; color: #555; }
+    code { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+    .btn {
+      display: inline-block;
+      background: #1e2d5e;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+    #installBanner {
+      display: none;
+      background: #1e2d5e;
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    #installBanner button {
+      background: white;
+      color: #1e2d5e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔧 PWA Test - Formedil Padova</h1>
+
+  <div id="installBanner">
+    <span>App disponibile per l'installazione!</span>
+    <button id="installBtn">Installa</button>
+    <button id="dismissBtn">Ignora</button>
+  </div>
+
+  <div class="card">
+    <h2>Stato Service Worker</h2>
+    <p>Stato: <span id="swStatus" class="status pending">In attesa...</span></p>
+    <p>Registrato: <span id="swScope">-</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Stato Installazione</h2>
+    <p>Installabile: <span id="isInstallable" class="status pending">Verificando...</span></p>
+    <p>Installato: <span id="isInstalled" class="status pending">Verificando...</span></p>
+  </div>
+
+  <div class="card">
+    <h2>Funzionalità</h2>
+    <ul>
+      <li>Service Worker: <span id="hasSW">-</span></li>
+      <li>Manifest: <span id="hasManifest">-</span></li>
+      <li>Cache API: <span id="hasCache">-</span></li>
+      <li>Web App Manifest: <span id="hasWAP">-</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Prossimi passi</h2>
+    <ul>
+      <li>Copia i file <code>PWA/</code> sul server (o GitHub Pages)</li>
+      <li>Crea le icone nella cartella <code>PWA/icons/</code></li>
+      <li>Integra in <code>index.html</code> principale</li>
+      <li>Apri su Chrome mobile e usa "Aggiungi alla schermata Home"</li>
+    </ul>
+    <a href="index.html" class="btn">← Torna al portale</a>
+  </div>
+
+  <script src="pwacompat.js"></script>
+  <script>
+    // Display features
+    document.getElementById('hasSW').textContent = 'serviceWorker' in navigator ? '✅' : '❌';
+    document.getElementById('hasManifest').textContent = 'manifest' in document.createElement('link') ? '✅' : '❌';
+    document.getElementById('hasCache').textContent = 'caches' in window ? '✅' : '❌';
+    document.getElementById('hasWAP').textContent = window.matchMedia('(display-mode: standalone)').matches ? '✅' : '❌';
+
+    // Check installability
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('isInstalled').textContent = '✅ Installata';
+      document.getElementById('isInstalled').className = 'status ok';
+    }
+
+    // Install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('isInstallable').textContent = '✅ Disponibile';
+      document.getElementById('isInstallable').className = 'status ok';
+      document.getElementById('installBanner').style.display = 'block';
+    });
+
+    document.getElementById('installBtn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install outcome:', outcome);
+        deferredPrompt = null;
+      }
+    });
+
+    document.getElementById('dismissBtn').addEventListener('click', () => {
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
