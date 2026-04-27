@@ -33,7 +33,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean old caches
+// Activate event - clean old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -44,6 +44,13 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
+});
+
+// Handle messages from the main thread
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
 // Fetch event - serve from cache, fallback to network
@@ -111,15 +118,4 @@ self.addEventListener('fetch', (event) => {
       return cachedResponse || fetch(request);
     })
   );
-});
-
-// Handle offline page navigation
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('/servizi/index.html');
-      })
-    );
-  }
 });
