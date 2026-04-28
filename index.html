@@ -292,6 +292,7 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 14px; align-items: start; }
     .col-full { grid-column: 1 / -1; }
 
     .field { display: flex; flex-direction: column; gap: 5px; }
@@ -561,7 +562,7 @@
       .page { padding: 20px 16px 40px; }
       .topbar { padding: 0 16px; }
       .services-grid { grid-template-columns: 1fr 1fr; }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .col-full { grid-column: 1; }
       .request-grid { grid-template-columns: 1fr; }
       .home-intro { padding: 20px 16px 18px; }
@@ -1039,7 +1040,31 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-3">
+        <div class="grid-4">
+          <div class="field">
+            <label for="rlst-rl_titolo">Titolo</label>
+            <select id="rlst-rl_titolo" name="rl_titolo">
+              <option value="">— seleziona —</option>
+              <option>Arch.</option>
+              <option>ASPP</option>
+              <option>Avv.</option>
+              <option>CTU (Consulente Tecnico d'Ufficio)</option>
+              <option>Dott.</option>
+              <option>Dott.ssa</option>
+              <option>Dr.</option>
+              <option>Geom.</option>
+              <option>Ing.</option>
+              <option>Med.</option>
+              <option>P.I.</option>
+              <option>Per.</option>
+              <option>Prof.</option>
+              <option>Prof.ssa</option>
+              <option>Rag.</option>
+              <option>RSPP</option>
+              <option>Sig.</option>
+              <option>Sig.ra</option>
+            </select>
+          </div>
           <div class="field">
             <label for="rlst-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="rlst-rl_nome" name="rl_nome" placeholder="Nome" required>
