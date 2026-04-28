@@ -1313,6 +1313,7 @@
             <input type="text" id="rls-rls_cf" name="rls_cf" placeholder="RSSMRA80A01L781V" maxlength="16" style="text-transform:uppercase" required>
           </div>
         </div>
+        <div class="grid-2" style="margin-top:4px">
           <div class="field">
             <label for="rls-rls_nato_a">Nato/a a <span class="req">*</span></label>
             <input type="text" id="rls-rls_nato_a" name="rls_nato_a" placeholder="Comune di nascita" required>
@@ -1729,7 +1730,20 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-3">
+        <div class="grid-4">
+          <div class="field">
+            <label for="vis-rl_titolo">Titolo</label>
+            <select id="vis-rl_titolo" name="rl_titolo">
+              <option value="">— seleziona —</option>
+              <option>Arch.</option><option>ASPP</option><option>Avv.</option>
+              <option>CTU (Consulente Tecnico d'Ufficio)</option>
+              <option>Dott.</option><option>Dott.ssa</option><option>Dr.</option>
+              <option>Geom.</option><option>Ing.</option><option>Med.</option>
+              <option>P.I.</option><option>Per.</option><option>Prof.</option>
+              <option>Prof.ssa</option><option>Rag.</option><option>RSPP</option>
+              <option>Sig.</option><option>Sig.ra</option>
+            </select>
+          </div>
           <div class="field">
             <label for="vis-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="vis-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -2422,6 +2436,7 @@
             <circle cx="11" cy="15" r="1" fill="#E7500F"/>
           </svg>
           Segnalazione di un cantiere
+        </h2>
         <p>Invia una segnalazione a Formedil Padova – Area Sicurezza e Salute</p>
       </div>
       <div class="info-box">
