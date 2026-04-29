@@ -374,6 +374,34 @@
     .file-name.ok  { color: #3b6d11; }
     .file-name.err-msg { color: #e24b4a; }
 
+    /* photo upload */
+    .photo-upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 20px 16px; text-align: center; cursor: pointer;
+      position: relative; transition: border-color .2s; background: #fff;
+    }
+    .photo-upload-area:hover { border-color: var(--orange); }
+    .photo-upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%; border: none; padding: 0;
+    }
+    .photo-upload-area .fi-icon { font-size: 26px; display: block; margin-bottom: 8px; }
+    .photo-upload-area .fi-text { font-size: 13px; color: var(--muted); }
+    .photo-upload-area .fi-text strong { color: var(--orange); }
+    .photo-upload-area .fi-sub { font-size: 11px; color: #888; margin-top: 4px; }
+    .photo-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center; }
+    .photo-preview img {
+      width: 80px; height: 80px; object-fit: cover; border-radius: 6px;
+      border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .photo-preview .photo-remove {
+      position: absolute; top: -6px; right: -6px; background: #e24b4a; color: #fff;
+      border-radius: 50%; width: 20px; height: 20px; font-size: 12px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      border: 2px solid #fff;
+    }
+    .photo-preview-item { position: relative; }
+
     /* cantiere repeater */
     .cantiere-block {
       background: #f9f8f5; border: 1px solid var(--border);
@@ -1889,7 +1917,31 @@
         </div>
 
         <div class="section-title">Rappresentante legale</div>
-        <div class="grid-3">
+        <div class="grid-4">
+          <div class="field">
+            <label for="cons-rl_titolo">Titolo</label>
+            <select id="cons-rl_titolo" name="rl_titolo">
+              <option value="">— seleziona —</option>
+              <option>Arch.</option>
+              <option>ASPP</option>
+              <option>Avv.</option>
+              <option>CTU (Consulente Tecnico d'Ufficio)</option>
+              <option>Dott.</option>
+              <option>Dott.ssa</option>
+              <option>Dr.</option>
+              <option>Geom.</option>
+              <option>Ing.</option>
+              <option>Med.</option>
+              <option>P.I.</option>
+              <option>Per.</option>
+              <option>Prof.</option>
+              <option>Prof.ssa</option>
+              <option>Rag.</option>
+              <option>RSPP</option>
+              <option>Sig.</option>
+              <option>Sig.ra</option>
+            </select>
+          </div>
           <div class="field">
             <label for="cons-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="cons-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -2072,7 +2124,31 @@
       <form id="form-attestazione" novalidate>
 
         <div class="section-title">Dati impresa</div>
-        <div class="grid-3">
+        <div class="grid-4">
+          <div class="field">
+            <label for="att-rl_titolo">Titolo</label>
+            <select id="att-rl_titolo" name="rl_titolo">
+              <option value="">— seleziona —</option>
+              <option>Arch.</option>
+              <option>ASPP</option>
+              <option>Avv.</option>
+              <option>CTU (Consulente Tecnico d'Ufficio)</option>
+              <option>Dott.</option>
+              <option>Dott.ssa</option>
+              <option>Dr.</option>
+              <option>Geom.</option>
+              <option>Ing.</option>
+              <option>Med.</option>
+              <option>P.I.</option>
+              <option>Per.</option>
+              <option>Prof.</option>
+              <option>Prof.ssa</option>
+              <option>Rag.</option>
+              <option>RSPP</option>
+              <option>Sig.</option>
+              <option>Sig.ra</option>
+            </select>
+          </div>
           <div class="field">
             <label for="att-rl_nome">Rappresentante Legale – Nome <span class="req">*</span></label>
             <input type="text" id="att-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -2376,7 +2452,31 @@
         </div>
 
         <div class="section-title">Responsabile dei lavori</div>
-        <div class="grid-3">
+        <div class="grid-4">
+          <div class="field">
+            <label for="not-rl_titolo">Titolo</label>
+            <select id="not-rl_titolo" name="rl_titolo">
+              <option value="">— seleziona —</option>
+              <option>Arch.</option>
+              <option>ASPP</option>
+              <option>Avv.</option>
+              <option>CTU (Consulente Tecnico d'Ufficio)</option>
+              <option>Dott.</option>
+              <option>Dott.ssa</option>
+              <option>Dr.</option>
+              <option>Geom.</option>
+              <option>Ing.</option>
+              <option>Med.</option>
+              <option>P.I.</option>
+              <option>Per.</option>
+              <option>Prof.</option>
+              <option>Prof.ssa</option>
+              <option>Rag.</option>
+              <option>RSPP</option>
+              <option>Sig.</option>
+              <option>Sig.ra</option>
+            </select>
+          </div>
           <div class="field">
             <label for="not-rl_nome">Nome <span class="req">*</span></label>
             <input type="text" id="not-rl_nome" name="rl_nome" placeholder="Nome" required>
@@ -2496,6 +2596,19 @@
             <label for="seg-note">Note aggiuntive</label>
             <textarea id="seg-note" name="note" placeholder="Ulteriori dettagli utili alla segnalazione..."></textarea>
           </div>
+        </div>
+
+        <div class="section-title">Foto cantiere (facoltativo)</div>
+        <div class="field col-full">
+          <label>Aggiungi foto del cantiere</label>
+          <div class="photo-upload-area" id="seg-photoArea">
+            <input type="file" id="seg-photoInput" name="seg_photo" accept="image/*" multiple onchange="handleSegPhoto(this)">
+            <span class="fi-icon">📷</span>
+            <div class="fi-text"><strong>Carica foto</strong></div>
+            <div class="fi-sub">Tap per fotocamera o galleria · max 3 foto · JPG/PNG</div>
+            <div class="photo-preview" id="seg-photoPreview"></div>
+          </div>
+          <input type="hidden" id="seg-photoData" name="seg_photo_base64">
         </div>
 
         <div class="privacy-box">
@@ -3372,6 +3485,75 @@ function handleFile(input, fnId, areaId) {
 }
 
 // ══════════════════════════════════════════════════════
+//  PHOTO UPLOAD (segnalazione)
+// ══════════════════════════════════════════════════════
+let segPhotos = [];
+function handleSegPhoto(input) {
+  const preview = document.getElementById('seg-photoPreview');
+  const photoData = document.getElementById('seg-photoData');
+  const area = document.getElementById('seg-photoArea');
+  if (!input.files || !input.files.length) return;
+
+  const files = Array.from(input.files).slice(0, 3 - segPhotos.length);
+  if (segPhotos.length + files.length > 3) {
+    alert('Max 3 foto consentite');
+    input.value = '';
+    return;
+  }
+
+  files.forEach(f => {
+    if (!f.type.startsWith('image/')) {
+      alert('Solo immagini JPG/PNG');
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      alert('Foto troppo grande. Max 5 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const idx = segPhotos.length;
+      segPhotos.push({ name: f.name, data: e.target.result });
+
+      // Crea anteprima
+      const div = document.createElement('div');
+      div.className = 'photo-preview-item';
+      div.innerHTML = '<img src="' + e.target.result + '" alt="Foto"><span class="photo-remove" onclick="removeSegPhoto(' + idx + ',this)">✕</span>';
+      preview.appendChild(div);
+
+      // Aggiorna campo hidden con base64
+      updateSegPhotoData();
+      calcProgressForm('seg');
+    };
+    reader.readAsDataURL(f);
+  });
+
+  input.value = '';
+  area.style.borderColor = '#95C22F';
+}
+
+function removeSegPhoto(idx, btn) {
+  segPhotos.splice(idx, 1);
+  // Ricalcola indici e rimuovi anteprima
+  const preview = document.getElementById('seg-photoPreview');
+  preview.innerHTML = '';
+  segPhotos.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-preview-item';
+    div.innerHTML = '<img src="' + p.data + '" alt="Foto"><span class="photo-remove" onclick="removeSegPhoto(' + i + ',this)">✕</span>';
+    preview.appendChild(div);
+  });
+  updateSegPhotoData();
+}
+
+function updateSegPhotoData() {
+  const photoData = document.getElementById('seg-photoData');
+  // Salva come JSON con nome e base64
+  photoData.value = JSON.stringify(segPhotos);
+}
+
+// ══════════════════════════════════════════════════════
 //  CANTIERI EXTRA (attestazione)
 // ══════════════════════════════════════════════════════
 let cantieri_count = 1;
@@ -3550,11 +3732,11 @@ async function submitForm(formId, prefix, buildPayload) {
   }
 }
 
-// ── Helper: raccoglie campi text/select/date in oggetto
+// ── Helper: raccoglie campi text/select/date/hidden in oggetto
 function collectFields(form) {
   const obj = {};
-  form.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea').forEach(el => {
-    if (el.name) obj[el.name] = el.value.trim();
+  form.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],input[type=hidden],select,textarea').forEach(el => {
+    if (el.name && el.value) obj[el.name] = el.value.trim();
   });
   return obj;
 }
