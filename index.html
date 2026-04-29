@@ -292,7 +292,7 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    .grid-4 { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 14px; align-items: start; }
+    .grid-4 { display: grid; grid-template-columns: 130px 1fr 1fr 1fr; gap: 14px; align-items: start; }
     .col-full { grid-column: 1 / -1; }
 
     .field { display: flex; flex-direction: column; gap: 5px; }
@@ -2132,8 +2132,8 @@
         <div class="section-title">Dati impresa</div>
         <div class="grid-4">
           <div class="field">
-            <label for="att-rl_titolo">Titolo</label>
-            <select id="att-rl_titolo" name="rl_titolo">
+            <label for="att-rl_titolo">Titolo <span class="req">*</span></label>
+            <select id="att-rl_titolo" name="rl_titolo" required>
               <option value="">— seleziona —</option>
               <option>Arch.</option>
               <option>ASPP</option>
@@ -2261,15 +2261,15 @@
         <div class="section-title">Dichiarazioni</div>
         <div class="check-group">
           <label class="check-opt" id="att-decl1-wrap">
-            <input type="checkbox" id="att-decl1" name="decl_contributi" required onchange="calcProgressForm('att')">
+            <input type="checkbox" id="att-decl1" name="decl_contributi" required onchange="checkAllDichiarazioni()">
             <span>Dichiaro di essere in regola con il versamento degli oneri contributivi e assicurativi (INAIL, INPS e Cassa Edile)</span>
           </label>
           <label class="check-opt" id="att-decl2-wrap">
-            <input type="checkbox" id="att-decl2" name="decl_sicurezza" required onchange="calcProgressForm('att')">
+            <input type="checkbox" id="att-decl2" name="decl_sicurezza" required onchange="checkAllDichiarazioni()">
             <span>Dichiaro di essere in regola con le normative di salute e sicurezza sul lavoro ai sensi del D.Lgs. 81/08 e s.m.i.</span>
           </label>
           <label class="check-opt" id="att-decl3-wrap">
-            <input type="checkbox" id="att-decl3" name="decl_obblighi" required onchange="calcProgressForm('att')">
+            <input type="checkbox" id="att-decl3" name="decl_obblighi" required onchange="checkAllDichiarazioni()">
             <span>Mi obblighi a mettere a disposizione dell'Organismo paritetico territoriale tutti i documenti, le informazioni e il personale necessari alla corretta esecuzione del servizio, e a consentire l'accesso ai cantieri.</span>
           </label>
         </div>
@@ -3459,6 +3459,15 @@ function calcProgressForm(prefix) {
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = 'Compilazione: ' + pct + '%';
   if (btn)   btn.disabled = !(privCb && privCb.checked);
+}
+
+function checkAllDichiarazioni() {
+  const d1 = document.getElementById('att-decl1');
+  const d2 = document.getElementById('att-decl2');
+  const d3 = document.getElementById('att-decl3');
+  const btn = document.getElementById('att-btnSend');
+  const privCb = document.getElementById('att-privacy');
+  if (btn) btn.disabled = !(d1 && d1.checked && d2 && d2.checked && d3 && d3.checked && privCb && privCb.checked);
 }
 
 // Attach listeners to all forms
