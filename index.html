@@ -2259,19 +2259,19 @@
         </div>
 
         <div class="section-title">Dichiarazioni</div>
-        <div class="check-group">
-          <label class="check-opt" id="att-decl1-wrap">
-            <input type="checkbox" id="att-decl1" name="decl_contributi" required onchange="checkAllDichiarazioni()">
-            <span>Dichiaro di essere in regola con il versamento degli oneri contributivi e assicurativi (INAIL, INPS e Cassa Edile)</span>
-          </label>
-          <label class="check-opt" id="att-decl2-wrap">
-            <input type="checkbox" id="att-decl2" name="decl_sicurezza" required onchange="checkAllDichiarazioni()">
-            <span>Dichiaro di essere in regola con le normative di salute e sicurezza sul lavoro ai sensi del D.Lgs. 81/08 e s.m.i.</span>
-          </label>
-          <label class="check-opt" id="att-decl3-wrap">
-            <input type="checkbox" id="att-decl3" name="decl_obblighi" required onchange="checkAllDichiarazioni()">
-            <span>Mi obblighi a mettere a disposizione dell'Organismo paritetico territoriale tutti i documenti, le informazioni e il personale necessari alla corretta esecuzione del servizio, e a consentire l'accesso ai cantieri.</span>
-          </label>
+        <div class="check-group" style="gap:12px">
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer" onclick="toggleAttDecl(1)">
+            <input type="checkbox" id="att-decl1" style="width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0">
+            <span style="font-size:13px;color:var(--text);line-height:1.5;cursor:pointer">Dichiaro di essere in regola con il versamento degli oneri contributivi e assicurativi (INAIL, INPS e Cassa Edile)</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer" onclick="toggleAttDecl(2)">
+            <input type="checkbox" id="att-decl2" style="width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0">
+            <span style="font-size:13px;color:var(--text);line-height:1.5;cursor:pointer">Dichiaro di essere in regola con le normative di salute e sicurezza sul lavoro ai sensi del D.Lgs. 81/08 e s.m.i.</span>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer" onclick="toggleAttDecl(3)">
+            <input type="checkbox" id="att-decl3" style="width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0">
+            <span style="font-size:13px;color:var(--text);line-height:1.5;cursor:pointer">Mi obblighi a mettere a disposizione dell'Organismo paritetico territoriale tutti i documenti, le informazioni e il personale necessari alla corretta esecuzione del servizio, e a consentire l'accesso ai cantieri.</span>
+          </div>
         </div>
 
         <div class="privacy-box">
@@ -3459,6 +3459,12 @@ function calcProgressForm(prefix) {
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = 'Compilazione: ' + pct + '%';
   if (btn)   btn.disabled = !(privCb && privCb.checked);
+}
+
+function toggleAttDecl(n) {
+  const cb = document.getElementById('att-decl' + n);
+  if (cb) cb.checked = !cb.checked;
+  checkAllDichiarazioni();
 }
 
 function checkAllDichiarazioni() {
