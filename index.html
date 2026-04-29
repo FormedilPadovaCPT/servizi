@@ -328,12 +328,12 @@
     }
     .radio-opt:hover, .check-opt:hover { border-color: var(--orange); background: #fdf3ee; }
     .radio-opt input, .check-opt input {
-      margin-top: 2px; accent-color: var(--orange);
+      margin-top: 2px;
+      accent-color: var(--orange);
       width: 15px; height: 15px; flex-shrink: 0;
-      border: none; padding: 0; background: none; box-shadow: none;
     }
-    .radio-opt input:focus, .check-opt input:focus { box-shadow: none; border: none; }
-    .radio-opt span, .check-opt span { font-size: 13px; color: var(--text); line-height: 1.5; }
+    .radio-opt input:focus, .check-opt input:focus { box-shadow: none; border: none; outline: none; }
+    .radio-opt span, .check-opt span { font-size: 13px; color: var(--text); line-height: 1.5; pointer-events: none; }
     .radio-opt.sel, .check-opt.sel { border-color: var(--orange); background: #fdf3ee; }
     .check-children { display: none; margin-top: 6px; }
     .check-children.open { display: block; }
