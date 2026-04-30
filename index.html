@@ -2259,23 +2259,23 @@
         </div>
 
         <div class="section-title">Dichiarazioni</div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
-            <input type="checkbox" id="att-decl1" style="position:relative;width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;z-index:1">
-            <span style="font-size:13px;color:var(--text);line-height:1.5">Dichiaro di essere in regola con il versamento degli oneri contributivi e assicurativi (INAIL, INPS e Cassa Edile)</span>
+        <div class="check-group">
+          <label class="check-opt">
+            <input type="checkbox" id="att-decl1" onchange="checkAllDichiarazioni()" required>
+            <span>Dichiaro di essere in regola con il versamento degli oneri contributivi e assicurativi (INAIL, INPS e Cassa Edile)</span>
           </label>
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
-            <input type="checkbox" id="att-decl2" style="position:relative;width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;z-index:1">
-            <span style="font-size:13px;color:var(--text);line-height:1.5">Dichiaro di essere in regola con le normative di salute e sicurezza sul lavoro ai sensi del D.Lgs. 81/08 e s.m.i.</span>
+          <label class="check-opt">
+            <input type="checkbox" id="att-decl2" onchange="checkAllDichiarazioni()" required>
+            <span>Dichiaro di essere in regola con le normative di salute e sicurezza sul lavoro ai sensi del D.Lgs. 81/08 e s.m.i.</span>
           </label>
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;cursor:pointer">
-            <input type="checkbox" id="att-decl3" style="position:relative;width:17px;height:17px;margin-top:1px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;z-index:1">
-            <span style="font-size:13px;color:var(--text);line-height:1.5">Mi obblighi a mettere a disposizione dell'Organismo paritetico territoriale tutti i documenti, le informazioni e il personale necessari alla corretta esecuzione del servizio, e a consentire l'accesso ai cantieri.</span>
+          <label class="check-opt">
+            <input type="checkbox" id="att-decl3" onchange="checkAllDichiarazioni()" required>
+            <span>Mi obblighi a mettere a disposizione dell'Organismo paritetico territoriale tutti i documenti, le informazioni e il personale necessari alla corretta esecuzione del servizio, e a consentire l'accesso ai cantieri.</span>
           </label>
         </div>
 
         <div class="privacy-box">
-          <input type="checkbox" id="att-privacy" name="privacy" required>
+          <input type="checkbox" id="att-privacy" name="privacy" onchange="checkAllDichiarazioni()" required>
           <p><strong>Informativa privacy – D.Lgs. 196/2003 e GDPR (Reg. UE 2016/679)</strong><br>
           Con l'invio autorizzo il trattamento dei dati da parte di <strong>Formedil Padova</strong>. Informativa su <a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a>.</p>
         </div>
