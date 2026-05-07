@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#1e2d5e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Formedil Padova NEWS">
+  <meta name="apple-mobile-web-app-title" content="Formedil PD">
   <link rel="manifest" href="PWA/manifest.json">
   <link rel="apple-touch-icon" href="PWA/icons/icon-192x192.png">
 
@@ -323,7 +323,31 @@
     .nlink-ext:hover  { background:var(--orange2,#c43e00); }
     .nlink-att  { background:var(--light,#f1f5f9); color:var(--text); border:1px solid var(--border); }
     .nlink-att:hover  { background:var(--border); }
-    .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; }
+    .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; cursor:zoom-in; transition:opacity .2s; }
+    .news-img:hover { opacity:.88; }
+
+    /* Lightbox */
+    #lightbox {
+      display:none; position:fixed; inset:0; z-index:9999;
+      background:rgba(0,0,0,.92);
+      align-items:center; justify-content:center;
+      cursor:zoom-out;
+      animation: lb-in .18s ease;
+    }
+    #lightbox.open { display:flex; }
+    @keyframes lb-in { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+    #lightbox img {
+      max-width:92vw; max-height:88vh;
+      object-fit:contain; border-radius:10px;
+      box-shadow:0 8px 60px rgba(0,0,0,.6);
+      pointer-events:none;
+    }
+    #lightbox-close {
+      position:fixed; top:18px; right:22px;
+      color:#fff; font-size:32px; cursor:pointer; line-height:1;
+      opacity:.7; transition:opacity .15s; user-select:none;
+    }
+    #lightbox-close:hover { opacity:1; }
     .news-empty { text-align:center; padding:48px 20px; color:var(--muted); font-size:13px; }
     .news-empty .nei { font-size:40px; display:block; margin-bottom:12px; opacity:.4; }
     .news-loader { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--muted); font-size:13px; }
@@ -4088,8 +4112,8 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
 //  SUPABASE – NOTIZIE & AGGIORNAMENTI
 // ══════════════════════════════════════════════════════
 
-const SB_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';       // ← es. https://xxxx.supabase.co
-const SB_ANON = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';  // ← chiave anon pubblica
+const SB_URL  = 'INSERISCI_SUPABASE_URL';       // ← es. https://xxxx.supabase.co
+const SB_ANON = 'INSERISCI_SUPABASE_ANON_KEY';  // ← chiave anon pubblica
 const SB_TABLE = 'notizie';
 
 const _sb = supabase.createClient(SB_URL, SB_ANON);
@@ -4149,7 +4173,7 @@ function renderNews(items) {
     const prioCls = 'nprio-' + (n.priorita || 'normale');
     return `
     <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}" style="cursor:default">
-      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="">` : ''}
+      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
       <div class="news-item-meta">
         <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
         <span class="nprio ${prioCls}">${n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'informazione' ? 'ℹ️ Informazione' : ''}</span>
@@ -4243,6 +4267,18 @@ function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
 // Avvio: carica badge e attiva realtime
 bgNewsRefresh();
 startRealtime();
@@ -4260,6 +4296,12 @@ document.getElementById('topbarTitle').style.display = 'none';
 </script>
 
 <!-- PWA Service Worker Registration -->
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <span id="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
 <script src="PWA/pwacompat.js"></script>
 </body>
 </html>
