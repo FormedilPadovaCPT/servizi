@@ -4228,8 +4228,11 @@ function fmtNewsDate(iso) {
 // ── Render singola notizia ────────────────────────────
 function buildNewsItem(n, readIds) {
   const unread  = !readIds.includes(n.id);
-  const tagSlug = (n.categoria || 'generale').toLowerCase().replace(/\s+/g, '-');
-  const tagCls  = 'ntag-' + tagSlug;
+  const cats    = Array.isArray(n.categoria) ? n.categoria : [n.categoria || 'notizie'];
+  const tagsHtml = cats.map(c => {
+    const slug = c.toLowerCase().replace(/\s+/g,'-');
+    return `<span class="ntag ntag-${slug}">${c}</span>`;
+  }).join(' ');
   const prioCls = 'nprio-' + (n.priorita || 'normale');
   const prioLabel = n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'bassa' ? '🔽 Bassa' : '';
   const ytId    = extractYouTubeId(n.link_esterno || '');
@@ -4246,7 +4249,7 @@ function buildNewsItem(n, readIds) {
   <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}">
     ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
     <div class="news-item-meta">
-      <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
+      ${tagsHtml}
       ${prioLabel ? `<span class="nprio ${prioCls}">${prioLabel}</span>` : ''}
       <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
     </div>
@@ -4271,8 +4274,8 @@ function applyFilters() {
   let filtered = _allNews;
   if (_activeCats.size > 0) {
     filtered = filtered.filter(n => {
-      const slug = (n.categoria || 'generale').toLowerCase().replace(/\s+/g, '-');
-      return _activeCats.has(slug);
+      const cats = Array.isArray(n.categoria) ? n.categoria : [n.categoria || 'notizie'];
+      return cats.some(c => _activeCats.has(c.toLowerCase().replace(/\s+/g,'-')));
     });
   }
   if (_activePrio) {
