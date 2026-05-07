@@ -296,16 +296,22 @@
     .news-item:hover { box-shadow:var(--shadow); }
     .news-item.unread { border-left:4px solid var(--orange); }
     .news-item-meta { display:flex; align-items:center; gap:8px; margin-bottom:9px; flex-wrap:wrap; }
-    .ntag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; }
-    .ntag-normativa  { background:#eef3fb; color:#2855a0; }
-    .ntag-formazione { background:#eaf3de; color:var(--green2,#749a1e); }
-    .ntag-cantiere   { background:#fdf3ee; color:var(--orange); }
-    .ntag-avviso     { background:#fff3cd; color:#856404; }
-    .ntag-generale   { background:var(--light,#f1f5f9); color:var(--gray); }
+    .ntag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; white-space:nowrap; }
+    .ntag-normativa         { background:#eef3fb; color:#2855a0; }
+    .ntag-circolare         { background:#e8eaf6; color:#3949ab; }
+    .ntag-informazione      { background:#e3f2fd; color:#0277bd; }
+    .ntag-formazione        { background:#eaf3de; color:var(--green2,#749a1e); }
+    .ntag-cantieri          { background:#fdf3ee; color:var(--orange); }
+    .ntag-corsi             { background:#f3e5f5; color:#7b1fa2; }
+    .ntag-corso-gratuito    { background:#e8f5e9; color:#2e7d32; }
+    .ntag-progetto-finanziato { background:#fff8e1; color:#f57f17; }
+    .ntag-avvisi            { background:#fff3cd; color:#856404; }
+    .ntag-notizie           { background:#f1f5f9; color:var(--gray); }
+    .ntag-generale          { background:#f1f5f9; color:var(--gray); }
     .nprio { font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; }
-    .nprio-urgente      { background:#fff3ee; color:var(--orange); }
-    .nprio-informazione { background:#eff6ff; color:#3b82f6; }
-    .nprio-normale      { display:none; }
+    .nprio-urgente  { background:#fff3ee; color:var(--orange); }
+    .nprio-bassa    { background:#f1f5f9; color:var(--muted); }
+    .nprio-normale  { display:none; }
     .ndate  { font-size:11px; color:var(--muted); margin-left:auto; }
     .ntitle { font-size:14px; font-weight:700; color:var(--text); margin-bottom:7px; line-height:1.4; }
     .nbody  { font-size:12.5px; color:var(--muted); line-height:1.7; }
@@ -325,6 +331,15 @@
     .nlink-att:hover  { background:var(--border); }
     .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; cursor:zoom-in; transition:opacity .2s; }
     .news-img:hover { opacity:.88; }
+
+    /* YouTube embed */
+    .yt-wrap {
+      position:relative; width:100%; padding-bottom:56.25%;
+      border-radius:8px; overflow:hidden; margin:12px 0; background:#000;
+    }
+    .yt-wrap iframe {
+      position:absolute; inset:0; width:100%; height:100%; border:0;
+    }
 
     /* Lightbox */
     #lightbox {
@@ -351,6 +366,27 @@
     .news-empty { text-align:center; padding:48px 20px; color:var(--muted); font-size:13px; }
     .news-empty .nei { font-size:40px; display:block; margin-bottom:12px; opacity:.4; }
     .news-loader { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--muted); font-size:13px; }
+
+    /* ── FILTRI NOTIZIE ── */
+    .news-filters { margin-bottom:18px; display:flex; flex-direction:column; gap:10px; }
+    .nf-row { display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap; }
+    .nf-label { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:6px; min-width:72px; }
+    .nf-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .nf-chip {
+      display:inline-flex; align-items:center;
+      padding:5px 11px; border-radius:20px; cursor:pointer;
+      font-size:11px; font-weight:700; letter-spacing:.03em;
+      border:1.5px solid var(--border); background:var(--white);
+      color:var(--muted); transition:all .15s; user-select:none;
+    }
+    .nf-chip:hover { border-color:var(--gray); color:var(--text); }
+    .nf-chip.active { border-color:var(--orange); background:var(--orange); color:#fff; }
+    .nf-chip.prio-active-urgente { border-color:var(--orange); background:#fff3ee; color:var(--orange); }
+    .nf-chip.prio-active-bassa   { border-color:var(--muted);  background:#f1f5f9; color:var(--muted); }
+    .nf-reset { font-size:11px; font-weight:700; color:var(--muted); cursor:pointer; padding:5px 8px; border-radius:6px; border:none; background:none; font-family:inherit; transition:color .15s; align-self:flex-end; }
+    .nf-reset:hover { color:var(--orange); }
+    .news-count-bar { font-size:12px; color:var(--muted); padding:4px 0 2px; }
+    .news-count-bar strong { color:var(--text); }
     .n-spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
     @keyframes spin { to{ transform:rotate(360deg); } }
     .realtime-dot {
@@ -1032,8 +1068,36 @@
             <span class="realtime-dot" id="rt-dot" style="display:none"></span>
             🔔 Notizie &amp; Aggiornamenti
           </div>
-          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="news-count-label"></div>
         </div>
+      </div>
+
+      <!-- FILTRI -->
+      <div class="news-filters" id="news-filters" style="display:none">
+        <div class="nf-row">
+          <span class="nf-label">Categoria</span>
+          <div class="nf-chips" id="cat-chips">
+            <span class="nf-chip" data-cat="normativa">Normativa</span>
+            <span class="nf-chip" data-cat="circolare">Circolare</span>
+            <span class="nf-chip" data-cat="informazione">Informazione</span>
+            <span class="nf-chip" data-cat="formazione">Formazione</span>
+            <span class="nf-chip" data-cat="cantieri">Cantieri</span>
+            <span class="nf-chip" data-cat="corsi">Corsi</span>
+            <span class="nf-chip" data-cat="corso-gratuito">Corso gratuito</span>
+            <span class="nf-chip" data-cat="progetto-finanziato">Progetto finanziato</span>
+            <span class="nf-chip" data-cat="avvisi">Avvisi</span>
+            <span class="nf-chip" data-cat="notizie">Notizie</span>
+          </div>
+        </div>
+        <div class="nf-row">
+          <span class="nf-label">Priorità</span>
+          <div class="nf-chips" id="prio-chips">
+            <span class="nf-chip" data-prio="urgente">🚨 Urgente</span>
+            <span class="nf-chip" data-prio="normale">📰 Normale</span>
+            <span class="nf-chip" data-prio="bassa">🔽 Bassa</span>
+          </div>
+          <button class="nf-reset" id="nf-reset-btn" onclick="resetFilters()" style="display:none">✕ Azzera filtri</button>
+        </div>
+        <div class="news-count-bar" id="news-count-bar"></div>
       </div>
 
       <div class="news-loader" id="news-loader">
@@ -4112,8 +4176,8 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
 //  SUPABASE – NOTIZIE & AGGIORNAMENTI
 // ══════════════════════════════════════════════════════
 
-const SB_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';       // ← es. https://xxxx.supabase.co
-const SB_ANON = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';  // ← chiave anon pubblica
+const SB_URL   = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';
+const SB_ANON  = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';
 const SB_TABLE = 'notizie';
 
 const _sb = supabase.createClient(SB_URL, SB_ANON);
@@ -4121,16 +4185,22 @@ const _sb = supabase.createClient(SB_URL, SB_ANON);
 const NEWS_READ_KEY  = 'formedil_news_read_v2';
 const NEWS_CACHE_KEY = 'formedil_news_cache_v2';
 
-// ── Cache letture ────────────────────────────────────
+// ── Stato filtri ─────────────────────────────────────
+let _allNews    = [];
+let _activeCats = new Set();
+let _activePrio = null;
+
+// ── Letture ───────────────────────────────────────────
 function getReadIds() {
   try { return JSON.parse(localStorage.getItem(NEWS_READ_KEY) || '[]'); } catch { return []; }
 }
-function markRead(id) {
+function markAllRead(items) {
   const ids = getReadIds();
-  if (!ids.includes(id)) { ids.push(id); localStorage.setItem(NEWS_READ_KEY, JSON.stringify(ids)); }
+  items.forEach(n => { if (!ids.includes(n.id)) ids.push(n.id); });
+  localStorage.setItem(NEWS_READ_KEY, JSON.stringify(ids));
 }
 
-// ── Badge ────────────────────────────────────────────
+// ── Badge ─────────────────────────────────────────────
 function updateBadge(items) {
   const readIds = getReadIds();
   const n = items.filter(x => !readIds.includes(x.id)).length;
@@ -4141,132 +4211,198 @@ function updateBadge(items) {
   });
 }
 
-// ── Data italiana ────────────────────────────────────
+// ── YouTube ───────────────────────────────────────────
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+// ── Data italiana ─────────────────────────────────────
 function fmtNewsDate(iso) {
   if (!iso) return '';
   const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
-  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
 }
 
-// ── Render ───────────────────────────────────────────
-function renderNews(items) {
-  const loader = document.getElementById('news-loader');
-  const list   = document.getElementById('news-list');
-  const lbl    = document.getElementById('news-count-label');
-  loader.style.display = 'none';
-  list.style.display   = 'flex';
+// ── Render singola notizia ────────────────────────────
+function buildNewsItem(n, readIds) {
+  const unread  = !readIds.includes(n.id);
+  const tagSlug = (n.categoria || 'generale').toLowerCase().replace(/\s+/g, '-');
+  const tagCls  = 'ntag-' + tagSlug;
+  const prioCls = 'nprio-' + (n.priorita || 'normale');
+  const prioLabel = n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'bassa' ? '🔽 Bassa' : '';
+  const ytId    = extractYouTubeId(n.link_esterno || '');
+  const ytEmbed = ytId ? `
+    <div class="yt-wrap">
+      <iframe src="https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1"
+        frameborder="0" allowfullscreen loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+      </iframe>
+    </div>` : '';
+  const extLink = (n.link_esterno && !ytId)
+    ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : '';
+  return `
+  <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}">
+    ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
+    <div class="news-item-meta">
+      <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
+      ${prioLabel ? `<span class="nprio ${prioCls}">${prioLabel}</span>` : ''}
+      <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
+    </div>
+    <div class="ntitle">${escHtml(n.titolo)}</div>
+    <div class="nbody">${n.corpo || ''}</div>
+    ${ytEmbed}
+    ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
+    ${(extLink || n.allegato_url) ? `
+    <div class="nlinks">
+      ${extLink}
+      ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
+    </div>` : ''}
+  </div>`;
+}
 
-  const total = items.length;
-  const pub   = items.filter(n => n.pubblicata).length;
-  lbl.textContent = pub > 0 ? `${pub} notizie disponibili` : '';
+// ── Applica filtri ────────────────────────────────────
+function applyFilters() {
+  const list = document.getElementById('news-list');
+  const bar  = document.getElementById('news-count-bar');
+  const rst  = document.getElementById('nf-reset-btn');
 
-  const visible = items.filter(n => n.pubblicata);
-  if (!visible.length) {
-    list.innerHTML = `<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.<br>Torna a controllare presto.</div>`;
-    return;
+  let filtered = _allNews;
+  if (_activeCats.size > 0) {
+    filtered = filtered.filter(n => {
+      const slug = (n.categoria || 'generale').toLowerCase().replace(/\s+/g, '-');
+      return _activeCats.has(slug);
+    });
+  }
+  if (_activePrio) {
+    filtered = filtered.filter(n => (n.priorita || 'normale') === _activePrio);
   }
 
+  const hasFilter = _activeCats.size > 0 || _activePrio;
+  if (rst) rst.style.display = hasFilter ? 'inline-block' : 'none';
+  if (bar) {
+    bar.innerHTML = hasFilter
+      ? `<strong>${filtered.length}</strong> notizie trovate su ${_allNews.length}`
+      : `<strong>${_allNews.length}</strong> notizie disponibili`;
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="news-empty"><span class="nei">🔍</span>Nessuna notizia corrisponde ai filtri.</div>';
+    return;
+  }
   const readIds = getReadIds();
-  list.innerHTML = visible.map(n => {
-    const unread = !readIds.includes(n.id);
-    const tagCls = 'ntag-' + (n.categoria || 'generale');
-    const prioCls = 'nprio-' + (n.priorita || 'normale');
-    return `
-    <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}" style="cursor:default">
-      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
-      <div class="news-item-meta">
-        <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
-        <span class="nprio ${prioCls}">${n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'informazione' ? 'ℹ️ Informazione' : ''}</span>
-        <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
-      </div>
-      <div class="ntitle">${escHtml(n.titolo)}</div>
-      <div class="nbody">${n.corpo || ''}</div>
-      ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
-      ${(n.link_esterno || n.allegato_url) ? `
-      <div class="nlinks">
-        ${n.link_esterno ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : ''}
-        ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
-      </div>` : ''}
-    </div>`;
-  }).join('');
-
-  // Marca come letta al click/touch
+  list.innerHTML = filtered.map(n => buildNewsItem(n, readIds)).join('');
   list.querySelectorAll('.news-item').forEach(el => {
-    el.addEventListener('click', () => {
-      markRead(el.dataset.id);
-      el.classList.remove('unread');
-      updateBadge(visible);
-    });
+    el.addEventListener('click', () => el.classList.remove('unread'));
   });
-
-  updateBadge(visible);
 }
 
-// ── Carica dal DB ────────────────────────────────────
+// ── Chip categoria (multi) ────────────────────────────
+function toggleCatFilter(chip) {
+  const cat = chip.dataset.cat;
+  if (_activeCats.has(cat)) { _activeCats.delete(cat); chip.classList.remove('active'); }
+  else                       { _activeCats.add(cat);    chip.classList.add('active'); }
+  applyFilters();
+}
+
+// ── Chip priorità (singola) ───────────────────────────
+function togglePrioFilter(chip) {
+  const prio = chip.dataset.prio;
+  document.querySelectorAll('#prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
+  if (_activePrio === prio) { _activePrio = null; }
+  else { _activePrio = prio; chip.classList.add('active'); }
+  applyFilters();
+}
+
+// ── Reset filtri ──────────────────────────────────────
+function resetFilters() {
+  _activeCats.clear(); _activePrio = null;
+  document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
+  applyFilters();
+}
+
+// ── Init chip listeners ───────────────────────────────
+function initFilterChips() {
+  document.querySelectorAll('#cat-chips .nf-chip').forEach(c => c.addEventListener('click', () => toggleCatFilter(c)));
+  document.querySelectorAll('#prio-chips .nf-chip').forEach(c => c.addEventListener('click', () => togglePrioFilter(c)));
+}
+
+// ── Render ────────────────────────────────────────────
+function renderNews(items) {
+  const loader  = document.getElementById('news-loader');
+  const list    = document.getElementById('news-list');
+  const filters = document.getElementById('news-filters');
+  loader.style.display = 'none';
+  list.style.display   = 'flex';
+  if (filters) filters.style.display = 'flex';
+  _allNews = items.filter(n => n.pubblicata);
+  if (!_allNews.length) {
+    list.innerHTML = '<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.</div>';
+    return;
+  }
+  applyFilters();
+  updateBadge(_allNews);
+}
+
+// ── Carica dal DB ─────────────────────────────────────
 async function loadNews() {
-  // Mostra cache subito se disponibile
   try {
     const c = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY) || 'null');
-    if (c?.items) { renderNews(c.items); }
+    if (c?.items) renderNews(c.items);
   } catch {}
 
   const { data, error } = await _sb
-    .from(SB_TABLE)
-    .select('*')
-    .eq('pubblicata', true)
+    .from(SB_TABLE).select('*').eq('pubblicata', true)
     .order('data_pubbl', { ascending: false })
     .order('created_at', { ascending: false });
 
-  if (error) { console.warn('News fetch error:', error.message); return; }
-
+  if (error) { console.warn('News error:', error.message); return; }
   localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ items: data, ts: Date.now() }));
   renderNews(data);
+
+  // Badge a zero: tutte le notizie visibili sono lette
+  markAllRead(data);
+  updateBadge([]);
 }
 
-// ── Realtime subscription ────────────────────────────
+// ── Realtime ──────────────────────────────────────────
 let _rtChannel = null;
 function startRealtime() {
   if (_rtChannel) return;
-  _rtChannel = _sb
-    .channel('notizie-changes')
-    .on('postgres_changes',
-      { event: '*', schema: 'public', table: SB_TABLE },
-      payload => {
-        console.log('Realtime news update:', payload.eventType);
-        loadNews();
-        // Se la pagina notizie è aperta, aggiorna anche il loader visivo
-        if (document.getElementById('page-notizie').classList.contains('active')) {
-          loadNews();
-        }
-      }
-    )
+  _rtChannel = _sb.channel('notizie-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: SB_TABLE }, () => {
+      if (document.getElementById('page-notizie').classList.contains('active')) loadNews();
+      else bgNewsRefresh();
+    })
     .subscribe(status => {
       const dot = document.getElementById('rt-dot');
       if (dot) dot.style.display = status === 'SUBSCRIBED' ? 'inline-block' : 'none';
     });
 }
 
-// ── Apertura pagina notizie ──────────────────────────
+// ── Apertura pagina notizie ───────────────────────────
 function newsPageOpen() {
   document.getElementById('news-loader').style.display = 'flex';
   document.getElementById('news-list').style.display   = 'none';
+  const filters = document.getElementById('news-filters');
+  if (filters) filters.style.display = 'none';
+  _activeCats.clear(); _activePrio = null;
+  document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
   loadNews();
   startRealtime();
 }
 
-// ── Background badge refresh ─────────────────────────
+// ── Background badge refresh ──────────────────────────
 async function bgNewsRefresh() {
-  const { data } = await _sb
-    .from(SB_TABLE)
-    .select('id,pubblicata')
-    .eq('pubblicata', true);
+  const { data } = await _sb.from(SB_TABLE).select('id,pubblicata').eq('pubblicata', true);
   if (data) updateBadge(data);
 }
 
+// ── Utils ─────────────────────────────────────────────
 function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
 function openLightbox(src) {
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('open');
@@ -4279,12 +4415,12 @@ function closeLightbox() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-// Avvio: carica badge e attiva realtime
+// Avvio
+initFilterChips();
 bgNewsRefresh();
 startRealtime();
 setInterval(bgNewsRefresh, 15 * 60 * 1000);
 
-// ══════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════
 document.getElementById('rlst-data_comp').valueAsDate = new Date();
