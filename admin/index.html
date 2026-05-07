@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notizie Admin – Formedil Padova</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --orange:#E7500F; --orange2:#c43e00;
+  --gray:#565C66; --green:#95C22F; --green2:#749a1e;
+  --bg:#f4f5f7; --surface:#fff; --border:#e2e5ea;
+  --text:#1a1d23; --muted:#6b7280;
+  --sidebar:#1a1f2e; --sidebar2:#232839;
+  --radius:10px;
+  --shadow:0 2px 16px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.15);
+  --p-info:#3b82f6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--sidebar);display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-card{background:var(--sidebar2);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:48px 40px;width:380px;box-shadow:var(--shadow-lg)}
+.login-brand-top{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;letter-spacing:.04em;line-height:1;text-align:center;margin-bottom:4px}
+.login-brand-top .o{color:var(--orange)}.login-brand-top .w{color:#fff}
+.login-brand-sub{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);text-align:center;margin-bottom:28px}
+.login-title{font-size:13px;font-weight:600;color:rgba(255,255,255,.5);text-align:center;margin-bottom:20px}
+.lf{margin-bottom:14px}
+.lf label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase}
+.lf input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.lf input:focus{border-color:var(--orange)}
+.login-btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:8px}
+.login-btn:hover{background:var(--orange2)}
+.login-err{font-size:12px;color:#f87171;text-align:center;margin-top:10px;min-height:18px}
+
+/* SIDEBAR */
+#sidebar{width:240px;min-height:100vh;background:var(--sidebar);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sb-logo{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-bt{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;letter-spacing:.04em;line-height:1}
+.sb-bt .o{color:var(--orange)}.sb-bt .w{color:#fff}
+.sb-bs{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-top:3px}
+.sb-badge{display:inline-block;margin-top:8px;background:rgba(231,80,15,.2);color:var(--orange);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:4px}
+.sb-nav{flex:1;padding:14px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.5);transition:all .15s;border-left:3px solid transparent;user-select:none}
+.sb-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+.sb-item.active{color:#fff;border-left-color:var(--orange);background:rgba(231,80,15,.12)}
+.sb-icon{font-size:15px;width:20px;text-align:center}
+.sb-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-user{font-size:12px;color:rgba(255,255,255,.38);margin-bottom:8px}
+.sb-user strong{color:rgba(255,255,255,.7);display:block}
+.sb-logout{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:rgba(255,255,255,.38);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:#f87171}
+
+/* MAIN */
+#main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:700}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:28px 32px;flex:1}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .18s}
+.btn-primary{background:var(--orange);color:#fff}.btn-primary:hover{background:var(--orange2)}
+.btn-secondary{background:var(--bg);color:var(--gray);border:1px solid var(--border)}.btn-secondary:hover{background:var(--border)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green2)}
+.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}.btn-danger:hover{background:#fee2e2}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* LIST */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.sec-title{font-size:20px;font-weight:800}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.ntable{width:100%;border-collapse:collapse;font-size:13px}
+.ntable th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--border)}
+.ntable td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ntable tr:last-child td{border-bottom:none}
+.ntable tr:hover td{background:#fafafa}
+.td-title{font-weight:700;max-width:240px}.td-title small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.bi{background:#eff6ff;color:var(--p-info)}
+.bn{background:#f0f9e6;color:var(--green2)}
+.bu{background:#fff3ee;color:var(--orange)}
+.bp{background:#f0f9e6;color:var(--green2)}
+.bd{background:#f1f5f9;color:var(--muted)}
+.cat{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.cat-normativa{background:#eef3fb;color:#2855a0}
+.cat-formazione{background:#f0f9e6;color:var(--green2)}
+.cat-cantiere{background:#fff3ee;color:var(--orange)}
+.cat-avviso{background:#fffbeb;color:#b45309}
+.cat-generale{background:#f1f5f9;color:var(--gray)}
+.td-actions{display:flex;gap:6px;white-space:nowrap}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;opacity:.28;display:block;margin-bottom:14px}
+.empty .et{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EDITOR */
+.ed-grid{display:grid;grid-template-columns:1fr 310px;gap:18px;align-items:start}
+.ec{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+.ec:last-child{margin-bottom:0}
+.ec-hd{padding:13px 18px;border-bottom:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--gray);letter-spacing:.05em;text-transform:uppercase}
+.ec-bd{padding:18px}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--gray);margin-bottom:5px;letter-spacing:.05em;text-transform:uppercase}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange)}
+/* Quill */
+.ql-toolbar.ql-snow{border:1.5px solid var(--border)!important;border-radius:8px 8px 0 0!important;background:var(--bg)!important;font-family:'Barlow',sans-serif!important}
+.ql-container.ql-snow{border:1.5px solid var(--border)!important;border-top:none!important;border-radius:0 0 8px 8px!important;font-family:'Barlow',sans-serif!important;font-size:14px!important}
+.ql-editor{min-height:190px;line-height:1.72}
+.ql-editor p{margin-bottom:7px}
+/* Upload */
+.upz{border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.upz:hover,.upz.dg{border-color:var(--orange);background:#fff5f0}
+.upz input{display:none}
+.upz .ui{font-size:26px;display:block;margin-bottom:5px;opacity:.45}
+.upz .ut{font-size:12px;color:var(--muted);font-weight:600}
+.upz .us{font-size:11px;color:var(--muted);margin-top:2px}
+.upprev{display:none;align-items:center;gap:10px;padding:9px 12px;background:#f0f9e6;border:1px solid #c3e08a;border-radius:8px;margin-top:8px}
+.upprev.show{display:flex}
+.upprev .un{flex:1;font-size:12px;font-weight:600;color:var(--green2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upprev .ur{font-size:15px;cursor:pointer;color:var(--muted)}.upprev .ur:hover{color:#dc2626}
+.upprog{margin-top:7px;display:none}.upprog.show{display:block}
+.pb{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.pf{height:100%;background:var(--orange);width:0;transition:width .3s}
+.pl{font-size:11px;color:var(--muted);margin-top:3px}
+/* Priority */
+.prio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.popt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;border-radius:8px;cursor:pointer;border:2px solid var(--border);transition:all .15s;font-size:11px;font-weight:700;text-align:center}
+.popt:hover{border-color:var(--muted)}
+.popt .pi{font-size:18px}
+.si{border-color:var(--p-info)!important;background:#eff6ff;color:var(--p-info)}
+.sn{border-color:var(--green)!important;background:#f0f9e6;color:var(--green2)}
+.su{border-color:var(--orange)!important;background:#fff3ee;color:var(--orange)}
+/* Toggle */
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-top:1px solid var(--border);margin-top:4px}
+.tog-label{font-size:13px;font-weight:600}
+.toggle{position:relative;width:44px;height:24px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-sl{position:absolute;inset:0;border-radius:12px;background:var(--border);cursor:pointer;transition:.2s}
+.toggle-sl::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle input:checked+.toggle-sl{background:var(--green)}
+.toggle input:checked+.toggle-sl::before{transform:translateX(20px)}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--sidebar);color:#fff;padding:13px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success .ti::after{content:'✓';color:var(--green);font-size:18px}
+.toast.error   .ti::after{content:'✗';color:#f87171;font-size:18px}
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border-radius:12px;padding:28px;width:360px;box-shadow:var(--shadow-lg)}
+.modal h3{font-size:16px;font-weight:800;margin-bottom:10px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.modal-act{display:flex;gap:10px;justify-content:flex-end}
+@media(max-width:900px){.ed-grid{grid-template-columns:1fr}#sidebar{width:200px}#main{margin-left:200px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand-top"><span class="o">FORMEDIL</span> <span class="w">PADOVA</span></div>
+    <div class="login-brand-sub">Area Sicurezza e Salute</div>
+    <div class="login-title">Accesso pannello notizie</div>
+    <div class="lf"><label>Email</label><input type="email" id="l-email" placeholder="nome@formedilpadova.it" autocomplete="email"></div>
+    <div class="lf"><label>Password</label><input type="password" id="l-pwd" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" onclick="doLogin()">Accedi</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar" style="display:none">
+  <div class="sb-logo">
+    <div class="sb-bt"><span class="o">FORMEDIL</span> <span class="w">PADOVA</span></div>
+    <div class="sb-bs">Area Sicurezza e Salute</div>
+    <span class="sb-badge">ADMIN NOTIZIE</span>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-item active" onclick="showPanel('list')" id="sb-list"><span class="sb-icon">📋</span> Tutte le notizie</div>
+    <div class="sb-item" onclick="newNotizia()" id="sb-new"><span class="sb-icon">✏️</span> Nuova notizia</div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user"><strong id="sb-uname">—</strong>Redattore</div>
+    <div class="sb-logout" onclick="doLogout()"><span>⎋</span> Esci</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main" style="display:none">
+  <div class="topbar">
+    <div class="topbar-title" id="tb-title">Notizie</div>
+    <div class="topbar-actions" id="tb-actions"></div>
+  </div>
+  <div class="content">
+
+    <!-- LISTA -->
+    <div id="list-panel">
+      <div class="sec-header">
+        <div><div class="sec-title">Notizie</div><div class="sec-sub" id="list-count">Caricamento…</div></div>
+        <button class="btn btn-primary" onclick="newNotizia()">+ Nuova notizia</button>
+      </div>
+      <div class="table-wrap">
+        <div id="ll" style="padding:40px;text-align:center"><div class="spinner" style="width:24px;height:24px"></div></div>
+        <table class="ntable" id="ntable" style="display:none">
+          <thead><tr>
+            <th>Titolo / Categoria</th><th>Priorità</th><th>Stato</th>
+            <th>Autore</th><th>Data</th><th>Azioni</th>
+          </tr></thead>
+          <tbody id="ntbody"></tbody>
+        </table>
+        <div id="nempty" class="empty" style="display:none">
+          <span class="ei">📭</span><div class="et">Nessuna notizia</div>
+          <div>Crea la prima notizia con il pulsante qui sopra.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div id="editor-panel" style="display:none">
+      <div class="ed-grid">
+
+        <!-- Col sx -->
+        <div>
+          <div class="ec">
+            <div class="ec-hd">Contenuto</div>
+            <div class="ec-bd">
+              <div class="field"><label>Titolo *</label><input type="text" id="f-titolo" placeholder="Es. Nuova circolare INAIL – Ponteggi 2025"></div>
+              <div class="field"><label>Testo *</label><div id="qeditor"></div></div>
+              <div class="field"><label>Link esterno</label><input type="url" id="f-link" placeholder="https://…"></div>
+            </div>
+          </div>
+
+          <div class="ec">
+            <div class="ec-hd">Immagine</div>
+            <div class="ec-bd">
+              <div class="upz" id="iz" onclick="document.getElementById('fi').click()" ondragover="dg(event,'iz')" ondragleave="rdg('iz')" ondrop="dp(event,'img')">
+                <input type="file" id="fi" accept="image/*" onchange="hfs(this,'img')">
+                <span class="ui">🖼️</span><div class="ut">Clicca o trascina un'immagine</div><div class="us">JPG, PNG, WebP – max 5 MB</div>
+              </div>
+              <div class="upprev" id="ipr"><span class="un" id="inm"></span><span class="ur" onclick="clrF('img')">✕</span></div>
+              <div class="upprog" id="ipg"><div class="pb"><div class="pf" id="ipf"></div></div><div class="pl" id="ipl">Caricamento…</div></div>
+            </div>
+          </div>
+
+          <div class="ec">
+            <div class="ec-hd">Allegato</div>
+            <div class="ec-bd">
+              <div class="upz" id="az" onclick="document.getElementById('fa').click()" ondragover="dg(event,'az')" ondragleave="rdg('az')" ondrop="dp(event,'att')">
+                <input type="file" id="fa" accept=".pdf,.doc,.docx" onchange="hfs(this,'att')">
+                <span class="ui">📎</span><div class="ut">Clicca o trascina un allegato</div><div class="us">PDF, DOC, DOCX – max 10 MB</div>
+              </div>
+              <div class="upprev" id="apr"><span class="un" id="anm"></span><span class="ur" onclick="clrF('att')">✕</span></div>
+              <div class="upprog" id="apg"><div class="pb"><div class="pf" id="apf"></div></div><div class="pl" id="apl">Caricamento…</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col dx -->
+        <div>
+          <div class="ec">
+            <div class="ec-hd">Metadati</div>
+            <div class="ec-bd">
+              <div class="field">
+                <label>Priorità</label>
+                <div class="prio-grid">
+                  <div class="popt" data-v="informazione" onclick="setPrio(this)"><span class="pi">ℹ️</span>Informazione</div>
+                  <div class="popt sn" data-v="normale" onclick="setPrio(this)"><span class="pi">📰</span>Normale</div>
+                  <div class="popt" data-v="urgente" onclick="setPrio(this)"><span class="pi">🚨</span>Urgente</div>
+                </div>
+                <input type="hidden" id="f-prio" value="normale">
+              </div>
+              <div class="field">
+                <label>Categoria</label>
+                <select id="f-cat">
+                  <option value="generale">Generale</option>
+                  <option value="normativa">Normativa</option>
+                  <option value="formazione">Formazione</option>
+                  <option value="cantiere">Cantiere</option>
+                  <option value="avviso">Avviso</option>
+                </select>
+              </div>
+              <div class="field"><label>Autore / Firma</label><input type="text" id="f-autore" placeholder="Es. Renato Squizzato"></div>
+              <div class="field"><label>Data pubblicazione</label><input type="date" id="f-data"></div>
+              <div class="tog-row">
+                <span class="tog-label">Pubblica subito</span>
+                <label class="toggle"><input type="checkbox" id="f-pub" checked><span class="toggle-sl"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="ec" style="margin-top:14px">
+            <div class="ec-hd">Riepilogo</div>
+            <div class="ec-bd" id="summary" style="font-size:13px;color:var(--muted);line-height:1.85">—</div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px">
+            <button class="btn btn-green" style="justify-content:center;width:100%;padding:13px" onclick="save(true)" id="btn-pub">✓ Pubblica notizia</button>
+            <button class="btn btn-secondary" style="justify-content:center;width:100%" onclick="save(false)" id="btn-dft">Salva come bozza</button>
+            <button class="btn btn-danger btn-sm" style="justify-content:center;width:100%" onclick="cancelEdit()">Annulla</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="ti"></span><span id="tmsg"></span></div>
+<div class="modal-ov" id="cmodal">
+  <div class="modal">
+    <h3 id="mt">Conferma</h3><p id="mb"></p>
+    <div class="modal-act">
+      <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-danger" id="mcb">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const SUPABASE_URL   = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';
+const SUPABASE_ANON  = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';
+const BUCKET         = 'notizie-media';
+const TABLE          = 'notizie';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── STATO ─────────────────────────────────────────────────────
+let quill = null, editId = null, upImg = null, upAtt = null;
+
+// ── INIT ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (session) onLogin(session.user);
+  document.getElementById('l-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+});
+
+// ── AUTH ──────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pwd   = document.getElementById('l-pwd').value;
+  const err   = document.getElementById('l-err');
+  const btn   = document.querySelector('.login-btn');
+  if (!email||!pwd){err.textContent='Inserisci email e password.';return;}
+  btn.textContent='Accesso…'; btn.disabled=true; err.textContent='';
+  const {data,error} = await sb.auth.signInWithPassword({email,password:pwd});
+  if (error){err.textContent='Credenziali non valide.';btn.textContent='Accedi';btn.disabled=false;return;}
+  onLogin(data.user);
+}
+
+function onLogin(user) {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('sidebar').style.display='flex';
+  document.getElementById('main').style.display='flex';
+  const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin';
+  document.getElementById('sb-uname').textContent = name;
+  document.getElementById('f-autore').value = name;
+  initQuill(); loadList();
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+}
+
+async function doLogout(){ await sb.auth.signOut(); location.reload(); }
+
+// ── QUILL ─────────────────────────────────────────────────────
+function initQuill(){
+  if(quill) return;
+  quill = new Quill('#qeditor',{
+    theme:'snow', placeholder:'Scrivi il testo della notizia…',
+    modules:{ toolbar:[
+      [{header:[2,3,false]}],
+      ['bold','italic','underline'],
+      [{color:[]},{background:[]}],
+      [{list:'ordered'},{list:'bullet'}],
+      ['blockquote','link'],['clean']
+    ]}
+  });
+  quill.on('text-change', updSum);
+  ['f-titolo','f-autore','f-cat','f-data','f-prio'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input', updSum);
+    if(el.tagName==='SELECT') el.addEventListener('change', updSum);
+  });
+  document.getElementById('f-pub').addEventListener('change', updSum);
+}
+
+// ── NAV ───────────────────────────────────────────────────────
+function showPanel(id){
+  document.getElementById('list-panel').style.display   = id==='list'   ? 'block' : 'none';
+  document.getElementById('editor-panel').style.display = id==='editor' ? 'block' : 'none';
+  document.getElementById('sb-list').classList.toggle('active', id==='list');
+  document.getElementById('sb-new').classList.toggle('active',  id==='editor');
+  if(id==='list'){
+    document.getElementById('tb-title').textContent='Notizie';
+    document.getElementById('tb-actions').innerHTML='';
+    loadList();
+  } else {
+    document.getElementById('tb-title').textContent = editId ? 'Modifica notizia' : 'Nuova notizia';
+    document.getElementById('tb-actions').innerHTML = `<button class="btn btn-secondary btn-sm" onclick="cancelEdit()">← Torna alla lista</button>`;
+  }
+}
+
+// ── LISTA ─────────────────────────────────────────────────────
+async function loadList(){
+  document.getElementById('ll').style.display='block';
+  document.getElementById('ntable').style.display='none';
+  document.getElementById('nempty').style.display='none';
+  const {data,error} = await sb.from(TABLE).select('*').order('data_pubbl',{ascending:false}).order('created_at',{ascending:false});
+  document.getElementById('ll').style.display='none';
+  if(error){toast('Errore: '+error.message,'error');return;}
+  document.getElementById('list-count').textContent=`${data.length} notizie · ${data.filter(n=>n.pubblicata).length} pubblicate`;
+  if(!data.length){document.getElementById('nempty').style.display='block';return;}
+  document.getElementById('ntable').style.display='table';
+  document.getElementById('ntbody').innerHTML = data.map(n=>`
+    <tr>
+      <td class="td-title">${esc(n.titolo)}<small><span class="cat cat-${n.categoria||'generale'}">${n.categoria||'generale'}</span></small></td>
+      <td><span class="badge ${pCls(n.priorita)}">${pIcon(n.priorita)} ${n.priorita||'normale'}</span></td>
+      <td><span class="badge ${n.pubblicata?'bp':'bd'}">${n.pubblicata?'● Pubblicata':'○ Bozza'}</span></td>
+      <td style="font-size:12px;color:var(--gray)">${esc(n.autore||'—')}</td>
+      <td style="font-size:12px;color:var(--muted);white-space:nowrap">${fDate(n.data_pubbl)}</td>
+      <td class="td-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editN('${n.id}')">✏️ Modifica</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDel('${n.id}','${esc(n.titolo)}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── NUOVA ─────────────────────────────────────────────────────
+function newNotizia(){
+  editId=null; upImg=null; upAtt=null;
+  ['f-titolo','f-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cat').value='generale';
+  document.getElementById('f-prio').value='normale';
+  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-pub').checked=true;
+  clrF('img'); clrF('att');
+  document.querySelectorAll('.popt').forEach(el=>{
+    el.className='popt'+(el.dataset.v==='normale'?' sn':'');
+  });
+  if(quill) quill.setContents([]);
+  updSum(); showPanel('editor');
+}
+
+// ── MODIFICA ──────────────────────────────────────────────────
+async function editN(id){
+  const {data,error}=await sb.from(TABLE).select('*').eq('id',id).single();
+  if(error){toast('Errore caricamento','error');return;}
+  editId=id;
+  upImg=data.immagine_url?{url:data.immagine_url,path:data.immagine_path}:null;
+  upAtt=data.allegato_url?{url:data.allegato_url,path:data.allegato_path,name:data.allegato_nome}:null;
+  document.getElementById('f-titolo').value=data.titolo||'';
+  document.getElementById('f-link').value=data.link_esterno||'';
+  document.getElementById('f-cat').value=data.categoria||'generale';
+  document.getElementById('f-prio').value=data.priorita||'normale';
+  document.getElementById('f-autore').value=data.autore||'';
+  document.getElementById('f-data').value=data.data_pubbl||'';
+  document.getElementById('f-pub').checked=!!data.pubblicata;
+  document.querySelectorAll('.popt').forEach(el=>{
+    el.className='popt'+(el.dataset.v===data.priorita?` s${data.priorita[0]}`:'');
+  });
+  if(quill) data.corpo ? quill.clipboard.dangerouslyPasteHTML(data.corpo) : quill.setContents([]);
+  if(upImg){document.getElementById('inm').textContent='Immagine presente ✓';document.getElementById('ipr').classList.add('show');}
+  if(upAtt){document.getElementById('anm').textContent=data.allegato_nome||'Allegato presente ✓';document.getElementById('apr').classList.add('show');}
+  updSum(); showPanel('editor');
+}
+
+// ── SALVA ─────────────────────────────────────────────────────
+async function save(pub){
+  const titolo=document.getElementById('f-titolo').value.trim();
+  const corpo=quill?quill.root.innerHTML:'';
+  if(!titolo){toast('Il titolo è obbligatorio','error');return;}
+  if(!quill||quill.getText().trim().length<5){toast('Inserisci il testo della notizia','error');return;}
+  const btn=document.getElementById(pub?'btn-pub':'btn-dft');
+  btn.disabled=true; btn.innerHTML='<span class="spinner" style="border-top-color:#fff"></span> Salvataggio…';
+  const payload={
+    titolo,corpo,
+    priorita:document.getElementById('f-prio').value,
+    categoria:document.getElementById('f-cat').value,
+    autore:document.getElementById('f-autore').value.trim(),
+    data_pubbl:document.getElementById('f-data').value||new Date().toISOString().split('T')[0],
+    link_esterno:document.getElementById('f-link').value.trim()||null,
+    pubblicata:pub,
+    immagine_url:upImg?.url||null, immagine_path:upImg?.path||null,
+    allegato_url:upAtt?.url||null, allegato_path:upAtt?.path||null, allegato_nome:upAtt?.name||null,
+    updated_at:new Date().toISOString()
+  };
+  const {error} = editId
+    ? await sb.from(TABLE).update(payload).eq('id',editId)
+    : await sb.from(TABLE).insert(payload);
+  btn.disabled=false; btn.innerHTML=pub?'✓ Pubblica notizia':'Salva come bozza';
+  if(error){toast('Errore: '+error.message,'error');return;}
+  toast(pub?'Notizia pubblicata ✓':'Bozza salvata ✓','success');
+  setTimeout(()=>cancelEdit(), 900);
+}
+
+function cancelEdit(){ editId=null; upImg=null; upAtt=null; showPanel('list'); }
+
+// ── ELIMINA ───────────────────────────────────────────────────
+function confirmDel(id,titolo){
+  document.getElementById('mt').textContent='Elimina notizia';
+  document.getElementById('mb').textContent=`Vuoi eliminare "${titolo}"? Operazione irreversibile.`;
+  document.getElementById('mcb').onclick=()=>delN(id);
+  document.getElementById('cmodal').classList.add('open');
+}
+function closeModal(){ document.getElementById('cmodal').classList.remove('open'); }
+async function delN(id){
+  closeModal();
+  const {error}=await sb.from(TABLE).delete().eq('id',id);
+  if(error){toast('Errore eliminazione','error');return;}
+  toast('Notizia eliminata','success'); loadList();
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────
+function hfs(inp,t){ if(inp.files&&inp.files[0]) upFile(inp.files[0],t); }
+function dg(e,zid){ e.preventDefault(); document.getElementById(zid).classList.add('dg'); }
+function rdg(zid){ document.getElementById(zid).classList.remove('dg'); }
+function dp(e,t){ e.preventDefault(); rdg(t==='img'?'iz':'az'); if(e.dataTransfer.files[0]) upFile(e.dataTransfer.files[0],t); }
+
+async function upFile(file,type){
+  const isI=type==='img', mx=isI?5:10;
+  const pgEl=document.getElementById(isI?'ipg':'apg');
+  const pfEl=document.getElementById(isI?'ipf':'apf');
+  const plEl=document.getElementById(isI?'ipl':'apl');
+  if(file.size>mx*1024*1024){toast(`File troppo grande (max ${mx} MB)`,'error');return;}
+  pgEl.classList.add('show'); pfEl.style.width='30%'; plEl.textContent='Caricamento…';
+  const ext=file.name.split('.').pop();
+  const path=`${type}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,file,{upsert:true});
+  pfEl.style.width='100%';
+  if(error){pgEl.classList.remove('show');toast('Errore upload: '+error.message,'error');return;}
+  const {data:ud}=sb.storage.from(BUCKET).getPublicUrl(path);
+  setTimeout(()=>pgEl.classList.remove('show'),800); plEl.textContent='Caricato ✓';
+  if(isI){upImg={url:ud.publicUrl,path};document.getElementById('inm').textContent=file.name;document.getElementById('ipr').classList.add('show');}
+  else   {upAtt={url:ud.publicUrl,path,name:file.name};document.getElementById('anm').textContent=file.name;document.getElementById('apr').classList.add('show');}
+}
+
+function clrF(t){
+  if(t==='img') upImg=null; else upAtt=null;
+  document.getElementById(t==='img'?'ipr':'apr').classList.remove('show');
+  document.getElementById(t==='img'?'inm':'anm').textContent='';
+  document.getElementById(t==='img'?'fi':'fa').value='';
+}
+
+// ── PRIORITÀ ──────────────────────────────────────────────────
+function setPrio(el){
+  const v=el.dataset.v;
+  document.querySelectorAll('.popt').forEach(o=>{ o.className='popt'+(o.dataset.v===v?` s${v[0]}`:''); });
+  document.getElementById('f-prio').value=v; updSum();
+}
+
+// ── RIEPILOGO ─────────────────────────────────────────────────
+function updSum(){
+  const ti=document.getElementById('f-titolo')?.value.trim();
+  const au=document.getElementById('f-autore')?.value.trim();
+  const ca=document.getElementById('f-cat')?.value;
+  const pr=document.getElementById('f-prio')?.value;
+  const da=document.getElementById('f-data')?.value;
+  const pu=document.getElementById('f-pub')?.checked;
+  const ch=quill?quill.getText().trim().length:0;
+  document.getElementById('summary').innerHTML=`<div style="display:flex;flex-direction:column;gap:7px">
+    <div><strong>Titolo:</strong> ${ti?esc(ti):'<em style="opacity:.4">—</em>'}</div>
+    <div><strong>Categoria:</strong> <span class="cat cat-${ca||'generale'}">${ca||'generale'}</span></div>
+    <div><strong>Priorità:</strong> <span class="badge ${pCls(pr)}">${pIcon(pr)} ${pr||'normale'}</span></div>
+    <div><strong>Autore:</strong> ${au?esc(au):'<em style="opacity:.4">—</em>'}</div>
+    <div><strong>Data:</strong> ${da?fDate(da):'<em style="opacity:.4">oggi</em>'}</div>
+    <div><strong>Caratteri:</strong> ${ch}</div>
+    <div><strong>Immagine:</strong> ${upImg?'✓ Caricata':'—'}</div>
+    <div><strong>Allegato:</strong> ${upAtt?'✓ '+esc(upAtt.name):'—'}</div>
+    <div><strong>Stato:</strong> <span class="badge ${pu?'bp':'bd'}">${pu?'● Pubblica':'○ Bozza'}</span></div>
+  </div>`;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('tmsg').textContent=msg;
+  t.className=`toast ${type}`; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+function fDate(iso){
+  if(!iso) return '—';
+  const d=new Date(iso+(iso.length===10?'T00:00:00':''));
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'});
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pIcon(p){ return {informazione:'ℹ️',normale:'📰',urgente:'🚨'}[p]||'📰'; }
+function pCls(p){ return {informazione:'bi',normale:'bn',urgente:'bu'}[p]||'bn'; }
+</script>
+</body>
+</html>
