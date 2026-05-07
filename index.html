@@ -256,6 +256,86 @@
     }
     .service-card:hover .sc-arrow { color: var(--orange); transform: translateX(3px); }
 
+    /* ── CARD NOTIZIE ── */
+    .service-card { position: relative; }
+    .service-card.news-card {
+      background: var(--gray); border: 2px solid var(--orange);
+      overflow: hidden;
+    }
+    .service-card.news-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--orange),var(--green));
+      pointer-events: none;
+    }
+    .service-card.news-card .sc-title { color:#fff; font-size:14px; }
+    .service-card.news-card .sc-desc  { color:rgba(255,255,255,.68); }
+    .service-card.news-card .sc-arrow { color:rgba(255,255,255,.35); }
+    .service-card.news-card:hover { border-color:var(--green); box-shadow:0 6px 28px rgba(149,194,47,.35); transform:translateY(-3px); }
+    .service-card.news-card:hover .sc-arrow { color:var(--green); transform:translateX(3px); }
+    .sc-news-badge {
+      display:none; position:absolute; top:9px; right:30px;
+      background:var(--orange); color:#fff;
+      font-size:10px; font-weight:800; min-width:18px; height:18px;
+      border-radius:9px; padding:0 4px;
+      align-items:center; justify-content:center;
+      pointer-events:none;
+      animation: pulse-b 2s infinite;
+    }
+    .sc-news-badge.vis { display:inline-flex; }
+    @keyframes pulse-b { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+    /* ── PAGINA NOTIZIE ── */
+    .news-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    .news-header h2 { font-size:1.1rem; font-weight:700; }
+    .news-list { display:flex; flex-direction:column; gap:14px; }
+    .news-item {
+      background:var(--white); border-radius:var(--radius);
+      border:1px solid var(--border); padding:18px 20px;
+      box-shadow:0 1px 6px rgba(0,0,0,.05); transition:box-shadow .2s;
+    }
+    .news-item:hover { box-shadow:var(--shadow); }
+    .news-item.unread { border-left:4px solid var(--orange); }
+    .news-item-meta { display:flex; align-items:center; gap:8px; margin-bottom:9px; flex-wrap:wrap; }
+    .ntag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; }
+    .ntag-normativa  { background:#eef3fb; color:#2855a0; }
+    .ntag-formazione { background:#eaf3de; color:var(--green2,#749a1e); }
+    .ntag-cantiere   { background:#fdf3ee; color:var(--orange); }
+    .ntag-avviso     { background:#fff3cd; color:#856404; }
+    .ntag-generale   { background:var(--light,#f1f5f9); color:var(--gray); }
+    .nprio { font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; }
+    .nprio-urgente      { background:#fff3ee; color:var(--orange); }
+    .nprio-informazione { background:#eff6ff; color:#3b82f6; }
+    .nprio-normale      { display:none; }
+    .ndate  { font-size:11px; color:var(--muted); margin-left:auto; }
+    .ntitle { font-size:14px; font-weight:700; color:var(--text); margin-bottom:7px; line-height:1.4; }
+    .nbody  { font-size:12.5px; color:var(--muted); line-height:1.7; }
+    .nbody a { color:var(--orange); text-decoration:none; }
+    .nbody a:hover { text-decoration:underline; }
+    .nbody img { max-width:100%; border-radius:8px; margin:10px 0; }
+    .nautore { font-size:11px; color:var(--muted); margin-top:10px; font-style:italic; }
+    .nlinks  { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    .nlink-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:12px; font-weight:700; padding:7px 13px; border-radius:6px;
+      text-decoration:none; transition:all .18s; border:none; cursor:pointer; font-family:inherit;
+    }
+    .nlink-ext  { background:var(--orange); color:#fff; }
+    .nlink-ext:hover  { background:var(--orange2,#c43e00); }
+    .nlink-att  { background:var(--light,#f1f5f9); color:var(--text); border:1px solid var(--border); }
+    .nlink-att:hover  { background:var(--border); }
+    .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; }
+    .news-empty { text-align:center; padding:48px 20px; color:var(--muted); font-size:13px; }
+    .news-empty .nei { font-size:40px; display:block; margin-bottom:12px; opacity:.4; }
+    .news-loader { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--muted); font-size:13px; }
+    .n-spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
+    @keyframes spin { to{ transform:rotate(360deg); } }
+    .realtime-dot {
+      width:7px; height:7px; border-radius:50%; background:var(--green);
+      display:inline-block; margin-right:5px;
+      animation: rtpulse 2s infinite;
+    }
+    @keyframes rtpulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
     /* ═══════════════════════════════════════════
        FORM COMMONS
     ═══════════════════════════════════════════ */
@@ -624,6 +704,9 @@
       .services-grid { grid-template-columns: 1fr; }
     }
   </style>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -717,6 +800,10 @@
       </a>
 
       <div class="nav-section-label">Notizie</div>
+      <a class="nav-item" onclick="showPage('notizie')" href="#">
+        <span class="ni-icon">🔔</span> Notizie &amp; Aggiornamenti
+        <span id="nav-nbadge" class="sc-news-badge" style="position:static;margin-left:auto;animation:none">0</span>
+      </a>
       <a class="nav-item" onclick="showPage('telegram')" href="#">
         <span class="ni-icon">📢</span> Canale Telegram
       </a>
@@ -878,6 +965,16 @@
           <span class="sc-arrow">→</span>
         </div>
 
+        <!-- NOTIZIE (card in evidenza) -->
+        <div class="service-card news-card" onclick="showPage('notizie')">
+          <span class="sc-news-badge" id="home-nbadge">0</span>
+          <span class="sc-icon">🔔</span>
+          <div class="sc-title">Notizie &amp; Aggiornamenti</div>
+          <div class="sc-desc">Comunicazioni ufficiali, normative ed eventi dell'Area Sicurezza e Salute.</div>
+          <span class="sc-tag" style="background:var(--orange);color:#fff">In tempo reale</span>
+          <span class="sc-arrow">→</span>
+        </div>
+
         <!-- CANALE TELEGRAM -->
         <div class="service-card" onclick="showPage('telegram')">
           <span class="sc-icon">📢</span>
@@ -896,6 +993,29 @@
         &nbsp;·&nbsp; Tel. 049 761168
         &nbsp;·&nbsp; <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
       </div>
+    </div>
+
+    <!-- ════════════════════════════════
+         NOTIZIE & AGGIORNAMENTI
+    ════════════════════════════════ -->
+    <div class="page" id="page-notizie">
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+
+      <div class="news-header">
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:8px">
+            <span class="realtime-dot" id="rt-dot" style="display:none"></span>
+            🔔 Notizie &amp; Aggiornamenti
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="news-count-label"></div>
+        </div>
+      </div>
+
+      <div class="news-loader" id="news-loader">
+        <div class="n-spinner"></div> Caricamento notizie…
+      </div>
+
+      <div class="news-list" id="news-list" style="display:none"></div>
     </div>
 
     <!-- ════════════════════════════════
@@ -3398,6 +3518,7 @@ const PAGE_TITLES = {
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
   myapp: ['Formedil MyApp', ''],
+  notizie: ['Notizie & Aggiornamenti', 'Area Sicurezza e Salute'],
 };
 
 function showPage(id) {
@@ -3428,6 +3549,8 @@ function showPage(id) {
   // Init date fields
   if (id === 'rlst') document.getElementById('rlst-data_comp').valueAsDate = new Date();
   if (id === 'not') document.getElementById('not-data_com').valueAsDate = new Date();
+  // Notizie
+  if (id === 'notizie') { newsPageOpen(); }
 }
 
 function toggleSidebar() {
@@ -3959,6 +4082,170 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
     return f;
   });
 });
+
+// ══════════════════════════════════════════════════════
+//  SUPABASE – NOTIZIE & AGGIORNAMENTI
+// ══════════════════════════════════════════════════════
+
+const SB_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';       // ← es. https://xxxx.supabase.co
+const SB_ANON = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';  // ← chiave anon pubblica
+const SB_TABLE = 'notizie';
+
+const _sb = supabase.createClient(SB_URL, SB_ANON);
+
+const NEWS_READ_KEY  = 'formedil_news_read_v2';
+const NEWS_CACHE_KEY = 'formedil_news_cache_v2';
+
+// ── Cache letture ────────────────────────────────────
+function getReadIds() {
+  try { return JSON.parse(localStorage.getItem(NEWS_READ_KEY) || '[]'); } catch { return []; }
+}
+function markRead(id) {
+  const ids = getReadIds();
+  if (!ids.includes(id)) { ids.push(id); localStorage.setItem(NEWS_READ_KEY, JSON.stringify(ids)); }
+}
+
+// ── Badge ────────────────────────────────────────────
+function updateBadge(items) {
+  const readIds = getReadIds();
+  const n = items.filter(x => !readIds.includes(x.id)).length;
+  [document.getElementById('home-nbadge'), document.getElementById('nav-nbadge')].forEach(b => {
+    if (!b) return;
+    if (n > 0) { b.textContent = n; b.classList.add('vis'); }
+    else        { b.classList.remove('vis'); }
+  });
+}
+
+// ── Data italiana ────────────────────────────────────
+function fmtNewsDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
+  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+// ── Render ───────────────────────────────────────────
+function renderNews(items) {
+  const loader = document.getElementById('news-loader');
+  const list   = document.getElementById('news-list');
+  const lbl    = document.getElementById('news-count-label');
+  loader.style.display = 'none';
+  list.style.display   = 'flex';
+
+  const total = items.length;
+  const pub   = items.filter(n => n.pubblicata).length;
+  lbl.textContent = pub > 0 ? `${pub} notizie disponibili` : '';
+
+  const visible = items.filter(n => n.pubblicata);
+  if (!visible.length) {
+    list.innerHTML = `<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.<br>Torna a controllare presto.</div>`;
+    return;
+  }
+
+  const readIds = getReadIds();
+  list.innerHTML = visible.map(n => {
+    const unread = !readIds.includes(n.id);
+    const tagCls = 'ntag-' + (n.categoria || 'generale');
+    const prioCls = 'nprio-' + (n.priorita || 'normale');
+    return `
+    <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}" style="cursor:default">
+      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="">` : ''}
+      <div class="news-item-meta">
+        <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
+        <span class="nprio ${prioCls}">${n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'informazione' ? 'ℹ️ Informazione' : ''}</span>
+        <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
+      </div>
+      <div class="ntitle">${escHtml(n.titolo)}</div>
+      <div class="nbody">${n.corpo || ''}</div>
+      ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
+      ${(n.link_esterno || n.allegato_url) ? `
+      <div class="nlinks">
+        ${n.link_esterno ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : ''}
+        ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Marca come letta al click/touch
+  list.querySelectorAll('.news-item').forEach(el => {
+    el.addEventListener('click', () => {
+      markRead(el.dataset.id);
+      el.classList.remove('unread');
+      updateBadge(visible);
+    });
+  });
+
+  updateBadge(visible);
+}
+
+// ── Carica dal DB ────────────────────────────────────
+async function loadNews() {
+  // Mostra cache subito se disponibile
+  try {
+    const c = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY) || 'null');
+    if (c?.items) { renderNews(c.items); }
+  } catch {}
+
+  const { data, error } = await _sb
+    .from(SB_TABLE)
+    .select('*')
+    .eq('pubblicata', true)
+    .order('data_pubbl', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) { console.warn('News fetch error:', error.message); return; }
+
+  localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ items: data, ts: Date.now() }));
+  renderNews(data);
+}
+
+// ── Realtime subscription ────────────────────────────
+let _rtChannel = null;
+function startRealtime() {
+  if (_rtChannel) return;
+  _rtChannel = _sb
+    .channel('notizie-changes')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: SB_TABLE },
+      payload => {
+        console.log('Realtime news update:', payload.eventType);
+        loadNews();
+        // Se la pagina notizie è aperta, aggiorna anche il loader visivo
+        if (document.getElementById('page-notizie').classList.contains('active')) {
+          loadNews();
+        }
+      }
+    )
+    .subscribe(status => {
+      const dot = document.getElementById('rt-dot');
+      if (dot) dot.style.display = status === 'SUBSCRIBED' ? 'inline-block' : 'none';
+    });
+}
+
+// ── Apertura pagina notizie ──────────────────────────
+function newsPageOpen() {
+  document.getElementById('news-loader').style.display = 'flex';
+  document.getElementById('news-list').style.display   = 'none';
+  loadNews();
+  startRealtime();
+}
+
+// ── Background badge refresh ─────────────────────────
+async function bgNewsRefresh() {
+  const { data } = await _sb
+    .from(SB_TABLE)
+    .select('id,pubblicata')
+    .eq('pubblicata', true);
+  if (data) updateBadge(data);
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Avvio: carica badge e attiva realtime
+bgNewsRefresh();
+startRealtime();
+setInterval(bgNewsRefresh, 15 * 60 * 1000);
 
 // ══════════════════════════════════════════════════════
 //  INIT
