@@ -306,6 +306,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
                   <span class="cat-chip" data-cat="corso-gratuito">Corso gratuito</span>
                   <span class="cat-chip" data-cat="progetto-finanziato">Progetto finanziato</span>
                   <span class="cat-chip" data-cat="avvisi">Avvisi</span>
+                  <span class="cat-chip" data-cat="formedil">Formedil</span>
+                  <span class="cat-chip" data-cat="spisal">SPISAL</span>
+                  <span class="cat-chip" data-cat="inail">INAIL</span>
+                  <span class="cat-chip" data-cat="itl">ITL</span>
                 </div>
                 <div class="cat-err" id="cat-err">Seleziona almeno una categoria.</div>
               </div>
@@ -524,9 +528,11 @@ async function save(pub){
     document.getElementById('cat-err').style.display = 'block';
     toast('Seleziona almeno una categoria','error'); return;
   }
+  const btn=document.getElementById(pub?'btn-pub':'btn-dft');
   btn.disabled=true; btn.innerHTML='<span class="spinner" style="border-top-color:#fff"></span> Salvataggio…';
   const payload={
-    titolo,corpo,
+    titolo,
+    corpo,
     priorita:document.getElementById('f-prio').value,
     categoria:cats,
     autore:document.getElementById('f-autore').value.trim(),
@@ -537,11 +543,16 @@ async function save(pub){
     allegato_url:upAtt?.url||null, allegato_path:upAtt?.path||null, allegato_nome:upAtt?.name||null,
     updated_at:new Date().toISOString()
   };
+  console.log('Saving payload:', JSON.stringify(payload));
   const {error} = editId
     ? await sb.from(TABLE).update(payload).eq('id',editId)
     : await sb.from(TABLE).insert(payload);
   btn.disabled=false; btn.innerHTML=pub?'✓ Pubblica notizia':'Salva come bozza';
-  if(error){toast('Errore: '+error.message,'error');return;}
+  if(error){
+    console.error('Save error:', error);
+    toast('Errore: '+error.message,'error');
+    return;
+  }
   toast(pub?'Notizia pubblicata ✓':'Bozza salvata ✓','success');
   setTimeout(()=>cancelEdit(), 900);
 }
