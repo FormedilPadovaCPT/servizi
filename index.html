@@ -736,6 +736,56 @@
     }
     #page-home .page-footer a { color: rgba(255,255,255,.9); }
 
+    /* ── PULSANTE CONDIVIDI APP ── */
+    .share-wrap {
+      background: var(--green);
+      padding: 0 32px 20px;
+      max-width: 100%;
+      display: flex; justify-content: center;
+    }
+    .btn-share {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--orange); color: #fff;
+      border: none; border-radius: 10px;
+      padding: 13px 28px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: all .2s;
+      box-shadow: 0 3px 14px rgba(231,80,15,.35);
+      letter-spacing: .02em;
+    }
+    .btn-share:hover  { background: #c43e00; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231,80,15,.45); }
+    .btn-share:active { transform: translateY(0); }
+    .btn-share .bs-icon { font-size: 18px; }
+
+    /* Tooltip fallback desktop */
+    .share-tooltip {
+      display: none; position: fixed;
+      bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #1a1d23; color: #fff;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 24px rgba(0,0,0,.25);
+      z-index: 9000; white-space: nowrap;
+      animation: fadein .2s ease;
+    }
+    .share-tooltip.show { display: flex; align-items: center; gap: 10px; }
+    .share-tooltip input {
+      border: none; background: rgba(255,255,255,.12); color: #fff;
+      border-radius: 6px; padding: 6px 10px; font-size: 12px;
+      font-family: monospace; width: 260px; outline: none;
+    }
+    .share-tooltip .st-copy {
+      background: var(--orange); border: none; color: #fff;
+      border-radius: 6px; padding: 6px 12px; cursor: pointer;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      white-space: nowrap;
+    }
+    .share-tooltip .st-close {
+      cursor: pointer; opacity: .6; font-size: 16px; margin-left: 4px;
+    }
+    .share-tooltip .st-close:hover { opacity: 1; }
+
     /* ═══════════════════════════════════════════
        MOBILE OVERLAY
     ═══════════════════════════════════════════ */
@@ -1058,6 +1108,21 @@
         &nbsp;·&nbsp; Tel. 049 761168
         &nbsp;·&nbsp; <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
       </div>
+
+      <!-- Pulsante condividi app -->
+      <div class="share-wrap">
+        <button class="btn-share" onclick="shareApp()">
+          <span class="bs-icon">📲</span>
+          Invia app a un collega
+        </button>
+      </div>
+    </div>
+
+    <!-- Tooltip condivisione (fallback desktop) -->
+    <div class="share-tooltip" id="share-tooltip">
+      <input type="text" id="share-url" readonly onclick="this.select()">
+      <button class="st-copy" onclick="copyShareUrl()">Copia link</button>
+      <span class="st-close" onclick="closeShareTooltip()">✕</span>
     </div>
 
     <!-- ════════════════════════════════
@@ -4431,6 +4496,35 @@ initFilterChips();
 bgNewsRefresh();
 startRealtime();
 setInterval(bgNewsRefresh, 15 * 60 * 1000);
+
+// ══════════════════════════════════════════════════════
+//  CONDIVIDI APP
+// ══════════════════════════════════════════════════════
+async function shareApp() {
+  const url   = 'https://formedilpadovacpt.github.io/servizi/';
+  const title = 'Formedil Padova – Servizi Area Sicurezza e Salute';
+  const text  = 'Consulta i servizi gratuiti di Formedil Padova: sopralluoghi, corsi, consulenze e molto altro. Aprilo dal tuo telefono!';
+  if (navigator.share) {
+    try { await navigator.share({ title, text, url }); }
+    catch (e) { if (e.name !== 'AbortError') console.warn('Share error:', e); }
+  } else {
+    document.getElementById('share-url').value = url;
+    document.getElementById('share-tooltip').classList.add('show');
+    setTimeout(() => document.getElementById('share-tooltip').classList.remove('show'), 8000);
+  }
+}
+function copyShareUrl() {
+  const input = document.getElementById('share-url');
+  input.select();
+  navigator.clipboard?.writeText(input.value).catch(() => document.execCommand('copy'));
+  const btn = document.querySelector('.st-copy');
+  btn.textContent = '✓ Copiato!';
+  setTimeout(() => { btn.textContent = 'Copia link'; closeShareTooltip(); }, 1800);
+}
+function closeShareTooltip() {
+  document.getElementById('share-tooltip').classList.remove('show');
+}
+
 
 //  INIT
 // ══════════════════════════════════════════════════════
