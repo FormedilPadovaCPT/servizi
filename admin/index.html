@@ -242,6 +242,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
               <div class="field"><label>Titolo *</label><input type="text" id="f-titolo" placeholder="Es. Nuova circolare INAIL – Ponteggi 2025"></div>
               <div class="field"><label>Testo *</label><div id="qeditor"></div></div>
               <div class="field"><label>Link esterno</label><input type="url" id="f-link" placeholder="https://…"></div>
+              <div class="field">
+                <label>Video YouTube</label>
+                <input type="url" id="f-youtube" placeholder="https://www.youtube.com/watch?v=…">
+                <div style="font-size:11px;color:var(--muted);margin-top:4px">Se inserito, il video viene mostrato inline nella notizia. Il campo "Link esterno" verrà ignorato.</div>
+              </div>
             </div>
           </div>
 
@@ -278,20 +283,25 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
               <div class="field">
                 <label>Priorità</label>
                 <div class="prio-grid">
-                  <div class="popt" data-v="informazione" onclick="setPrio(this)"><span class="pi">ℹ️</span>Informazione</div>
                   <div class="popt sn" data-v="normale" onclick="setPrio(this)"><span class="pi">📰</span>Normale</div>
                   <div class="popt" data-v="urgente" onclick="setPrio(this)"><span class="pi">🚨</span>Urgente</div>
+                  <div class="popt" data-v="bassa" onclick="setPrio(this)"><span class="pi">🔽</span>Bassa</div>
                 </div>
                 <input type="hidden" id="f-prio" value="normale">
               </div>
               <div class="field">
                 <label>Categoria</label>
                 <select id="f-cat">
-                  <option value="generale">Generale</option>
+                  <option value="notizie">Notizie</option>
                   <option value="normativa">Normativa</option>
+                  <option value="circolare">Circolare</option>
+                  <option value="informazione">Informazione</option>
                   <option value="formazione">Formazione</option>
-                  <option value="cantiere">Cantiere</option>
-                  <option value="avviso">Avviso</option>
+                  <option value="cantieri">Cantieri</option>
+                  <option value="corsi">Corsi</option>
+                  <option value="corso-gratuito">Corso gratuito</option>
+                  <option value="progetto-finanziato">Progetto finanziato</option>
+                  <option value="avvisi">Avvisi</option>
                 </select>
               </div>
               <div class="field"><label>Autore / Firma</label><input type="text" id="f-autore" placeholder="Es. Renato Squizzato"></div>
@@ -443,7 +453,7 @@ async function loadList(){
 // ── NUOVA ─────────────────────────────────────────────────────
 function newNotizia(){
   editId=null; upImg=null; upAtt=null;
-  ['f-titolo','f-link'].forEach(id=>document.getElementById(id).value='');
+  ['f-titolo','f-link','f-youtube'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-cat').value='generale';
   document.getElementById('f-prio').value='normale';
   document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
@@ -464,7 +474,8 @@ async function editN(id){
   upImg=data.immagine_url?{url:data.immagine_url,path:data.immagine_path}:null;
   upAtt=data.allegato_url?{url:data.allegato_url,path:data.allegato_path,name:data.allegato_nome}:null;
   document.getElementById('f-titolo').value=data.titolo||'';
-  document.getElementById('f-link').value=data.link_esterno||'';
+  document.getElementById('f-link').value=(!data.link_esterno||data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be'))?'':(data.link_esterno||'');
+  document.getElementById('f-youtube').value=(data.link_esterno&&(data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be')))?data.link_esterno:'';
   document.getElementById('f-cat').value=data.categoria||'generale';
   document.getElementById('f-prio').value=data.priorita||'normale';
   document.getElementById('f-autore').value=data.autore||'';
@@ -493,7 +504,7 @@ async function save(pub){
     categoria:document.getElementById('f-cat').value,
     autore:document.getElementById('f-autore').value.trim(),
     data_pubbl:document.getElementById('f-data').value||new Date().toISOString().split('T')[0],
-    link_esterno:document.getElementById('f-link').value.trim()||null,
+    link_esterno:document.getElementById('f-youtube').value.trim() || document.getElementById('f-link').value.trim() || null,
     pubblicata:pub,
     immagine_url:upImg?.url||null, immagine_path:upImg?.path||null,
     allegato_url:upAtt?.url||null, allegato_path:upAtt?.path||null, allegato_nome:upAtt?.name||null,
@@ -598,8 +609,8 @@ function fDate(iso){
   return d.toLocaleDateString('it-IT',{day:'2-digit',month:'long',year:'numeric'});
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function pIcon(p){ return {informazione:'ℹ️',normale:'📰',urgente:'🚨'}[p]||'📰'; }
-function pCls(p){ return {informazione:'bi',normale:'bn',urgente:'bu'}[p]||'bn'; }
+function pIcon(p){ return {normale:'📰',urgente:'🚨',bassa:'🔽'}[p]||'📰'; }
+function pCls(p){ return {normale:'bn',urgente:'bu',bassa:'bd'}[p]||'bn'; }
 </script>
 </body>
 </html>
