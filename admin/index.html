@@ -93,7 +93,11 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .bp{background:#f0f9e6;color:var(--green2)}
 .bd{background:#f1f5f9;color:var(--muted)}
 .cat{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.cat-normativa{background:#eef3fb;color:#2855a0}
+.cat-chips-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.cat-chip{display:inline-flex;align-items:center;padding:5px 11px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:#fff;color:var(--muted);transition:all .15s;user-select:none}
+.cat-chip:hover{border-color:var(--gray);color:var(--text)}
+.cat-chip.sel{border-color:var(--orange);background:var(--orange);color:#fff}
+.cat-err{font-size:11px;color:#dc2626;margin-top:4px;display:none}
 .cat-formazione{background:#f0f9e6;color:var(--green2)}
 .cat-cantiere{background:#fff3ee;color:var(--orange)}
 .cat-avviso{background:#fffbeb;color:#b45309}
@@ -290,19 +294,20 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
                 <input type="hidden" id="f-prio" value="normale">
               </div>
               <div class="field">
-                <label>Categoria</label>
-                <select id="f-cat">
-                  <option value="notizie">Notizie</option>
-                  <option value="normativa">Normativa</option>
-                  <option value="circolare">Circolare</option>
-                  <option value="informazione">Informazione</option>
-                  <option value="formazione">Formazione</option>
-                  <option value="cantieri">Cantieri</option>
-                  <option value="corsi">Corsi</option>
-                  <option value="corso-gratuito">Corso gratuito</option>
-                  <option value="progetto-finanziato">Progetto finanziato</option>
-                  <option value="avvisi">Avvisi</option>
-                </select>
+                <label>Categoria <span style="font-weight:400;text-transform:none;letter-spacing:0">(una o più)</span></label>
+                <div class="cat-chips-wrap" id="cat-chips-admin">
+                  <span class="cat-chip" data-cat="notizie">Notizie</span>
+                  <span class="cat-chip" data-cat="normativa">Normativa</span>
+                  <span class="cat-chip" data-cat="circolare">Circolare</span>
+                  <span class="cat-chip" data-cat="informazione">Informazione</span>
+                  <span class="cat-chip" data-cat="formazione">Formazione</span>
+                  <span class="cat-chip" data-cat="cantieri">Cantieri</span>
+                  <span class="cat-chip" data-cat="corsi">Corsi</span>
+                  <span class="cat-chip" data-cat="corso-gratuito">Corso gratuito</span>
+                  <span class="cat-chip" data-cat="progetto-finanziato">Progetto finanziato</span>
+                  <span class="cat-chip" data-cat="avvisi">Avvisi</span>
+                </div>
+                <div class="cat-err" id="cat-err">Seleziona almeno una categoria.</div>
               </div>
               <div class="field"><label>Autore / Firma</label><input type="text" id="f-autore" placeholder="Es. Renato Squizzato"></div>
               <div class="field"><label>Data pubblicazione</label><input type="date" id="f-data"></div>
@@ -400,16 +405,33 @@ function initQuill(){
     ]}
   });
   quill.on('text-change', updSum);
-  ['f-titolo','f-autore','f-cat','f-data','f-prio'].forEach(id=>{
+  ['f-titolo','f-autore','f-data','f-prio'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
     el.addEventListener('input', updSum);
     if(el.tagName==='SELECT') el.addEventListener('change', updSum);
   });
   document.getElementById('f-pub').addEventListener('change', updSum);
+  // Chip categoria admin
+  document.querySelectorAll('#cat-chips-admin .cat-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      c.classList.toggle('sel');
+      document.getElementById('cat-err').style.display = 'none';
+      updSum();
+    });
+  });
 }
 
-// ── NAV ───────────────────────────────────────────────────────
+// ── Categoria helpers ──────────────────────────────────────
+function getSelectedCats() {
+  return [...document.querySelectorAll('#cat-chips-admin .cat-chip.sel')].map(c => c.dataset.cat);
+}
+function setSelectedCats(cats) {
+  const arr = Array.isArray(cats) ? cats : (cats ? [cats] : []);
+  document.querySelectorAll('#cat-chips-admin .cat-chip').forEach(c => {
+    c.classList.toggle('sel', arr.includes(c.dataset.cat));
+  });
+}
 function showPanel(id){
   document.getElementById('list-panel').style.display   = id==='list'   ? 'block' : 'none';
   document.getElementById('editor-panel').style.display = id==='editor' ? 'block' : 'none';
@@ -438,7 +460,7 @@ async function loadList(){
   document.getElementById('ntable').style.display='table';
   document.getElementById('ntbody').innerHTML = data.map(n=>`
     <tr>
-      <td class="td-title">${esc(n.titolo)}<small><span class="cat cat-${n.categoria||'generale'}">${n.categoria||'generale'}</span></small></td>
+      <td class="td-title">${esc(n.titolo)}<small>${(Array.isArray(n.categoria)?n.categoria:[n.categoria||'notizie']).map(c=>`<span class="cat cat-${c}">${c}</span>`).join(' ')}</small></td>
       <td><span class="badge ${pCls(n.priorita)}">${pIcon(n.priorita)} ${n.priorita||'normale'}</span></td>
       <td><span class="badge ${n.pubblicata?'bp':'bd'}">${n.pubblicata?'● Pubblicata':'○ Bozza'}</span></td>
       <td style="font-size:12px;color:var(--gray)">${esc(n.autore||'—')}</td>
@@ -454,7 +476,8 @@ async function loadList(){
 function newNotizia(){
   editId=null; upImg=null; upAtt=null;
   ['f-titolo','f-link','f-youtube'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-cat').value='generale';
+  document.querySelectorAll('#cat-chips-admin .cat-chip').forEach(c => c.classList.remove('sel'));
+  document.getElementById('cat-err').style.display = 'none';
   document.getElementById('f-prio').value='normale';
   document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
   document.getElementById('f-pub').checked=true;
@@ -476,7 +499,7 @@ async function editN(id){
   document.getElementById('f-titolo').value=data.titolo||'';
   document.getElementById('f-link').value=(!data.link_esterno||data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be'))?'':(data.link_esterno||'');
   document.getElementById('f-youtube').value=(data.link_esterno&&(data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be')))?data.link_esterno:'';
-  document.getElementById('f-cat').value=data.categoria||'generale';
+  setSelectedCats(data.categoria);
   document.getElementById('f-prio').value=data.priorita||'normale';
   document.getElementById('f-autore').value=data.autore||'';
   document.getElementById('f-data').value=data.data_pubbl||'';
@@ -496,12 +519,16 @@ async function save(pub){
   const corpo=quill?quill.root.innerHTML:'';
   if(!titolo){toast('Il titolo è obbligatorio','error');return;}
   if(!quill||quill.getText().trim().length<5){toast('Inserisci il testo della notizia','error');return;}
-  const btn=document.getElementById(pub?'btn-pub':'btn-dft');
+  const cats = getSelectedCats();
+  if (!cats.length) {
+    document.getElementById('cat-err').style.display = 'block';
+    toast('Seleziona almeno una categoria','error'); return;
+  }
   btn.disabled=true; btn.innerHTML='<span class="spinner" style="border-top-color:#fff"></span> Salvataggio…';
   const payload={
     titolo,corpo,
     priorita:document.getElementById('f-prio').value,
-    categoria:document.getElementById('f-cat').value,
+    categoria:cats,
     autore:document.getElementById('f-autore').value.trim(),
     data_pubbl:document.getElementById('f-data').value||new Date().toISOString().split('T')[0],
     link_esterno:document.getElementById('f-youtube').value.trim() || document.getElementById('f-link').value.trim() || null,
@@ -578,14 +605,14 @@ function setPrio(el){
 function updSum(){
   const ti=document.getElementById('f-titolo')?.value.trim();
   const au=document.getElementById('f-autore')?.value.trim();
-  const ca=document.getElementById('f-cat')?.value;
+  const ca = getSelectedCats();
   const pr=document.getElementById('f-prio')?.value;
   const da=document.getElementById('f-data')?.value;
   const pu=document.getElementById('f-pub')?.checked;
   const ch=quill?quill.getText().trim().length:0;
   document.getElementById('summary').innerHTML=`<div style="display:flex;flex-direction:column;gap:7px">
     <div><strong>Titolo:</strong> ${ti?esc(ti):'<em style="opacity:.4">—</em>'}</div>
-    <div><strong>Categoria:</strong> <span class="cat cat-${ca||'generale'}">${ca||'generale'}</span></div>
+    <div><strong>Categorie:</strong> ${ca.length ? ca.map(c=>`<span class="cat cat-${c}">${c}</span>`).join(' ') : '<em style="opacity:.4">—</em>'}</div>
     <div><strong>Priorità:</strong> <span class="badge ${pCls(pr)}">${pIcon(pr)} ${pr||'normale'}</span></div>
     <div><strong>Autore:</strong> ${au?esc(au):'<em style="opacity:.4">—</em>'}</div>
     <div><strong>Data:</strong> ${da?fDate(da):'<em style="opacity:.4">oggi</em>'}</div>
