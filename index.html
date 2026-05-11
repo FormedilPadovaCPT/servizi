@@ -372,7 +372,25 @@
     .news-loader { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--muted); font-size:13px; }
 
     /* ── FILTRI NOTIZIE ── */
-    .news-filters { margin-bottom:18px; display:flex; flex-direction:column; gap:10px; }
+    .news-filters { margin-bottom:18px; display:flex; flex-direction:column; gap:12px;
+      background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius);
+      padding:16px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+    .btn-filtri {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:9px 16px; border-radius:8px;
+      background:var(--white); color:var(--text);
+      border:1.5px solid var(--border);
+      font-family:'Barlow',sans-serif; font-size:13px; font-weight:700;
+      cursor:pointer; transition:all .18s;
+    }
+    .btn-filtri:hover { border-color:var(--orange); color:var(--orange); }
+    .btn-filtri.open  { border-color:var(--orange); background:#fff5f0; color:var(--orange); }
+    .filtri-count {
+      background:var(--orange); color:#fff;
+      font-size:10px; font-weight:800;
+      min-width:18px; height:18px; border-radius:9px;
+      padding:0 4px; display:inline-flex; align-items:center; justify-content:center;
+    }
     .nf-row { display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap; }
     .nf-label { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:6px; min-width:72px; }
     .nf-chips { display:flex; flex-wrap:wrap; gap:6px; }
@@ -1140,7 +1158,17 @@
         </div>
       </div>
 
-      <!-- FILTRI -->
+      <!-- Pulsante apri filtri -->
+      <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="btn-filtri" id="btn-filtri" onclick="toggleFiltri()">
+          <span id="filtri-icon">⚙️</span> Seleziona filtri
+          <span class="filtri-count" id="filtri-count" style="display:none">0</span>
+        </button>
+        <button class="nf-reset" id="nf-reset-btn" onclick="resetFilters()" style="display:none">✕ Azzera filtri</button>
+        <div class="news-count-bar" id="news-count-bar"></div>
+      </div>
+
+      <!-- Pannello filtri collassabile -->
       <div class="news-filters" id="news-filters" style="display:none">
         <div class="nf-row">
           <span class="nf-label">Categoria</span>
@@ -1168,9 +1196,7 @@
             <span class="nf-chip" data-prio="normale">📰 Normale</span>
             <span class="nf-chip" data-prio="bassa">🔽 Bassa</span>
           </div>
-          <button class="nf-reset" id="nf-reset-btn" onclick="resetFilters()" style="display:none">✕ Azzera filtri</button>
         </div>
-        <div class="news-count-bar" id="news-count-bar"></div>
       </div>
 
       <div class="news-loader" id="news-loader">
@@ -1209,9 +1235,18 @@
           <div class="team-photo"><img src="Paolo Balladore.jpg" alt="Paolo Balladore"></div>
           <div class="team-info">
             <div class="team-name">Paolo Balladore</div>
-            <div class="team-role">Coordinatore</div>
+            <div class="team-role">Responsabile Scientifico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
             <div class="team-email"><a href="mailto:paolo.balladore@did.scuolaedilepadova.net">paolo.balladore@did.scuolaedilepadova.net</a></div>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
+          <div class="team-info">
+            <div class="team-name">Nicola De Marco</div>
+            <div class="team-role">Tecnico e Coordinatore</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:nicola.demarco@did.scuolaedilepadova.net">nicola.demarco@did.scuolaedilepadova.net</a></div>
           </div>
         </div>
         <div class="team-card">
@@ -1227,15 +1262,6 @@
 
       <div class="team-section-label">Tecnici</div>
       <div class="team-grid">
-        <div class="team-card">
-          <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
-          <div class="team-info">
-            <div class="team-name">Nicola De Marco</div>
-            <div class="team-role">Tecnico</div>
-            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:nicola.demarco@did.scuolaedilepadova.net">nicola.demarco@did.scuolaedilepadova.net</a></div>
-          </div>
-        </div>
         <div class="team-card">
           <div class="team-photo"><img src="Camuffo Marco.jpg" alt="Marco Camuffo"></div>
           <div class="team-info">
@@ -4342,7 +4368,6 @@ function buildNewsItem(n, readIds) {
 function applyFilters() {
   const list = document.getElementById('news-list');
   const bar  = document.getElementById('news-count-bar');
-  const rst  = document.getElementById('nf-reset-btn');
 
   let filtered = _allNews;
   if (_activeCats.size > 0) {
@@ -4356,12 +4381,13 @@ function applyFilters() {
   }
 
   const hasFilter = _activeCats.size > 0 || _activePrio;
-  if (rst) rst.style.display = hasFilter ? 'inline-block' : 'none';
   if (bar) {
     bar.innerHTML = hasFilter
       ? `<strong>${filtered.length}</strong> notizie trovate su ${_allNews.length}`
       : `<strong>${_allNews.length}</strong> notizie disponibili`;
   }
+
+  updateFiltriCount();
 
   if (!filtered.length) {
     list.innerHTML = '<div class="news-empty"><span class="nei">🔍</span>Nessuna notizia corrisponde ai filtri.</div>';
@@ -4379,6 +4405,7 @@ function toggleCatFilter(chip) {
   const cat = chip.dataset.cat;
   if (_activeCats.has(cat)) { _activeCats.delete(cat); chip.classList.remove('active'); }
   else                       { _activeCats.add(cat);    chip.classList.add('active'); }
+  updateFiltriCount();
   applyFilters();
 }
 
@@ -4388,13 +4415,32 @@ function togglePrioFilter(chip) {
   document.querySelectorAll('#prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
   if (_activePrio === prio) { _activePrio = null; }
   else { _activePrio = prio; chip.classList.add('active'); }
+  updateFiltriCount();
   applyFilters();
 }
 
 // ── Reset filtri ──────────────────────────────────────
+function toggleFiltri() {
+  const panel = document.getElementById('news-filters');
+  const btn   = document.getElementById('btn-filtri');
+  const open  = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = open ? 'flex' : 'none';
+  btn.classList.toggle('open', open);
+  document.getElementById('filtri-icon').textContent = open ? '✕' : '⚙️';
+}
+
+function updateFiltriCount() {
+  const n   = _activeCats.size + (_activePrio ? 1 : 0);
+  const cnt = document.getElementById('filtri-count');
+  const rst = document.getElementById('nf-reset-btn');
+  if (cnt) { cnt.textContent = n; cnt.style.display = n > 0 ? 'inline-flex' : 'none'; }
+  if (rst) rst.style.display = n > 0 ? 'inline-block' : 'none';
+}
+
 function resetFilters() {
   _activeCats.clear(); _activePrio = null;
   document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
+  updateFiltriCount();
   applyFilters();
 }
 
@@ -4463,8 +4509,11 @@ function newsPageOpen() {
   document.getElementById('news-list').style.display   = 'none';
   const filters = document.getElementById('news-filters');
   if (filters) filters.style.display = 'none';
+  const btn = document.getElementById('btn-filtri');
+  if (btn) { btn.classList.remove('open'); document.getElementById('filtri-icon').textContent = '⚙️'; }
   _activeCats.clear(); _activePrio = null;
   document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
+  updateFiltriCount();
   loadNews();
   startRealtime();
 }
