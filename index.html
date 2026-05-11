@@ -1244,7 +1244,7 @@
           <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
           <div class="team-info">
             <div class="team-name">Nicola De Marco</div>
-            <div class="team-role">Tecnico e Coordinatore</div>
+            <div class="team-role">Coordinatore e Tecnico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
             <div class="team-email"><a href="mailto:nicola.demarco@did.scuolaedilepadova.net">nicola.demarco@did.scuolaedilepadova.net</a></div>
           </div>
@@ -4457,7 +4457,7 @@ function renderNews(items) {
   const filters = document.getElementById('news-filters');
   loader.style.display = 'none';
   list.style.display   = 'flex';
-  if (filters) filters.style.display = 'flex';
+  // Il pannello filtri rimane nascosto finché l'utente non preme "Seleziona filtri"
   _allNews = items.filter(n => n.pubblicata);
   if (!_allNews.length) {
     list.innerHTML = '<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.</div>';
