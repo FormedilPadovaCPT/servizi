@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#1e2d5e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Formedil PD">
+  <meta name="apple-mobile-web-app-title" content="Formedil Padova NEWS">
   <link rel="manifest" href="PWA/manifest.json">
   <link rel="apple-touch-icon" href="PWA/icons/icon-192x192.png">
 
@@ -296,27 +296,16 @@
     .news-item:hover { box-shadow:var(--shadow); }
     .news-item.unread { border-left:4px solid var(--orange); }
     .news-item-meta { display:flex; align-items:center; gap:8px; margin-bottom:9px; flex-wrap:wrap; }
-    .ntag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; white-space:nowrap; }
-    .ntag-normativa         { background:#eef3fb; color:#2855a0; }
-    .ntag-circolare         { background:#e8eaf6; color:#3949ab; }
-    .ntag-informazione      { background:#e3f2fd; color:#0277bd; }
-	.ntag-convegno          { background:#e3f2fd; color:#0277bd; }
-    .ntag-formazione        { background:#eaf3de; color:var(--green2,#749a1e); }
-    .ntag-cantieri          { background:#fdf3ee; color:var(--orange); }
-    .ntag-corsi             { background:#f3e5f5; color:#7b1fa2; }
-    .ntag-corso-gratuito    { background:#e8f5e9; color:#2e7d32; }
-    .ntag-progetto-finanziato { background:#fff8e1; color:#f57f17; }
-    .ntag-avvisi            { background:#fff3cd; color:#856404; }
-    .ntag-notizie           { background:#f1f5f9; color:var(--gray); }
-    .ntag-formedil          { background:#fdf3ee; color:var(--orange); font-weight:800; }
-    .ntag-spisal            { background:#e8f5e9; color:#2e7d32; }
-    .ntag-inail             { background:#e3f2fd; color:#0277bd; }
-    .ntag-itl               { background:#f3e5f5; color:#7b1fa2; }
-    .ntag-generale          { background:#f1f5f9; color:var(--gray); }
+    .ntag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:4px; }
+    .ntag-normativa  { background:#eef3fb; color:#2855a0; }
+    .ntag-formazione { background:#eaf3de; color:var(--green2,#749a1e); }
+    .ntag-cantiere   { background:#fdf3ee; color:var(--orange); }
+    .ntag-avviso     { background:#fff3cd; color:#856404; }
+    .ntag-generale   { background:var(--light,#f1f5f9); color:var(--gray); }
     .nprio { font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; }
-    .nprio-urgente  { background:#fff3ee; color:var(--orange); }
-    .nprio-bassa    { background:#f1f5f9; color:var(--muted); }
-    .nprio-normale  { display:none; }
+    .nprio-urgente      { background:#fff3ee; color:var(--orange); }
+    .nprio-informazione { background:#eff6ff; color:#3b82f6; }
+    .nprio-normale      { display:none; }
     .ndate  { font-size:11px; color:var(--muted); margin-left:auto; }
     .ntitle { font-size:14px; font-weight:700; color:var(--text); margin-bottom:7px; line-height:1.4; }
     .nbody  { font-size:12.5px; color:var(--muted); line-height:1.7; }
@@ -334,82 +323,10 @@
     .nlink-ext:hover  { background:var(--orange2,#c43e00); }
     .nlink-att  { background:var(--light,#f1f5f9); color:var(--text); border:1px solid var(--border); }
     .nlink-att:hover  { background:var(--border); }
-    .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; cursor:zoom-in; transition:opacity .2s; }
-    .news-img:hover { opacity:.88; }
-
-    /* YouTube embed */
-    .yt-wrap {
-      position:relative; width:100%; padding-bottom:56.25%;
-      border-radius:8px; overflow:hidden; margin:12px 0; background:#000;
-    }
-    .yt-wrap iframe {
-      position:absolute; inset:0; width:100%; height:100%; border:0;
-    }
-
-    /* Lightbox */
-    #lightbox {
-      display:none; position:fixed; inset:0; z-index:9999;
-      background:rgba(0,0,0,.92);
-      align-items:center; justify-content:center;
-      cursor:zoom-out;
-      animation: lb-in .18s ease;
-    }
-    #lightbox.open { display:flex; }
-    @keyframes lb-in { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
-    #lightbox img {
-      max-width:92vw; max-height:88vh;
-      object-fit:contain; border-radius:10px;
-      box-shadow:0 8px 60px rgba(0,0,0,.6);
-      pointer-events:none;
-    }
-    #lightbox-close {
-      position:fixed; top:18px; right:22px;
-      color:#fff; font-size:32px; cursor:pointer; line-height:1;
-      opacity:.7; transition:opacity .15s; user-select:none;
-    }
-    #lightbox-close:hover { opacity:1; }
+    .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; }
     .news-empty { text-align:center; padding:48px 20px; color:var(--muted); font-size:13px; }
     .news-empty .nei { font-size:40px; display:block; margin-bottom:12px; opacity:.4; }
     .news-loader { display:flex; align-items:center; justify-content:center; gap:8px; padding:32px; color:var(--muted); font-size:13px; }
-
-    /* ── FILTRI NOTIZIE ── */
-    .news-filters { margin-bottom:18px; display:flex; flex-direction:column; gap:12px;
-      background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius);
-      padding:16px; box-shadow:0 2px 10px rgba(0,0,0,.06); }
-    .btn-filtri {
-      display:inline-flex; align-items:center; gap:7px;
-      padding:9px 16px; border-radius:8px;
-      background:var(--white); color:var(--text);
-      border:1.5px solid var(--border);
-      font-family:'Barlow',sans-serif; font-size:13px; font-weight:700;
-      cursor:pointer; transition:all .18s;
-    }
-    .btn-filtri:hover { border-color:var(--orange); color:var(--orange); }
-    .btn-filtri.open  { border-color:var(--orange); background:#fff5f0; color:var(--orange); }
-    .filtri-count {
-      background:var(--orange); color:#fff;
-      font-size:10px; font-weight:800;
-      min-width:18px; height:18px; border-radius:9px;
-      padding:0 4px; display:inline-flex; align-items:center; justify-content:center;
-    }
-    .nf-row { display:flex; align-items:flex-start; gap:8px; flex-wrap:wrap; }
-    .nf-label { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; margin-top:6px; min-width:72px; }
-    .nf-chips { display:flex; flex-wrap:wrap; gap:6px; }
-    .nf-chip {
-      display:inline-flex; align-items:center;
-      padding:5px 11px; border-radius:20px; cursor:pointer;
-      font-size:11px; font-weight:700; letter-spacing:.03em;
-      border:1.5px solid var(--border); background:var(--white);
-      color:var(--muted); transition:all .15s; user-select:none;
-    }
-    .nf-chip:hover { border-color:var(--gray); color:var(--text); }
-    .nf-chip.active { border-color:var(--orange); background:var(--orange); color:#fff; }
-    .nf-chip.prio-active-urgente { border-color:var(--orange); background:#fff3ee; color:var(--orange); }
-    .nf-chip.prio-active-bassa   { border-color:var(--muted);  background:#f1f5f9; color:var(--muted); }
-    .nf-reset { font-size:11px; font-weight:700; color:var(--muted); cursor:pointer; padding:5px 8px; border-radius:6px; border:none; background:none; font-family:inherit; transition:color .15s; align-self:flex-end; }
-    .nf-reset:hover { color:var(--orange); }
-    .news-count-bar { font-size:12px; color:var(--muted); padding:4px 0 2px; }
-    .news-count-bar strong { color:var(--text); }
     .n-spinner { width:18px; height:18px; border:2px solid var(--border); border-top-color:var(--orange); border-radius:50%; animation:spin .7s linear infinite; }
     @keyframes spin { to{ transform:rotate(360deg); } }
     .realtime-dot {
@@ -755,56 +672,6 @@
     }
     #page-home .page-footer a { color: rgba(255,255,255,.9); }
 
-    /* ── PULSANTE CONDIVIDI APP ── */
-    .share-wrap {
-      background: var(--green);
-      padding: 0 32px 20px;
-      max-width: 100%;
-      display: flex; justify-content: center;
-    }
-    .btn-share {
-      display: inline-flex; align-items: center; gap: 9px;
-      background: var(--orange); color: #fff;
-      border: none; border-radius: 10px;
-      padding: 13px 28px;
-      font-family: 'Barlow', sans-serif;
-      font-size: 14px; font-weight: 800;
-      cursor: pointer; transition: all .2s;
-      box-shadow: 0 3px 14px rgba(231,80,15,.35);
-      letter-spacing: .02em;
-    }
-    .btn-share:hover  { background: #c43e00; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231,80,15,.45); }
-    .btn-share:active { transform: translateY(0); }
-    .btn-share .bs-icon { font-size: 18px; }
-
-    /* Tooltip fallback desktop */
-    .share-tooltip {
-      display: none; position: fixed;
-      bottom: 80px; left: 50%; transform: translateX(-50%);
-      background: #1a1d23; color: #fff;
-      padding: 12px 18px; border-radius: 10px;
-      font-size: 13px; font-weight: 600;
-      box-shadow: 0 4px 24px rgba(0,0,0,.25);
-      z-index: 9000; white-space: nowrap;
-      animation: fadein .2s ease;
-    }
-    .share-tooltip.show { display: flex; align-items: center; gap: 10px; }
-    .share-tooltip input {
-      border: none; background: rgba(255,255,255,.12); color: #fff;
-      border-radius: 6px; padding: 6px 10px; font-size: 12px;
-      font-family: monospace; width: 260px; outline: none;
-    }
-    .share-tooltip .st-copy {
-      background: var(--orange); border: none; color: #fff;
-      border-radius: 6px; padding: 6px 12px; cursor: pointer;
-      font-size: 12px; font-weight: 700; font-family: inherit;
-      white-space: nowrap;
-    }
-    .share-tooltip .st-close {
-      cursor: pointer; opacity: .6; font-size: 16px; margin-left: 4px;
-    }
-    .share-tooltip .st-close:hover { opacity: 1; }
-
     /* ═══════════════════════════════════════════
        MOBILE OVERLAY
     ═══════════════════════════════════════════ */
@@ -1127,21 +994,6 @@
         &nbsp;·&nbsp; Tel. 049 761168
         &nbsp;·&nbsp; <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>
       </div>
-
-      <!-- Pulsante condividi app -->
-      <div class="share-wrap">
-        <button class="btn-share" onclick="shareApp()">
-          <span class="bs-icon">📲</span>
-          Invia app a un collega
-        </button>
-      </div>
-    </div>
-
-    <!-- Tooltip condivisione (fallback desktop) -->
-    <div class="share-tooltip" id="share-tooltip">
-      <input type="text" id="share-url" readonly onclick="this.select()">
-      <button class="st-copy" onclick="copyShareUrl()">Copia link</button>
-      <span class="st-close" onclick="closeShareTooltip()">✕</span>
     </div>
 
     <!-- ════════════════════════════════
@@ -1156,48 +1008,7 @@
             <span class="realtime-dot" id="rt-dot" style="display:none"></span>
             🔔 Notizie &amp; Aggiornamenti
           </div>
-        </div>
-      </div>
-
-      <!-- Pulsante apri filtri -->
-      <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <button class="btn-filtri" id="btn-filtri" onclick="toggleFiltri()">
-          <span id="filtri-icon">⚙️</span> Seleziona filtri
-          <span class="filtri-count" id="filtri-count" style="display:none">0</span>
-        </button>
-        <button class="nf-reset" id="nf-reset-btn" onclick="resetFilters()" style="display:none">✕ Azzera filtri</button>
-        <div class="news-count-bar" id="news-count-bar"></div>
-      </div>
-
-      <!-- Pannello filtri collassabile -->
-      <div class="news-filters" id="news-filters" style="display:none">
-        <div class="nf-row">
-          <span class="nf-label">Categoria</span>
-          <div class="nf-chips" id="cat-chips">
-            <span class="nf-chip" data-cat="normativa">Normativa</span>
-            <span class="nf-chip" data-cat="circolare">Circolare</span>
-            <span class="nf-chip" data-cat="informazione">Informazione</span>
-			<span class="nf-chip" data-cat="convegno">Convegno</span>
-            <span class="nf-chip" data-cat="formazione">Formazione</span>
-            <span class="nf-chip" data-cat="cantieri">Cantieri</span>
-            <span class="nf-chip" data-cat="corsi">Corsi</span>
-            <span class="nf-chip" data-cat="corso-gratuito">Corso gratuito</span>
-            <span class="nf-chip" data-cat="progetto-finanziato">Progetto finanziato</span>
-            <span class="nf-chip" data-cat="avvisi">Avvisi</span>
-            <span class="nf-chip" data-cat="notizie">Notizie</span>
-            <span class="nf-chip" data-cat="formedil">Formedil</span>
-            <span class="nf-chip" data-cat="spisal">SPISAL</span>
-            <span class="nf-chip" data-cat="inail">INAIL</span>
-            <span class="nf-chip" data-cat="itl">ITL</span>
-          </div>
-        </div>
-        <div class="nf-row">
-          <span class="nf-label">Priorità</span>
-          <div class="nf-chips" id="prio-chips">
-            <span class="nf-chip" data-prio="urgente">🚨 Urgente</span>
-            <span class="nf-chip" data-prio="normale">📰 Normale</span>
-            <span class="nf-chip" data-prio="bassa">🔽 Bassa</span>
-          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="news-count-label"></div>
         </div>
       </div>
 
@@ -1237,18 +1048,9 @@
           <div class="team-photo"><img src="Paolo Balladore.jpg" alt="Paolo Balladore"></div>
           <div class="team-info">
             <div class="team-name">Paolo Balladore</div>
-            <div class="team-role">Responsabile Scientifico</div>
+            <div class="team-role">Coordinatore</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:paolo.balladore@did.scuolaedilepadova.net">paolo.balladore@did.scuolaedilepadova.net</a></div>
-          </div>
-        </div>
-        <div class="team-card">
-          <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
-          <div class="team-info">
-            <div class="team-name">Nicola De Marco</div>
-            <div class="team-role">Coordinatore e Tecnico</div>
-            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:nicola.demarco@did.scuolaedilepadova.net">nicola.demarco@did.scuolaedilepadova.net</a></div>
+            <div class="team-email"><a href="mailto:paolo.balladore@did.formedilpadova.it">paolo.balladore@did.formedilpadova.it</a></div>
           </div>
         </div>
         <div class="team-card">
@@ -1265,12 +1067,21 @@
       <div class="team-section-label">Tecnici</div>
       <div class="team-grid">
         <div class="team-card">
+          <div class="team-photo"><img src="nicola-de marco.jpg" alt="Nicola De Marco"></div>
+          <div class="team-info">
+            <div class="team-name">Nicola De Marco</div>
+            <div class="team-role">Tecnico</div>
+            <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
+            <div class="team-email"><a href="mailto:nicola.demarco@did.formedilpadova.it">nicola.demarco@did.formedilpadova.it</a></div>
+          </div>
+        </div>
+        <div class="team-card">
           <div class="team-photo"><img src="Camuffo Marco.jpg" alt="Marco Camuffo"></div>
           <div class="team-info">
             <div class="team-name">Marco Camuffo</div>
             <div class="team-role">Tecnico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:marco.camuffo@did.scuolaedilepadova.net">marco.camuffo@did.scuolaedilepadova.net</a></div>
+            <div class="team-email"><a href="mailto:marco.camuffo@did.formedilpadova.it">marco.camuffo@did.formedilpadova.it</a></div>
           </div>
         </div>
         <div class="team-card">
@@ -1279,7 +1090,7 @@
             <div class="team-name">Mirco Canova</div>
             <div class="team-role">Tecnico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:mirco.canova@did.scuolaedilepadova.net">mirco.canova@did.scuolaedilepadova.net</a></div>
+            <div class="team-email"><a href="mailto:mirco.canova@did.formedilpadova.it">mirco.canova@did.formedilpadova.it</a></div>
           </div>
         </div>
         <div class="team-card">
@@ -1288,7 +1099,7 @@
             <div class="team-name">Franco Caon</div>
             <div class="team-role">Tecnico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:franco.caon@did.scuolaedilepadova.net">franco.caon@did.scuolaedilepadova.net</a></div>
+            <div class="team-email"><a href="mailto:franco.caon@did.formedilpadova.it">franco.caon@did.formedilpadova.it</a></div>
           </div>
         </div>
         <div class="team-card">
@@ -1297,7 +1108,7 @@
             <div class="team-name">Tommaso Visentini</div>
             <div class="team-role">Tecnico</div>
             <div class="team-body">FORMEDIL Padova<br>Area Sicurezza e Salute</div>
-            <div class="team-email"><a href="mailto:tommaso.visentini@did.scuolaedilepadova.net">tommaso.visentini@did.scuolaedilepadova.net</a></div>
+            <div class="team-email"><a href="mailto:tommaso.visentini@did.formedilpadova.it">tommaso.visentini@did.formedilpadova.it</a></div>
           </div>
         </div>
       </div>
@@ -4277,8 +4088,8 @@ document.getElementById('form-questionario').addEventListener('submit', e => {
 //  SUPABASE – NOTIZIE & AGGIORNAMENTI
 // ══════════════════════════════════════════════════════
 
-const SB_URL   = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';
-const SB_ANON  = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';
+const SB_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co';       // ← es. https://xxxx.supabase.co
+const SB_ANON = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';  // ← chiave anon pubblica
 const SB_TABLE = 'notizie';
 
 const _sb = supabase.createClient(SB_URL, SB_ANON);
@@ -4286,22 +4097,16 @@ const _sb = supabase.createClient(SB_URL, SB_ANON);
 const NEWS_READ_KEY  = 'formedil_news_read_v2';
 const NEWS_CACHE_KEY = 'formedil_news_cache_v2';
 
-// ── Stato filtri ─────────────────────────────────────
-let _allNews    = [];
-let _activeCats = new Set();
-let _activePrio = null;
-
-// ── Letture ───────────────────────────────────────────
+// ── Cache letture ────────────────────────────────────
 function getReadIds() {
   try { return JSON.parse(localStorage.getItem(NEWS_READ_KEY) || '[]'); } catch { return []; }
 }
-function markAllRead(items) {
+function markRead(id) {
   const ids = getReadIds();
-  items.forEach(n => { if (!ids.includes(n.id)) ids.push(n.id); });
-  localStorage.setItem(NEWS_READ_KEY, JSON.stringify(ids));
+  if (!ids.includes(id)) { ids.push(id); localStorage.setItem(NEWS_READ_KEY, JSON.stringify(ids)); }
 }
 
-// ── Badge ─────────────────────────────────────────────
+// ── Badge ────────────────────────────────────────────
 function updateBadge(items) {
   const readIds = getReadIds();
   const n = items.filter(x => !readIds.includes(x.id)).length;
@@ -4312,271 +4117,138 @@ function updateBadge(items) {
   });
 }
 
-// ── YouTube ───────────────────────────────────────────
-function extractYouTubeId(url) {
-  if (!url) return null;
-  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
-
-// ── Data italiana ─────────────────────────────────────
+// ── Data italiana ────────────────────────────────────
 function fmtNewsDate(iso) {
   if (!iso) return '';
   const d = new Date(iso + (iso.length === 10 ? 'T00:00:00' : ''));
-  return d.toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
+  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-// ── Render singola notizia ────────────────────────────
-function buildNewsItem(n, readIds) {
-  const unread  = !readIds.includes(n.id);
-  const cats    = Array.isArray(n.categoria) ? n.categoria : [n.categoria || 'notizie'];
-  const tagsHtml = cats.map(c => {
-    const slug = c.toLowerCase().replace(/\s+/g,'-');
-    return `<span class="ntag ntag-${slug}">${c}</span>`;
-  }).join(' ');
-  const prioCls = 'nprio-' + (n.priorita || 'normale');
-  const prioLabel = n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'bassa' ? '🔽 Bassa' : '';
-  const ytId    = extractYouTubeId(n.link_esterno || '');
-  const ytEmbed = ytId ? `
-    <div class="yt-wrap">
-      <iframe src="https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1"
-        frameborder="0" allowfullscreen loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-      </iframe>
-    </div>` : '';
-  const extLink = (n.link_esterno && !ytId)
-    ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : '';
-  return `
-  <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}">
-    ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
-    <div class="news-item-meta">
-      ${tagsHtml}
-      ${prioLabel ? `<span class="nprio ${prioCls}">${prioLabel}</span>` : ''}
-      <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
-    </div>
-    <div class="ntitle">${escHtml(n.titolo)}</div>
-    <div class="nbody">${n.corpo || ''}</div>
-    ${ytEmbed}
-    ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
-    ${(extLink || n.allegato_url) ? `
-    <div class="nlinks">
-      ${extLink}
-      ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
-    </div>` : ''}
-  </div>`;
-}
-
-// ── Applica filtri ────────────────────────────────────
-function applyFilters() {
-  const list = document.getElementById('news-list');
-  const bar  = document.getElementById('news-count-bar');
-
-  let filtered = _allNews;
-  if (_activeCats.size > 0) {
-    filtered = filtered.filter(n => {
-      const cats = Array.isArray(n.categoria) ? n.categoria : [n.categoria || 'notizie'];
-      return cats.some(c => _activeCats.has(c.toLowerCase().replace(/\s+/g,'-')));
-    });
-  }
-  if (_activePrio) {
-    filtered = filtered.filter(n => (n.priorita || 'normale') === _activePrio);
-  }
-
-  const hasFilter = _activeCats.size > 0 || _activePrio;
-  if (bar) {
-    bar.innerHTML = hasFilter
-      ? `<strong>${filtered.length}</strong> notizie trovate su ${_allNews.length}`
-      : `<strong>${_allNews.length}</strong> notizie disponibili`;
-  }
-
-  updateFiltriCount();
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="news-empty"><span class="nei">🔍</span>Nessuna notizia corrisponde ai filtri.</div>';
-    return;
-  }
-  const readIds = getReadIds();
-  list.innerHTML = filtered.map(n => buildNewsItem(n, readIds)).join('');
-  list.querySelectorAll('.news-item').forEach(el => {
-    el.addEventListener('click', () => el.classList.remove('unread'));
-  });
-}
-
-// ── Chip categoria (multi) ────────────────────────────
-function toggleCatFilter(chip) {
-  const cat = chip.dataset.cat;
-  if (_activeCats.has(cat)) { _activeCats.delete(cat); chip.classList.remove('active'); }
-  else                       { _activeCats.add(cat);    chip.classList.add('active'); }
-  updateFiltriCount();
-  applyFilters();
-}
-
-// ── Chip priorità (singola) ───────────────────────────
-function togglePrioFilter(chip) {
-  const prio = chip.dataset.prio;
-  document.querySelectorAll('#prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
-  if (_activePrio === prio) { _activePrio = null; }
-  else { _activePrio = prio; chip.classList.add('active'); }
-  updateFiltriCount();
-  applyFilters();
-}
-
-// ── Reset filtri ──────────────────────────────────────
-function toggleFiltri() {
-  const panel = document.getElementById('news-filters');
-  const btn   = document.getElementById('btn-filtri');
-  const open  = panel.style.display === 'none' || panel.style.display === '';
-  panel.style.display = open ? 'flex' : 'none';
-  btn.classList.toggle('open', open);
-  document.getElementById('filtri-icon').textContent = open ? '✕' : '⚙️';
-}
-
-function updateFiltriCount() {
-  const n   = _activeCats.size + (_activePrio ? 1 : 0);
-  const cnt = document.getElementById('filtri-count');
-  const rst = document.getElementById('nf-reset-btn');
-  if (cnt) { cnt.textContent = n; cnt.style.display = n > 0 ? 'inline-flex' : 'none'; }
-  if (rst) rst.style.display = n > 0 ? 'inline-block' : 'none';
-}
-
-function resetFilters() {
-  _activeCats.clear(); _activePrio = null;
-  document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
-  updateFiltriCount();
-  applyFilters();
-}
-
-// ── Init chip listeners ───────────────────────────────
-function initFilterChips() {
-  document.querySelectorAll('#cat-chips .nf-chip').forEach(c => c.addEventListener('click', () => toggleCatFilter(c)));
-  document.querySelectorAll('#prio-chips .nf-chip').forEach(c => c.addEventListener('click', () => togglePrioFilter(c)));
-}
-
-// ── Render ────────────────────────────────────────────
+// ── Render ───────────────────────────────────────────
 function renderNews(items) {
-  const loader  = document.getElementById('news-loader');
-  const list    = document.getElementById('news-list');
-  const filters = document.getElementById('news-filters');
+  const loader = document.getElementById('news-loader');
+  const list   = document.getElementById('news-list');
+  const lbl    = document.getElementById('news-count-label');
   loader.style.display = 'none';
   list.style.display   = 'flex';
-  // Il pannello filtri rimane nascosto finché l'utente non preme "Seleziona filtri"
-  _allNews = items.filter(n => n.pubblicata);
-  if (!_allNews.length) {
-    list.innerHTML = '<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.</div>';
+
+  const total = items.length;
+  const pub   = items.filter(n => n.pubblicata).length;
+  lbl.textContent = pub > 0 ? `${pub} notizie disponibili` : '';
+
+  const visible = items.filter(n => n.pubblicata);
+  if (!visible.length) {
+    list.innerHTML = `<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.<br>Torna a controllare presto.</div>`;
     return;
   }
-  applyFilters();
-  updateBadge(_allNews);
+
+  const readIds = getReadIds();
+  list.innerHTML = visible.map(n => {
+    const unread = !readIds.includes(n.id);
+    const tagCls = 'ntag-' + (n.categoria || 'generale');
+    const prioCls = 'nprio-' + (n.priorita || 'normale');
+    return `
+    <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}" style="cursor:default">
+      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="">` : ''}
+      <div class="news-item-meta">
+        <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
+        <span class="nprio ${prioCls}">${n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'informazione' ? 'ℹ️ Informazione' : ''}</span>
+        <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
+      </div>
+      <div class="ntitle">${escHtml(n.titolo)}</div>
+      <div class="nbody">${n.corpo || ''}</div>
+      ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
+      ${(n.link_esterno || n.allegato_url) ? `
+      <div class="nlinks">
+        ${n.link_esterno ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : ''}
+        ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Marca come letta al click/touch
+  list.querySelectorAll('.news-item').forEach(el => {
+    el.addEventListener('click', () => {
+      markRead(el.dataset.id);
+      el.classList.remove('unread');
+      updateBadge(visible);
+    });
+  });
+
+  updateBadge(visible);
 }
 
-// ── Carica dal DB ─────────────────────────────────────
+// ── Carica dal DB ────────────────────────────────────
 async function loadNews() {
+  // Mostra cache subito se disponibile
   try {
     const c = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY) || 'null');
-    if (c?.items) renderNews(c.items);
+    if (c?.items) { renderNews(c.items); }
   } catch {}
 
   const { data, error } = await _sb
-    .from(SB_TABLE).select('*').eq('pubblicata', true)
+    .from(SB_TABLE)
+    .select('*')
+    .eq('pubblicata', true)
     .order('data_pubbl', { ascending: false })
     .order('created_at', { ascending: false });
 
-  if (error) { console.warn('News error:', error.message); return; }
+  if (error) { console.warn('News fetch error:', error.message); return; }
+
   localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({ items: data, ts: Date.now() }));
   renderNews(data);
-
-  // Badge a zero: tutte le notizie visibili sono lette
-  markAllRead(data);
-  updateBadge([]);
 }
 
-// ── Realtime ──────────────────────────────────────────
+// ── Realtime subscription ────────────────────────────
 let _rtChannel = null;
 function startRealtime() {
   if (_rtChannel) return;
-  _rtChannel = _sb.channel('notizie-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: SB_TABLE }, () => {
-      if (document.getElementById('page-notizie').classList.contains('active')) loadNews();
-      else bgNewsRefresh();
-    })
+  _rtChannel = _sb
+    .channel('notizie-changes')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: SB_TABLE },
+      payload => {
+        console.log('Realtime news update:', payload.eventType);
+        loadNews();
+        // Se la pagina notizie è aperta, aggiorna anche il loader visivo
+        if (document.getElementById('page-notizie').classList.contains('active')) {
+          loadNews();
+        }
+      }
+    )
     .subscribe(status => {
       const dot = document.getElementById('rt-dot');
       if (dot) dot.style.display = status === 'SUBSCRIBED' ? 'inline-block' : 'none';
     });
 }
 
-// ── Apertura pagina notizie ───────────────────────────
+// ── Apertura pagina notizie ──────────────────────────
 function newsPageOpen() {
   document.getElementById('news-loader').style.display = 'flex';
   document.getElementById('news-list').style.display   = 'none';
-  const filters = document.getElementById('news-filters');
-  if (filters) filters.style.display = 'none';
-  const btn = document.getElementById('btn-filtri');
-  if (btn) { btn.classList.remove('open'); document.getElementById('filtri-icon').textContent = '⚙️'; }
-  _activeCats.clear(); _activePrio = null;
-  document.querySelectorAll('#cat-chips .nf-chip, #prio-chips .nf-chip').forEach(c => c.classList.remove('active'));
-  updateFiltriCount();
   loadNews();
   startRealtime();
 }
 
-// ── Background badge refresh ──────────────────────────
+// ── Background badge refresh ─────────────────────────
 async function bgNewsRefresh() {
-  const { data } = await _sb.from(SB_TABLE).select('id,pubblicata').eq('pubblicata', true);
+  const { data } = await _sb
+    .from(SB_TABLE)
+    .select('id,pubblicata')
+    .eq('pubblicata', true);
   if (data) updateBadge(data);
 }
 
-// ── Utils ─────────────────────────────────────────────
 function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  document.getElementById('lightbox-img').src = '';
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-// Avvio
-initFilterChips();
+// Avvio: carica badge e attiva realtime
 bgNewsRefresh();
 startRealtime();
 setInterval(bgNewsRefresh, 15 * 60 * 1000);
 
 // ══════════════════════════════════════════════════════
-//  CONDIVIDI APP
-// ══════════════════════════════════════════════════════
-async function shareApp() {
-  const url   = 'https://formedilpadovacpt.github.io/servizi/';
-  const title = 'Formedil Padova – Servizi Area Sicurezza e Salute';
-  const text  = 'Consulta i servizi gratuiti di Formedil Padova: sopralluoghi, corsi, consulenze e molto altro. Aprilo dal tuo telefono!';
-  if (navigator.share) {
-    try { await navigator.share({ title, text, url }); }
-    catch (e) { if (e.name !== 'AbortError') console.warn('Share error:', e); }
-  } else {
-    document.getElementById('share-url').value = url;
-    document.getElementById('share-tooltip').classList.add('show');
-    setTimeout(() => document.getElementById('share-tooltip').classList.remove('show'), 8000);
-  }
-}
-function copyShareUrl() {
-  const input = document.getElementById('share-url');
-  input.select();
-  navigator.clipboard?.writeText(input.value).catch(() => document.execCommand('copy'));
-  const btn = document.querySelector('.st-copy');
-  btn.textContent = '✓ Copiato!';
-  setTimeout(() => { btn.textContent = 'Copia link'; closeShareTooltip(); }, 1800);
-}
-function closeShareTooltip() {
-  document.getElementById('share-tooltip').classList.remove('show');
-}
-
-
 //  INIT
 // ══════════════════════════════════════════════════════
 document.getElementById('rlst-data_comp').valueAsDate = new Date();
@@ -4588,12 +4260,6 @@ document.getElementById('topbarTitle').style.display = 'none';
 </script>
 
 <!-- PWA Service Worker Registration -->
-<!-- Lightbox -->
-<div id="lightbox" onclick="closeLightbox()">
-  <span id="lightbox-close" onclick="closeLightbox()">✕</span>
-  <img id="lightbox-img" src="" alt="">
-</div>
-
 <script src="PWA/pwacompat.js"></script>
 </body>
 </html>
