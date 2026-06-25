@@ -1,0 +1,34 @@
+name: Supabase Keep-Alive
+
+# Evita la sospensione automatica del progetto Supabase (free tier) dopo 7 giorni
+# di inattività. Esegue una query di lettura ogni 2 giorni, ben dentro la finestra.
+
+on:
+  schedule:
+    - cron: '0 5 */2 * *'   # ogni 2 giorni alle 05:00 UTC
+  workflow_dispatch:        # avvio manuale per test
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -e
+          status=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/notizie?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          echo "HTTP status: $status"
+          cat /tmp/response.json
+
+          if [ "$status" -ge 200 ] && [ "$status" -lt 300 ]; then
+            echo "Supabase attivo e raggiungibile."
+          else
+            echo "Risposta inattesa da Supabase (status $status)."
+            exit 1
+          fi
