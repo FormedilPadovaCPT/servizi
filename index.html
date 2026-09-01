@@ -4171,11 +4171,15 @@ document.getElementById('form-visita').addEventListener('submit', e => {
   e.preventDefault();
   submitForm('form-visita', 'vis', async form => {
     const f = collectFields(form);
-    /* i radio non passano da collectFields, e il Code.gs legge
-       d.vis_tipo_visita: col nome sbagliato la colonna TIPO VISITA
-       del foglio restava vuota (trovato il 01/09/2026) */
+    /* i radio non passano da collectFields. Il valore parte con
+       ENTRAMBI i nomi: la copia del Code.gs nel vault legge
+       d.vis_tipo_visita (colonna del foglio), ma lo script
+       PUBBLICATO su Apps Script leggeva d.tipo_visita per la mail
+       di notifica — finché i due non sono allineati, così il dato
+       arriva comunque dappertutto (trovato il 01/09/2026). */
     const tipoVisita = form.querySelector('input[name=vis_tipo_visita]:checked');
     f.vis_tipo_visita = tipoVisita ? tipoVisita.value : '';
+    f.tipo_visita = f.vis_tipo_visita;
     return f;
   });
 });
