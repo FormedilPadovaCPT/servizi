@@ -2667,6 +2667,16 @@
           </div>
         </div>
 
+        <div class="section-title">Altre figure professionali</div>
+        <p style="font-size:13px;color:var(--muted);margin:-6px 0 12px">Coordinatori per la sicurezza, direttore dei lavori, progettista… (facoltative — aggiungine quante servono)</p>
+        <div id="not-figure-container"></div>
+        <button type="button" id="not-addFigura" onclick="addFiguraNot()" style="font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:600;padding:8px 16px;border:1px dashed var(--orange);border-radius:6px;background:transparent;color:var(--orange);cursor:pointer;margin:4px 0 18px">+ Aggiungi figura professionale</button>
+
+        <div class="section-title">Imprese previste in cantiere</div>
+        <p style="font-size:13px;color:var(--muted);margin:-6px 0 12px">Impresa affidataria, imprese esecutrici, lavoratori autonomi… (facoltative — aggiungine quante servono)</p>
+        <div id="not-imprese-container"></div>
+        <button type="button" id="not-addImpresa" onclick="addImpresaNot()" style="font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:600;padding:8px 16px;border:1px dashed var(--orange);border-radius:6px;background:transparent;color:var(--orange);cursor:pointer;margin:4px 0 18px">+ Aggiungi impresa</button>
+
         <div class="privacy-box">
           <input type="checkbox" id="not-privacy" name="privacy" required>
           <p><strong>Informativa privacy – D.Lgs. 196/2003 e GDPR (Reg. UE 2016/679)</strong><br>
@@ -3864,6 +3874,125 @@ function addCantiere() {
 }
 
 // ══════════════════════════════════════════════════════
+//  NOTIFICA: FIGURE PROFESSIONALI E IMPRESE (ripetibili)
+// ══════════════════════════════════════════════════════
+const TITOLI_FIGURA = ['Arch.','Geom.','Ing.','P.I.','Per.','Dott.','Dott.ssa','Rag.','Sig.','Sig.ra'];
+const RUOLI_FIGURA  = ['Coordinatore per la progettazione (CSP)','Coordinatore per l\'esecuzione (CSE)','Coordinatore per la sicurezza','Direttore dei lavori','Progettista','Responsabile dei lavori','Altro'];
+const RUOLI_IMPRESA = ['Impresa principale affidataria','Impresa esecutrice','Impresa subappaltatrice','Lavoratore autonomo','Altro'];
+let not_figura_seq = 0, not_impresa_seq = 0;
+
+function addFiguraNot() {
+  not_figura_seq++;
+  const block = document.createElement('div');
+  block.className = 'cantiere-block not-figura-block';
+  block.innerHTML = `
+    <div class="cantiere-block-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Figura professionale</span>
+      <button type="button" onclick="rimuoviBlocco(this,'figura')" style="font-family:'Barlow',sans-serif;font-size:12px;border:none;background:transparent;color:var(--muted);cursor:pointer">✕ Rimuovi</button>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Ruolo</label>
+        <select data-f="ruolo">
+          <option value="">— seleziona ruolo —</option>
+          ${RUOLI_FIGURA.map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Titolo</label>
+        <select data-f="titolo">
+          <option value="">— seleziona —</option>
+          ${TITOLI_FIGURA.map(t=>`<option>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Nome</label>
+        <input type="text" data-f="nome" placeholder="Nome">
+      </div>
+      <div class="field">
+        <label>Cognome</label>
+        <input type="text" data-f="cognome" placeholder="Cognome">
+      </div>
+      <div class="field">
+        <label>Codice fiscale</label>
+        <input type="text" data-f="cf" maxlength="16" style="text-transform:uppercase" placeholder="Codice fiscale">
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" data-f="email" placeholder="nome@email.it">
+      </div>
+      <div class="field">
+        <label>Telefono</label>
+        <input type="tel" data-f="telefono" placeholder="049 000000">
+      </div>
+    </div>`;
+  document.getElementById('not-figure-container').appendChild(block);
+  calcProgressForm('not');
+}
+
+function addImpresaNot() {
+  not_impresa_seq++;
+  const block = document.createElement('div');
+  block.className = 'cantiere-block not-impresa-block';
+  block.innerHTML = `
+    <div class="cantiere-block-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Impresa</span>
+      <button type="button" onclick="rimuoviBlocco(this,'impresa')" style="font-family:'Barlow',sans-serif;font-size:12px;border:none;background:transparent;color:var(--muted);cursor:pointer">✕ Rimuovi</button>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Ruolo in cantiere</label>
+        <select data-f="ruolo">
+          <option value="">— seleziona ruolo —</option>
+          ${RUOLI_IMPRESA.map(r=>`<option>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Ragione sociale</label>
+        <input type="text" data-f="ragione_sociale" placeholder="Ragione sociale">
+      </div>
+      <div class="field">
+        <label>Partita IVA</label>
+        <input type="text" data-f="piva" maxlength="11" placeholder="es. 01234567890">
+      </div>
+      <div class="field">
+        <label>Codice Cassa Edile / CEIV</label>
+        <input type="text" data-f="cod_cassa" placeholder="se noto">
+      </div>
+      <div class="field">
+        <label>Indirizzo</label>
+        <input type="text" data-f="indirizzo" placeholder="Via / N°">
+      </div>
+      <div class="field">
+        <label>Comune</label>
+        <input type="text" data-f="comune" placeholder="Comune">
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" data-f="email" placeholder="nome@email.it">
+      </div>
+    </div>`;
+  document.getElementById('not-imprese-container').appendChild(block);
+  calcProgressForm('not');
+}
+
+function rimuoviBlocco(btn, tipo) {
+  btn.closest('.cantiere-block').remove();
+  calcProgressForm('not');
+}
+
+// Raccoglie i blocchi ripetibili in un array di oggetti (solo blocchi con almeno un dato)
+function raccogliBlocchi(containerId) {
+  const out = [];
+  document.querySelectorAll('#' + containerId + ' .cantiere-block').forEach(b => {
+    const o = {};
+    b.querySelectorAll('[data-f]').forEach(el => { if (el.value && el.value.trim()) o[el.dataset.f] = el.value.trim(); });
+    if (Object.keys(o).length) out.push(o);
+  });
+  return out;
+}
+
+// ══════════════════════════════════════════════════════
 //  TOGGLE COMMITTENTE GIURIDICA
 // ══════════════════════════════════════════════════════
 function toggleCommittenteGiuridica(show) {
@@ -3887,6 +4016,12 @@ function resetForm(formId, prefix) {
   form.querySelectorAll('.file-area').forEach(a => a.style.borderColor='');
   form.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
   form.querySelectorAll('.request-err').forEach(el => el.style.display='none');
+  if (prefix === 'not') {
+    const fc = document.getElementById('not-figure-container');
+    const ic = document.getElementById('not-imprese-container');
+    if (fc) fc.innerHTML = '';
+    if (ic) ic.innerHTML = '';
+  }
   document.getElementById(prefix + '-success') && (document.getElementById(prefix + '-success').style.display='none');
   document.getElementById(prefix + '-error')   && (document.getElementById(prefix + '-error').style.display='none');
   const btn = document.getElementById(prefix + '-btnSend');
@@ -4071,6 +4206,11 @@ document.getElementById('form-notifica').addEventListener('submit', e => {
     const f = collectFields(form);
     const tipo = form.querySelector('input[name=not_committente_tipo]:checked');
     f.committente_tipo = tipo ? tipo.value : '';
+    // Figure professionali e imprese ripetibili → JSON
+    const figure  = raccogliBlocchi('not-figure-container');
+    const imprese = raccogliBlocchi('not-imprese-container');
+    if (figure.length)  f.figure_json  = JSON.stringify(figure);
+    if (imprese.length) f.imprese_json = JSON.stringify(imprese);
     return f;
   });
 });
