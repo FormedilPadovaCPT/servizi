@@ -4171,8 +4171,11 @@ document.getElementById('form-visita').addEventListener('submit', e => {
   e.preventDefault();
   submitForm('form-visita', 'vis', async form => {
     const f = collectFields(form);
+    /* i radio non passano da collectFields, e il Code.gs legge
+       d.vis_tipo_visita: col nome sbagliato la colonna TIPO VISITA
+       del foglio restava vuota (trovato il 01/09/2026) */
     const tipoVisita = form.querySelector('input[name=vis_tipo_visita]:checked');
-    f.tipo_visita = tipoVisita ? tipoVisita.value : '';
+    f.vis_tipo_visita = tipoVisita ? tipoVisita.value : '';
     return f;
   });
 });
