@@ -3783,7 +3783,13 @@ let segPhotos = [];
 const FOTO_LATO_MAX   = 2400;   // px sul lato lungo
 const FOTO_QUALITA    = 0.85;   // qualità JPEG
 const FOTO_SOGLIA_KB  = 400;    // sotto questa, e già piccola, non si tocca
-const FOTO_MAX_MB     = 12;     // limite sull'originale, prima di ridurlo
+/* Due limiti, e conta il secondo. Il primo è solo il punto oltre il quale un
+   telefono fatica a decodificare l'immagine; quello che deve stare entro un
+   tetto è ciò che PARTE, non ciò che arriva. Prima il controllo era sul file
+   originale e rifiutava proprio le foto per cui la compressione esiste
+   (notato dall'utente il 04/09/2026). */
+const FOTO_MAX_MB     = 25;     // oltre, non si prova nemmeno a decodificarla
+const FOTO_INVIO_MB   = 4;      // tetto su quello che viene spedito, a riduzione fatta
 
 /* L'immagine va letta applicando l'orientamento EXIF, altrimenti una foto
    scattata in verticale esce ruotata: è l'errore classico di chi ridisegna
@@ -3860,9 +3866,22 @@ async function handleSegPhoto(input) {
      corrispondono sempre a quello che si vede */
   for (const f of files) {
     if (!f.type.startsWith('image/')) { alert('Solo immagini JPG/PNG'); continue; }
-    if (f.size > FOTO_MAX_MB * 1024 * 1024) { alert('Foto troppo grande. Max ' + FOTO_MAX_MB + ' MB.'); continue; }
+    if (f.size > FOTO_MAX_MB * 1024 * 1024) {
+      alert('Questa immagine è enorme (' + (f.size / 1048576).toFixed(0) + ' MB) e il telefono non riesce ad aprirla.\n\n'
+          + 'Provane una scattata a risoluzione normale.');
+      continue;
+    }
 
     const foto = await comprimiFoto(f);
+
+    /* il tetto si misura QUI, su quello che parte davvero: una foto da 20 MB
+       ridotta a 800 KB va benissimo, ed è il caso normale */
+    if (foto.byte > FOTO_INVIO_MB * 1024 * 1024) {
+      alert('Non è stato possibile alleggerire abbastanza questa foto '
+          + '(' + (foto.byte / 1048576).toFixed(1) + ' MB anche dopo la riduzione).\n\n'
+          + 'Riprova con uno scatto normale, oppure inviala per email a cpt@formedilpadova.it.');
+      continue;
+    }
     const idx  = segPhotos.length;
     segPhotos.push({ name: foto.name, data: foto.data });
 
@@ -4114,6 +4133,10 @@ function resetForm(formId, prefix) {
   document.getElementById(prefix + '-error')   && (document.getElementById(prefix + '-error').style.display='none');
   const btn = document.getElementById(prefix + '-btnSend');
   if (btn) { btn.disabled = true; btn.textContent = btn.textContent.replace('✓ Inviata','').trim() || 'Invia'; }
+  /* svuotare il modulo chiude la compilazione: la prossima è una richiesta
+     nuova e deve avere un identificativo nuovo, altrimenti il server la
+     scambierebbe per il reinvio di quella di prima e non la registrerebbe */
+  if (typeof chiudiCompilazione === 'function') chiudiCompilazione(prefix);
   calcProgressForm(prefix);
 }
 
@@ -4188,16 +4211,20 @@ async function inviaAlServer(payload) {
       body: JSON.stringify(payload),
     });
   } catch (err) {
-    return { ok: false, motivo: navigator.onLine
+    return { ok: false, riprovabile: navigator.onLine, motivo: navigator.onLine
       ? 'non è stato possibile contattare il server (' + err.message + ')'
       : 'il dispositivo è offline' };
   }
-  if (!resp.ok) return { ok: false, motivo: 'il server ha risposto ' + resp.status };
+  /* «riprovabile» distingue un intoppo di trasporto da un rifiuto: il primo
+     passa da solo, il secondo si ripeterebbe identico. Apps Script risponde
+     con un redirect e ogni tanto la pagina del risultato non c'è (404): la
+     richiesta però è stata eseguita — successo il 04/09/2026. */
+  if (!resp.ok) return { ok: false, riprovabile: true, motivo: 'il server ha risposto ' + resp.status };
   let dati;
   try { dati = await resp.json(); }
-  catch (err) { return { ok: false, motivo: 'risposta del server non leggibile' }; }
+  catch (err) { return { ok: false, riprovabile: true, motivo: 'risposta del server non leggibile' }; }
   if (!dati || dati.status !== 'ok') {
-    return { ok: false, motivo: (dati && dati.message) || 'il server ha rifiutato la richiesta' };
+    return { ok: false, riprovabile: false, motivo: (dati && dati.message) || 'il server ha rifiutato la richiesta' };
   }
   return { ok: true, progressivo: dati.progressivo, duplicato: !!dati.duplicato, email: dati.email };
 }
@@ -4220,6 +4247,29 @@ function specchia(payload) {
   } catch (e) { /* lo specchio non deve mai disturbare l'invio */ }
 }
 
+/* ── l'identificativo è della COMPILAZIONE, non del tentativo ──────
+   Se lo si rigenerasse a ogni «Riprova», il server non potrebbe riconoscere
+   il reinvio della stessa richiesta e scriverebbe due righe. È successo il
+   04/09/2026: primo invio riuscito ma con 404 in lettura, l'utente ripreme,
+   e la stessa segnalazione è finita sul foglio come n° 2 e n° 3. */
+const idCompilazione = {};
+const idPerModulo = (prefix) => idCompilazione[prefix] || (idCompilazione[prefix] = nuovoIdInvio());
+const chiudiCompilazione = (prefix) => { delete idCompilazione[prefix]; };
+
+const attendi = (ms) => new Promise(r => setTimeout(r, ms));
+
+/* Un solo ritentativo automatico prima di dare per fallito: con l'id stabile
+   è innocuo (il server riconosce il doppione e risponde col numero di prima),
+   e recupera da solo gli intoppi di trasporto come il 404 in lettura. */
+async function inviaConUnaSecondaOccasione(payload) {
+  const primo = await inviaAlServer(payload);
+  if (primo.ok || !primo.riprovabile) return primo;
+  console.warn('primo tentativo non riuscito (' + primo.motivo + '), riprovo fra 3 secondi');
+  await attendi(3000);
+  const secondo = await inviaAlServer(payload);
+  return secondo.ok ? secondo : { ...secondo, motivo: secondo.motivo + ', anche al secondo tentativo' };
+}
+
 /* ── ritentativo: all'apertura della pagina e al ritorno online ───── */
 let codaInCorso = false;
 async function ritentaCoda() {
@@ -4232,6 +4282,7 @@ async function ritentaCoda() {
       const esito = await inviaAlServer(rec.payload);
       if (esito.ok) {
         await codaTogli(rec.submission_id);
+        if (rec.payload && rec.payload.tipo_modulo) chiudiCompilazione(rec.payload.tipo_modulo);
         console.log('Richiesta in coda consegnata:', rec.submission_id, '→ n°', esito.progressivo);
       } else {
         rec.tentativi = (rec.tentativi || 0) + 1;
@@ -4327,7 +4378,7 @@ async function submitForm(formId, prefix, buildPayload) {
     payload.tipo_modulo   = prefix;
     payload.timestamp     = new Date().toISOString();
     payload.privacy       = 'Sì – autorizzo il trattamento dei dati personali';
-    payload.submission_id = nuovoIdInvio();
+    payload.submission_id = idPerModulo(prefix);   // stabile finché non è confermata
 
     /* 1. si salva PRIMA di inviare: da qui in avanti il dato non si
           perde comunque vada la rete — se la memoria del dispositivo e'
@@ -4338,10 +4389,11 @@ async function submitForm(formId, prefix, buildPayload) {
     specchia(payload);
 
     /* 3. invio vero, e la risposta si LEGGE */
-    const esito = await inviaAlServer(payload);
+    const esito = await inviaConUnaSecondaOccasione(payload);
 
     if (esito.ok) {
       await codaTogli(payload.submission_id);
+      chiudiCompilazione(prefix);              // da qui in poi è una richiesta nuova
       const dove = payload.email || payload.pec || '';
       const p = okBox.querySelector('.ricevuta') || okBox.insertBefore(
         Object.assign(document.createElement('p'), { className: 'ricevuta' }),
@@ -4363,8 +4415,8 @@ async function submitForm(formId, prefix, buildPayload) {
       errBox.innerHTML = '<strong>Invio non riuscito</strong> (' + esito.motivo + ').<br>'
         + (inCoda
             ? 'La richiesta è stata <strong>salvata su questo dispositivo</strong> e verrà reinviata '
-              + 'automaticamente: puoi riprovare ora, oppure riaprire il portale più tardi da questo '
-              + 'stesso telefono o computer.'
+              + 'automaticamente: puoi riprovare ora — senza rischio di mandarla due volte — oppure '
+              + 'riaprire il portale più tardi da questo stesso telefono o computer.'
             : '<strong>Non chiudere questa pagina</strong>: i dati che hai scritto sono solo qui '
               + '(questo browser non consente di conservarli) e chiudendola andrebbero persi. '
               + 'Premi «Riprova».')
