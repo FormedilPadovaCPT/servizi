@@ -3762,11 +3762,89 @@ function handleFile(input, fnId, areaId) {
 
 // ══════════════════════════════════════════════════════
 //  PHOTO UPLOAD (segnalazione)
+//  ─────────────────────────────────────────────────────
+//  Le foto si RIDIMENSIONANO nel browser prima di partire.
+//  Misurato il 04/09/2026 sul primo collaudo con un modulo vero: 21,5
+//  secondi in tutto, di cui ~12 solo per caricare un PNG da 1,7 MB, che
+//  in base64 diventano 2,3 MB. E il modulo accetta fino a TRE foto: il
+//  caso peggiore era il triplo. Ridisegnando a 2400 px di lato e
+//  riesportando in JPEG si scende a qualche centinaio di KB — abbastanza
+//  per leggere un cartello di cantiere, che è l'uso vero, senza far
+//  aspettare un minuto chi segnala da un telefono in mezzo alla strada.
+//  Valori scelti prudenti: 2400 px e qualità 0,85 tengono ~4,3 megapixel,
+//  perché una foto di cantiere documenta un rischio e comprimerla troppo
+//  sarebbe controproducente (osservazione dell'utente, 04/09/2026).
+//  Funziona identico da telefono e da PC: è il browser a farlo, non il server.
+//  Il backend ricava l'estensione dal contenuto del data URL, quindi un
+//  JPEG viene salvato .jpg da solo: nessuna modifica lato Apps Script.
 // ══════════════════════════════════════════════════════
 let segPhotos = [];
-function handleSegPhoto(input) {
+
+const FOTO_LATO_MAX   = 2400;   // px sul lato lungo
+const FOTO_QUALITA    = 0.85;   // qualità JPEG
+const FOTO_SOGLIA_KB  = 400;    // sotto questa, e già piccola, non si tocca
+const FOTO_MAX_MB     = 12;     // limite sull'originale, prima di ridurlo
+
+/* L'immagine va letta applicando l'orientamento EXIF, altrimenti una foto
+   scattata in verticale esce ruotata: è l'errore classico di chi ridisegna
+   su canvas. `createImageBitmap` lo fa su richiesta; dove non è disponibile
+   si ripiega su <img>, che dal 2020 lo applica da sé. */
+async function immagineDaFile(file) {
+  if (window.createImageBitmap) {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {}
+    try { return await createImageBitmap(file); } catch (e) {}
+  }
+  return await new Promise((res, rej) => {
+    const img = new Image();
+    img.onload  = () => res(img);
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function fileADataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/* Torna sempre qualcosa di spedibile: se il ridimensionamento non riesce
+   (formato strano, canvas negato) si manda l'originale — meglio lento che
+   perso. */
+async function comprimiFoto(file) {
+  const intatta = async () => ({ name: file.name, data: await fileADataUrl(file), byte: file.size, ridotta: false });
+  try {
+    const img = await immagineDaFile(file);
+    const w = img.width, h = img.height;
+    const scala = Math.min(1, FOTO_LATO_MAX / Math.max(w, h));
+    if (scala === 1 && file.size <= FOTO_SOGLIA_KB * 1024) {
+      if (img.close) img.close();
+      return await intatta();               // già leggera: ricomprimerla toglierebbe qualità per nulla
+    }
+    const c = document.createElement('canvas');
+    c.width  = Math.max(1, Math.round(w * scala));
+    c.height = Math.max(1, Math.round(h * scala));
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';              // i PNG trasparenti, in JPEG, diventerebbero neri
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    if (img.close) img.close();
+    const data = c.toDataURL('image/jpeg', FOTO_QUALITA);
+    const byte = Math.round((data.length - data.indexOf(',') - 1) * 3 / 4);
+    if (byte >= file.size) return await intatta();   // comprimerla non ha giovato
+    console.log('foto ridotta: ' + (file.size / 1048576).toFixed(2) + ' MB → ' + (byte / 1024).toFixed(0) + ' KB');
+    return { name: file.name.replace(/\.[^.]+$/, '') + '.jpg', data, byte, ridotta: true };
+  } catch (err) {
+    console.warn('foto non ridimensionata, si manda com\'è:', err);
+    return await intatta();
+  }
+}
+
+async function handleSegPhoto(input) {
   const preview = document.getElementById('seg-photoPreview');
-  const photoData = document.getElementById('seg-photoData');
   const area = document.getElementById('seg-photoArea');
   if (!input.files || !input.files.length) return;
 
@@ -3776,36 +3854,27 @@ function handleSegPhoto(input) {
     input.value = '';
     return;
   }
-
-  files.forEach(f => {
-    if (!f.type.startsWith('image/')) {
-      alert('Solo immagini JPG/PNG');
-      return;
-    }
-    if (f.size > 5 * 1024 * 1024) {
-      alert('Foto troppo grande. Max 5 MB.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const idx = segPhotos.length;
-      segPhotos.push({ name: f.name, data: e.target.result });
-
-      // Crea anteprima
-      const div = document.createElement('div');
-      div.className = 'photo-preview-item';
-      div.innerHTML = '<img src="' + e.target.result + '" alt="Foto"><span class="photo-remove" onclick="removeSegPhoto(' + idx + ',this)">✕</span>';
-      preview.appendChild(div);
-
-      // Aggiorna campo hidden con base64
-      updateSegPhotoData();
-      calcProgressForm('seg');
-    };
-    reader.readAsDataURL(f);
-  });
-
   input.value = '';
+
+  /* una alla volta, in ordine: così l'anteprima e gli indici di rimozione
+     corrispondono sempre a quello che si vede */
+  for (const f of files) {
+    if (!f.type.startsWith('image/')) { alert('Solo immagini JPG/PNG'); continue; }
+    if (f.size > FOTO_MAX_MB * 1024 * 1024) { alert('Foto troppo grande. Max ' + FOTO_MAX_MB + ' MB.'); continue; }
+
+    const foto = await comprimiFoto(f);
+    const idx  = segPhotos.length;
+    segPhotos.push({ name: foto.name, data: foto.data });
+
+    const div = document.createElement('div');
+    div.className = 'photo-preview-item';
+    div.innerHTML = '<img src="' + foto.data + '" alt="Foto"><span class="photo-remove" onclick="removeSegPhoto(' + idx + ',this)">✕</span>';
+    preview.appendChild(div);
+
+    updateSegPhotoData();
+    calcProgressForm('seg');
+  }
+
   area.style.borderColor = '#95C22F';
 }
 
