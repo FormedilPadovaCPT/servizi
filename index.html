@@ -4098,7 +4098,12 @@ function codaOp(modo, fn) {
     tx.onerror    = () => rej(tx.error);
   }));
 }
-const codaScrivi = (rec) => codaOp('readwrite', st => st.put(rec)).catch(e => console.warn('coda:', e));
+/* torna true solo se ha DAVVERO salvato: in navigazione privata o con i
+   dati di sito bloccati IndexedDB risponde SecurityError, e in quel caso
+   promettere «salvata su questo dispositivo» sarebbe una bugia */
+const codaScrivi = (rec) => codaOp('readwrite', st => st.put(rec))
+  .then(() => true)
+  .catch(e => { console.warn('coda non disponibile:', e); return false; });
 const codaTogli  = (id)  => codaOp('readwrite', st => st.delete(id)).catch(e => console.warn('coda:', e));
 const codaTutte  = ()    => codaOp('readonly',  st => st.getAll()).catch(e => (console.warn('coda:', e), []));
 
@@ -4256,8 +4261,9 @@ async function submitForm(formId, prefix, buildPayload) {
     payload.submission_id = nuovoIdInvio();
 
     /* 1. si salva PRIMA di inviare: da qui in avanti il dato non si
-          perde comunque vada la rete */
-    await codaScrivi({ submission_id: payload.submission_id, payload, creato: Date.now(), tentativi: 0 });
+          perde comunque vada la rete — se la memoria del dispositivo e'
+          disponibile, cosa che qui si verifica invece di darla per buona */
+    const inCoda = await codaScrivi({ submission_id: payload.submission_id, payload, creato: Date.now(), tentativi: 0 });
 
     /* 2. specchio sul secondo canale (non blocca) */
     specchia(payload);
@@ -4286,9 +4292,14 @@ async function submitForm(formId, prefix, buildPayload) {
       /* la richiesta resta in coda: verrà reinviata da sola */
       console.error('Invio non riuscito:', esito.motivo);
       errBox.innerHTML = '<strong>Invio non riuscito</strong> (' + esito.motivo + ').<br>'
-        + 'La richiesta è stata <strong>salvata su questo dispositivo</strong> e verrà reinviata '
-        + 'automaticamente: puoi riprovare ora, oppure riaprire il portale più tardi da questo stesso '
-        + 'telefono o computer.<br>Se hai urgenza chiama lo ' + TEL_UFFICIO
+        + (inCoda
+            ? 'La richiesta è stata <strong>salvata su questo dispositivo</strong> e verrà reinviata '
+              + 'automaticamente: puoi riprovare ora, oppure riaprire il portale più tardi da questo '
+              + 'stesso telefono o computer.'
+            : '<strong>Non chiudere questa pagina</strong>: i dati che hai scritto sono solo qui '
+              + '(questo browser non consente di conservarli) e chiudendola andrebbero persi. '
+              + 'Premi «Riprova».')
+        + '<br>Se hai urgenza chiama lo ' + TEL_UFFICIO
         + ' o scrivi a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
       errBox.style.display = 'block';
       errBox.scrollIntoView({ behavior:'smooth', block:'center' });
