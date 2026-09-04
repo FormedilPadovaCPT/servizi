@@ -1,0 +1,71 @@
+name: Battito portale servizi
+
+# Controlla ogni giorno che il canale dei moduli sia VIVO.
+#
+# Perché esiste: dal ~27/07/2026 al 01/09/2026 il deployment Apps Script del
+# portale era morto (404) e il sito continuava a rispondere «Inviata» a chi
+# compilava, perché inviava in no-cors e non leggeva la risposta. Cinque
+# settimane di moduli persi, e nessuno se n'è accorto perché in ufficio
+# «nessuna riga nuova sul foglio» è ambiguo: può voler dire che non ha
+# scritto nessuno, o che il tubo è rotto.
+#
+# Questo battito toglie l'ambiguità. Manda un vero POST di prova che il
+# backend registra nella scheda _BATTITO del foglio, verificando davvero
+# l'accesso al foglio e alla cartella Drive: quindi casca anche se il
+# deployment è vivo ma i permessi non lo sono. L'app segreteria legge quella
+# scheda ogni mattina e accende l'allarme se l'ultimo battito è vecchio.
+#
+# Se il controllo fallisce, il job fallisce e GitHub manda l'email.
+#
+# ⚠️ L'URL non è un segreto: è lo stesso che sta, pubblico, in index.html.
+# ⚠️ GitHub disattiva i workflow schedulati nei repository fermi da 60 giorni
+#    (avvisando via email). Se succede, si riattiva dalla scheda Actions.
+
+on:
+  schedule:
+    - cron: '15 5 * * *'    # ogni giorno alle 05:15 UTC (prima dell'import delle 6:30 italiane)
+  workflow_dispatch:        # da lanciare A MANO dopo ogni ripubblicazione dello script
+
+jobs:
+  battito:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST di prova al backend Apps Script
+        env:
+          GAS_URL: https://script.google.com/macros/s/AKfycbyft6DeRiyFV0o1ZzBwUJ4_r4UlgbkjlVCiywmMwlSAl0k-KYEkMrJCbJKpYGknYU2k/exec
+        run: |
+          set -e
+
+          # Niente -X POST: così curl, sul 302 di Apps Script, prosegue in GET
+          # verso script.googleusercontent.com come fa un browser e la risposta
+          # si legge. Con -X POST il redirect resta POST e Google risponde 411.
+          risposta=$(curl -s -L --max-time 60 \
+            -H "Content-Type: text/plain;charset=UTF-8" \
+            --data '{"tipo_modulo":"ping","origine":"github-actions","nota":"battito automatico"}' \
+            -w "\n[HTTP %{http_code}]" \
+            "$GAS_URL")
+
+          echo "$risposta"
+
+          if ! echo "$risposta" | grep -q '\[HTTP 200\]'; then
+            echo "::error::Il backend del portale non risponde 200. I moduli inviati dalle imprese potrebbero NON arrivare."
+            exit 1
+          fi
+
+          if ! echo "$risposta" | grep -q '"status":"ok"'; then
+            echo "::error::Il backend risponde ma il battito non è ok (foglio o cartella Drive non raggiungibili). Guardare il messaggio qui sopra."
+            exit 1
+          fi
+
+          echo "Canale del portale vivo: foglio e cartella Drive raggiungibili."
+
+      - name: Che fare se questo controllo fallisce
+        if: failure()
+        run: |
+          echo "1. Aprire https://formedilpadovacpt.github.io/servizi/ e provare un modulo."
+          echo "2. Apps Script, progetto «Portale Servizi – backend (ATTIVO)»:"
+          echo "   Gestisci deployment -> MODIFICA quello esistente -> nuova versione."
+          echo "   Mai crearne uno nuovo: cambierebbe l'URL e index.html punterebbe a un cadavere."
+          echo "3. Controllare che il foglio 1qo3Qh8qk... e la cartella Drive del portale esistano"
+          echo "   e siano ancora condivisi con l'account cptpd."
+          echo "4. Rilanciare questo workflow a mano (Run workflow) e verificare che passi."

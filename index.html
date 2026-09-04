@@ -3471,9 +3471,28 @@
 <script>
 // ══════════════════════════════════════════════════════
 //  CONFIGURAZIONE GAS URL
-//  Sostituire con l'URL del Web App Google Apps Script
+//  ─────────────────────────────────────────────────────
+//  Progetto Apps Script: «Portale Servizi – backend (ATTIVO)»
+//  id 1MhzIyhO_BZjEBOfWTQUcp9boD60d6vXzNGRsdlJd2AoPlYEyvc_rXslg
+//  account cptpd · sorgente nel vault:
+//    9_APPLICATIVI/Formedil_Servizi_PWA/Code_Portale_Formedil.gs
+//
+//  ⚠️ Quando si ripubblica lo script si usa SEMPRE
+//     «Gestisci deployment → modifica → nuova versione».
+//     Creando un deployment NUOVO cambia l'URL e questo qui punta a
+//     un cadavere: e' esattamente cio' che e' successo dal 27/07/2026
+//     al 01/09/2026, cinque settimane di moduli persi.
+//  Dopo ogni ripubblicazione: lanciare a mano il workflow
+//  «Battito portale servizi» su GitHub e controllarne l'esito.
 // ══════════════════════════════════════════════════════
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyft6DeRiyFV0o1ZzBwUJ4_r4UlgbkjlVCiywmMwlSAl0k-KYEkMrJCbJKpYGknYU2k/exec';
+
+// Secondo canale, indipendente da Google: ogni invio viene specchiato qui.
+// Non blocca e non decide nulla — serve all'ufficio per accorgersi di una
+// richiesta partita che sul foglio non e' arrivata.
+const SPECCHIO_URL   = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/ricezione-portale';
+const MAX_ALLEGATO_MB = 8;
+const TEL_UFFICIO     = '049 761168';
 
 // ══════════════════════════════════════════════════════
 //  COMUNI PROVINCIA DI PADOVA
@@ -4030,6 +4049,129 @@ function resetForm(formId, prefix) {
 }
 
 // ══════════════════════════════════════════════════════
+//  CONSEGNA VERIFICATA   (04/09/2026)
+//  ─────────────────────────────────────────────────────
+//  Fino a oggi l'invio era in mode:'no-cors': la fetch risolve con
+//  successo anche su 404 e 500, quindi «✓ Inviata» voleva dire solo
+//  «uscita dal browser», non «ricevuta». Con il deployment morto il
+//  portale ha continuato a dire «Inviata» per cinque settimane.
+//
+//  Ora: (1) si legge davvero la risposta del server — l'endpoint
+//  restituisce Access-Control-Allow-Origin: * su tutti i salti, e la
+//  richiesta e' "semplice" (Content-Type text/plain) cosi' non scatta
+//  il preflight OPTIONS, che Apps Script non gestisce; (2) il payload
+//  si salva PRIMA di inviarlo e si cancella solo a conferma ricevuta;
+//  (3) ogni invio porta un submission_id, che rende il ritentativo
+//  sicuro (il server riconosce il doppione e non lo registra due volte).
+// ══════════════════════════════════════════════════════
+
+function nuovoIdInvio() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+/* ── coda locale su IndexedDB ────────────────────────────────────────
+   Perche' IndexedDB e non localStorage: un allegato in base64 supera da
+   solo i ~5 MB del localStorage. Qui la richiesta resta finche' non e'
+   confermata, e si ritenta all'apertura della pagina e al ritorno online. */
+const CODA_DB = 'formedil-servizi', CODA_STORE = 'coda';
+const CODA_GIORNI = 7;
+
+function codaApri() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(CODA_DB, 1);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains(CODA_STORE)) db.createObjectStore(CODA_STORE, { keyPath: 'submission_id' });
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => rej(r.error);
+  });
+}
+function codaOp(modo, fn) {
+  return codaApri().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(CODA_STORE, modo);
+    const st = tx.objectStore(CODA_STORE);
+    let out;
+    try { out = fn(st); } catch (e) { rej(e); return; }
+    tx.oncomplete = () => res(out && out.result !== undefined ? out.result : out);
+    tx.onerror    = () => rej(tx.error);
+  }));
+}
+const codaScrivi = (rec) => codaOp('readwrite', st => st.put(rec)).catch(e => console.warn('coda:', e));
+const codaTogli  = (id)  => codaOp('readwrite', st => st.delete(id)).catch(e => console.warn('coda:', e));
+const codaTutte  = ()    => codaOp('readonly',  st => st.getAll()).catch(e => (console.warn('coda:', e), []));
+
+/* ── invio vero, con lettura della risposta ──────────────────────── */
+async function inviaAlServer(payload) {
+  let resp;
+  try {
+    resp = await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'cors',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    return { ok: false, motivo: navigator.onLine
+      ? 'non è stato possibile contattare il server (' + err.message + ')'
+      : 'il dispositivo è offline' };
+  }
+  if (!resp.ok) return { ok: false, motivo: 'il server ha risposto ' + resp.status };
+  let dati;
+  try { dati = await resp.json(); }
+  catch (err) { return { ok: false, motivo: 'risposta del server non leggibile' }; }
+  if (!dati || dati.status !== 'ok') {
+    return { ok: false, motivo: (dati && dati.message) || 'il server ha rifiutato la richiesta' };
+  }
+  return { ok: true, progressivo: dati.progressivo, duplicato: !!dati.duplicato, email: dati.email };
+}
+
+/* ── specchio sul secondo canale: non blocca, non decide ──────────── */
+function specchia(payload) {
+  try {
+    const snello = {};
+    for (const k in payload) {
+      if (!Object.prototype.hasOwnProperty.call(payload, k)) continue;
+      if (/base64$/.test(k)) continue;               // gli allegati restano su Drive
+      snello[k] = payload[k];
+    }
+    fetch(SPECCHIO_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(snello),
+      keepalive: true,
+    }).catch(() => {});
+  } catch (e) { /* lo specchio non deve mai disturbare l'invio */ }
+}
+
+/* ── ritentativo: all'apertura della pagina e al ritorno online ───── */
+let codaInCorso = false;
+async function ritentaCoda() {
+  if (codaInCorso || !navigator.onLine) return;
+  codaInCorso = true;
+  try {
+    const righe = await codaTutte();
+    for (const rec of righe || []) {
+      if (Date.now() - (rec.creato || 0) > CODA_GIORNI * 86400000) { await codaTogli(rec.submission_id); continue; }
+      const esito = await inviaAlServer(rec.payload);
+      if (esito.ok) {
+        await codaTogli(rec.submission_id);
+        console.log('Richiesta in coda consegnata:', rec.submission_id, '→ n°', esito.progressivo);
+      } else {
+        rec.tentativi = (rec.tentativi || 0) + 1;
+        rec.ultimo_errore = esito.motivo;
+        await codaScrivi(rec);
+        break;                       // se il canale è giù, inutile insistere sugli altri
+      }
+    }
+  } finally { codaInCorso = false; }
+}
+window.addEventListener('online', ritentaCoda);
+window.addEventListener('load', () => setTimeout(ritentaCoda, 4000));
+
+// ══════════════════════════════════════════════════════
 //  LEGGI FILE PDF → BASE64
 // ══════════════════════════════════════════════════════
 async function fileToBase64(input) {
@@ -4075,7 +4217,28 @@ async function submitForm(formId, prefix, buildPayload) {
     else err.style.display='none';
   }
 
+  /* Allegati troppo pesanti: prima non c'era alcun controllo e una
+     scansione da 20 MB (≈27 MB una volta in base64) faceva fallire
+     l'invio in silenzio. Meglio dirlo qui che perdere la richiesta. */
+  let troppoGrande = '';
+  form.querySelectorAll('input[type=file]').forEach(el => {
+    for (const f of (el.files || [])) {
+      if (f.size > MAX_ALLEGATO_MB * 1024 * 1024) {
+        troppoGrande = f.name + ' (' + (f.size / 1048576).toFixed(1) + ' MB)';
+        ok = false;
+      }
+    }
+  });
+
   if (!ok) {
+    if (troppoGrande) {
+      errBox.innerHTML = 'L\'allegato <strong>' + troppoGrande + '</strong> supera il limite di '
+        + MAX_ALLEGATO_MB + ' MB. Riduci il file (scansione in bianco e nero o a risoluzione minore) '
+        + 'oppure invialo per email a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
+      errBox.style.display = 'block';
+      errBox.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
     const first = form.querySelector('.err');
     if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
     return;
@@ -4087,27 +4250,56 @@ async function submitForm(formId, prefix, buildPayload) {
 
   try {
     const payload = await buildPayload(form);
-    payload.tipo_modulo = prefix;
-    payload.timestamp   = new Date().toISOString();
-    payload.privacy     = 'Sì – autorizzo il trattamento dei dati personali';
+    payload.tipo_modulo   = prefix;
+    payload.timestamp     = new Date().toISOString();
+    payload.privacy       = 'Sì – autorizzo il trattamento dei dati personali';
+    payload.submission_id = nuovoIdInvio();
 
-    const resp = await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    // Con no-cors non possiamo leggere la risposta (risposta opaca), quindi consideriamo ok se fetch non ha lanciato
-    console.log('GAS fetch completed, status:', resp.status, resp.type);
-    okBox.style.display = 'block';
-    btn.textContent = '✓ Inviata';
-    const fill = document.getElementById(prefix + '-progFill');
-    const lbl  = document.getElementById(prefix + '-progLabel');
-    if (fill) fill.style.width = '100%';
-    if (lbl)  lbl.textContent  = 'Compilazione: 100%';
-    okBox.scrollIntoView({ behavior:'smooth' });
+    /* 1. si salva PRIMA di inviare: da qui in avanti il dato non si
+          perde comunque vada la rete */
+    await codaScrivi({ submission_id: payload.submission_id, payload, creato: Date.now(), tentativi: 0 });
+
+    /* 2. specchio sul secondo canale (non blocca) */
+    specchia(payload);
+
+    /* 3. invio vero, e la risposta si LEGGE */
+    const esito = await inviaAlServer(payload);
+
+    if (esito.ok) {
+      await codaTogli(payload.submission_id);
+      const dove = payload.email || payload.pec || '';
+      const p = okBox.querySelector('.ricevuta') || okBox.insertBefore(
+        Object.assign(document.createElement('p'), { className: 'ricevuta' }),
+        okBox.querySelector('button'));
+      p.innerHTML = '<strong>Richiesta registrata'
+        + (esito.progressivo ? ' con il n° ' + esito.progressivo : '') + '.</strong>'
+        + (dove ? '<br>Riceverai una email di conferma a <strong>' + dove + '</strong>: '
+                + 'se non arriva entro 15 minuti chiamaci allo ' + TEL_UFFICIO + '.' : '');
+      okBox.style.display = 'block';
+      btn.textContent = '✓ Inviata';
+      const fill = document.getElementById(prefix + '-progFill');
+      const lbl  = document.getElementById(prefix + '-progLabel');
+      if (fill) fill.style.width = '100%';
+      if (lbl)  lbl.textContent  = 'Compilazione: 100%';
+      okBox.scrollIntoView({ behavior:'smooth' });
+    } else {
+      /* la richiesta resta in coda: verrà reinviata da sola */
+      console.error('Invio non riuscito:', esito.motivo);
+      errBox.innerHTML = '<strong>Invio non riuscito</strong> (' + esito.motivo + ').<br>'
+        + 'La richiesta è stata <strong>salvata su questo dispositivo</strong> e verrà reinviata '
+        + 'automaticamente: puoi riprovare ora, oppure riaprire il portale più tardi da questo stesso '
+        + 'telefono o computer.<br>Se hai urgenza chiama lo ' + TEL_UFFICIO
+        + ' o scrivi a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
+      errBox.style.display = 'block';
+      errBox.scrollIntoView({ behavior:'smooth', block:'center' });
+      btn.disabled = false;
+      btn.textContent = 'Riprova';
+    }
   } catch (err) {
     console.error(err);
+    errBox.innerHTML = '<strong>Errore durante l\'invio</strong> (' + (err && err.message ? err.message : err) + ').<br>'
+      + 'Riprova, oppure scrivi a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a> '
+      + '/ chiama lo ' + TEL_UFFICIO + '.';
     errBox.style.display = 'block';
     btn.disabled = false;
     btn.textContent = 'Riprova';
