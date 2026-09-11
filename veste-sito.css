@@ -24,7 +24,7 @@ html[data-veste="sito"] body{background:#fff;color:var(--vs-testo)}
 
 /* ── testata del sito (sostituisce menu laterale e barra) ── */
 html[data-veste="sito"] .vs-testa{position:sticky;top:0;z-index:60;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 34px;box-shadow:0 1px 0 #ececec}
-html[data-veste="sito"] .vs-testa img{height:42px;width:auto;display:block;cursor:pointer}
+html[data-veste="sito"] .vs-testa img{height:52px;width:auto;display:block;cursor:pointer}
 html[data-veste="sito"] .vs-menu{display:flex;gap:24px;align-items:center}
 html[data-veste="sito"] .vs-menu button{background:none;border:0;font:500 14px/1 Barlow,sans-serif;color:var(--vs-testo);cursor:pointer;padding:6px 0}
 html[data-veste="sito"] .vs-menu button:hover,html[data-veste="sito"] .vs-menu button.ora{color:var(--vs-arancio);box-shadow:0 2px 0 var(--vs-arancio)}
@@ -41,6 +41,10 @@ html[data-veste="sito"] #page-home .home-hero,html[data-veste="sito"] #page-home
 html[data-veste="sito"] .vs-hero{position:relative;height:320px;background-size:cover;background-position:center;display:grid;place-items:center;text-align:center;overflow:hidden}
 html[data-veste="sito"] .vs-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52))}
 html[data-veste="sito"] .vs-hero>div{position:relative;display:grid;gap:14px;justify-items:center;padding:0 20px}
+/* home: il banner del portale intero, senza velatura ne' scritte sopra */
+html[data-veste="sito"] #page-home .vs-hero.vs-banner{height:auto;display:block;background:#e9edf0}
+html[data-veste="sito"] .vs-hero.vs-banner::before{display:none}
+html[data-veste="sito"] .vs-hero.vs-banner img{display:block;width:100%;height:auto}
 html[data-veste="sito"] .vs-hero h1{color:#fff;font:700 40px/1.08 Barlow,sans-serif;text-shadow:0 1px 10px rgba(0,0,0,.35);margin:0}
 html[data-veste="sito"] .vs-hero p{color:#fff;margin:0;font-size:15px;max-width:52ch;text-shadow:0 1px 6px rgba(0,0,0,.4)}
 html[data-veste="sito"] .vs-pillola{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--vs-testo);border:0;border-radius:20px;padding:7px 18px;font:500 14px/1 Barlow,sans-serif;cursor:pointer;text-decoration:none}
@@ -177,7 +181,7 @@ html[data-veste="sito"] .sidebar-footer a{color:var(--vs-testo)}
 }
 @media(max-width:768px){
   html[data-veste="sito"] .vs-testa{padding:10px 14px}
-  html[data-veste="sito"] .vs-testa img{height:30px}
+  html[data-veste="sito"] .vs-testa img{height:36px}
   html[data-veste="sito"] .vs-menu{display:none}
   html[data-veste="sito"] .vs-hamb{display:block}
   html[data-veste="sito"] .vs-hero{height:210px}

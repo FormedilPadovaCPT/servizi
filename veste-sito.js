@@ -3,9 +3,9 @@
 
    Caricato solo da chi apre il portale con ?veste=sito (vedi lo
    script in testa a index.html). Veste il portale come il nuovo sito
-   proposto da Studio Tagliani: testata col menu, foto a tutta larghezza,
-   banda coi bottoni a pillola, riquadri fotografici, banda Telegram,
-   notizie, piede grigio.
+   proposto da Studio Tagliani: testata col menu, in home il banner del
+   portale (Servizi.png) intero senza scritte sopra, riquadri fotografici,
+   banda Telegram, notizie, piede grigio.
 
    Titoli, descrizioni ed etichette dei servizi si leggono dalle schede
    della home; ogni riquadro apre la stessa pagina di prima (showPage).
@@ -26,8 +26,8 @@
     consulenza: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
     cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
-    rlst: ['RLST.png', '70% 60%', 'cover'],
-    rls: ['RLST.png', '93% 55%', 'cover'],
+    rlst: ['RLST.png', '72% 80%', 'auto 150%'],
+    rls: ['RLST.png', '96% 80%', 'auto 150%'],
     notifica: [CONF, '62% 0%', 'auto 170%'],
     attestazione: ['pericolo.png', '88% 45%', 'cover'],
     questionario: [CONF, '86% 70%', 'auto 150%'],
@@ -94,7 +94,7 @@
     if (!main || main.querySelector('.vs-testa')) return
     var t = el('header', 'vs-testa')
     var logo = el('img')
-    logo.src = 'Formedil_Padova_Positivo_colori.png'
+    logo.src = 'img/sito/logo-formedil-padova.png'
     logo.alt = 'Formedil Padova — torna alla home'
     logo.onclick = function () { vai('home') }
     t.appendChild(logo)
@@ -129,17 +129,12 @@
     var wrap = pag && pag.querySelector('.services-grid-wrap')
     if (!pag || !wrap || pag.querySelector('.vs-hero')) return
 
-    var hero = el('div', 'vs-hero'); foto(hero, 'hero')
-    var hc = el('div')
-    hc.appendChild(el('h1', null, 'I servizi di Sicurezza e Salute'))
-    hc.appendChild(el('p', null, 'Tutti i moduli di richiesta di Formedil Padova per imprese, lavoratori e cantieri, in un unico punto di accesso.'))
-    var sc = bottone('vs-pillola', 'Scopri i servizi ›'); sc.onclick = function () { scorriA('#vs-servizi') }
-    hc.appendChild(sc)
-    hero.appendChild(hc)
-
-    var banda = el('nav', 'vs-banda'); banda.setAttribute('aria-label', 'Gruppi di servizi')
-    GRUPPI.forEach(function (g) { var b = bottone('vs-pillola', g.breve); b.onclick = function () { scorriA('#vs-g-' + g.chiave) }; banda.appendChild(b) })
-    var bn = bottone('vs-pillola', 'Notizie'); bn.onclick = function () { vai('notizie') }; banda.appendChild(bn)
+    // banner del portale intero, senza titoli ne' pulsanti sopra (richiesta dell'utente 11/09):
+    // il testo e' gia' dentro l'immagine
+    var hero = el('div', 'vs-hero vs-banner')
+    var bimg = el('img'); bimg.src = 'Servizi.png'
+    bimg.alt = 'Portale Servizi – Area Sicurezza e Salute. Benvenuti nel portale di Formedil Padova dedicato ai servizi di sicurezza e salute sul lavoro nel settore edile: tutti i moduli di richiesta in un unico punto di accesso.'
+    hero.appendChild(bimg)
 
     var schede = {}
     wrap.querySelectorAll('.service-card').forEach(function (c) { var id = paginaDi(c); if (id) schede[id] = c })
@@ -184,7 +179,7 @@
     var nc = el('div', 'vs-cont'); nc.appendChild(el('h2', null, 'News'))
     var ng = el('div', 'vs-news-grid'); nc.appendChild(ng); news.appendChild(nc)
 
-    ;[hero, banda, sez, tg, bot, news].forEach(function (x) { pag.insertBefore(x, wrap) })
+    ;[hero, sez, tg, bot, news].forEach(function (x) { pag.insertBefore(x, wrap) })
     ultimeNotizie(news, ng)
   }
   function tessera(id, c) {
