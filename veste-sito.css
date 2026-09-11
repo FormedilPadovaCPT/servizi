@@ -62,6 +62,7 @@ html[data-veste="sito"] .vs-gruppo+.vs-gruppo{margin-top:30px}
 html[data-veste="sito"] .vs-gruppo h3{margin:0 0 12px;font:500 19px/1.2 Barlow,sans-serif;color:var(--vs-ardesia)}
 html[data-veste="sito"] .vs-tessere{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 html[data-veste="sito"] .vs-tessere.vs-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-veste="sito"] .vs-t.vs-largo{grid-column:span 2}
 html[data-veste="sito"] .vs-t{position:relative;height:160px;border-radius:16px;overflow:hidden;background-color:var(--vs-ardesia);background-repeat:no-repeat;display:grid;align-content:end;padding:14px;color:#fff;border:0;text-align:left;font:inherit;cursor:pointer}
 html[data-veste="sito"] .vs-t::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 25%,rgba(0,0,0,.66));transition:background .2s}
 html[data-veste="sito"] .vs-t:hover::before{background:linear-gradient(180deg,rgba(0,0,0,.08) 10%,rgba(0,0,0,.78))}

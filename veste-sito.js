@@ -25,7 +25,7 @@
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
     consulenza: ['cantieri.png', '36% 30%', 'auto 230%'],
     asseverazione: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
-    notizie: ['RLST.png', '52% 40%', 'auto 170%'],
+    notizie: ['RLST.png', '85% 20%', 'auto 200%'],
     cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
     rlst: ['RLST.png', '72% 80%', 'auto 150%'],
@@ -44,7 +44,7 @@
   var GRUPPI = [
     { chiave: 'imprese', nome: 'Servizi per le imprese', breve: 'Servizi imprese', pagine: ['rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione', 'cor'], tipo: 'tessere' },
     { chiave: 'cantieri', nome: 'Cantieri', breve: 'Cantieri', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione'], tipo: 'tessere' },
-    { chiave: 'notizie', nome: 'Notizie e qualità', breve: 'Notizie e qualità', pagine: ['notizie', 'telegram', 'questionario'], tipo: 'tessere' },
+    { chiave: 'notizie', nome: 'Notizie e qualità', breve: 'Notizie e qualità', pagine: ['notizie', 'telegram', 'questionario'], larghi: ['notizie'], tipo: 'tessere' },
     { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede' }
   ]
 
@@ -154,8 +154,16 @@
       box.appendChild(el('h3', null, g.nome))
       var griglia = el('div', g.tipo === 'schede' ? 'vs-schede' : 'vs-tessere')
       // 6 o 3 riquadri: tre per riga, cosi' nessuno resta da solo
-      if (g.tipo !== 'schede' && ids.length % 4 !== 0 && ids.length % 3 === 0) griglia.classList.add('vs-3')
-      ids.forEach(function (id) { usati[id] = true; griglia.appendChild(g.tipo === 'schede' ? scheda(id, schede[id]) : tessera(id, schede[id])) })
+      // i riquadri «larghi» (Notizie) occupano due posti
+      var larghi = g.larghi || []
+      var posti = ids.length + ids.filter(function (id) { return larghi.indexOf(id) >= 0 }).length
+      if (g.tipo !== 'schede' && posti % 4 !== 0 && posti % 3 === 0) griglia.classList.add('vs-3')
+      ids.forEach(function (id) {
+        usati[id] = true
+        var r = g.tipo === 'schede' ? scheda(id, schede[id]) : tessera(id, schede[id])
+        if (larghi.indexOf(id) >= 0) r.classList.add('vs-largo')
+        griglia.appendChild(r)
+      })
       box.appendChild(griglia)
       cont.appendChild(box)
     })
