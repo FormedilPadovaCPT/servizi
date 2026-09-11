@@ -4,8 +4,8 @@
    Caricato solo da chi apre il portale con ?veste=sito (vedi lo
    script in testa a index.html). Veste il portale come il nuovo sito
    proposto da Studio Tagliani: testata col menu, in home il banner del
-   portale (Servizi.png) intero senza scritte sopra, riquadri fotografici,
-   banda Telegram, notizie, piede grigio.
+   portale (Servizi.png) intero senza scritte sopra, riquadri fotografici
+   in quattro gruppi, piede grigio in una riga.
 
    Titoli, descrizioni ed etichette dei servizi si leggono dalle schede
    della home; ogni riquadro apre la stessa pagina di prima (showPage).
@@ -23,7 +23,9 @@
     hero: ['RLST.png', '78% 45%', 'cover'],
     segnalazione: ['img/sito/pericolo-cantiere.jpg', '50% 20%', 'cover'],
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
-    consulenza: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
+    consulenza: ['cantieri.png', '36% 30%', 'auto 230%'],
+    asseverazione: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
+    notizie: ['RLST.png', '52% 40%', 'auto 170%'],
     cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
     rlst: ['RLST.png', '72% 80%', 'auto 150%'],
@@ -36,14 +38,14 @@
     cielo: [CONF, '20% 25%', 'cover']
   }
   var LOGHI = {
-    asseverazione: 'logo_asseverazione_cpt.jpg',
     cds: 'CDS.jpg',
     myapp: 'FormedilMyApp.jpg'
   }
   var GRUPPI = [
-    { chiave: 'imprese', nome: 'Servizi per le imprese', breve: 'Servizi imprese', pagine: ['rlst', 'rls', 'consulenza', 'attestazione'], tipo: 'tessere' },
+    { chiave: 'imprese', nome: 'Servizi per le imprese', breve: 'Servizi imprese', pagine: ['rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione', 'cor'], tipo: 'tessere' },
     { chiave: 'cantieri', nome: 'Cantieri', breve: 'Cantieri', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione'], tipo: 'tessere' },
-    { chiave: 'formazione', nome: 'Qualità, formazione e MOG', breve: 'Formazione e MOG', pagine: ['questionario', 'asseverazione', 'cor', 'cds', 'myapp'], tipo: 'schede' }
+    { chiave: 'notizie', nome: 'Notizie e qualità', breve: 'Notizie e qualità', pagine: ['notizie', 'telegram', 'questionario'], tipo: 'tessere' },
+    { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede' }
   ]
 
   function el(tag, cls, testo) {
@@ -132,6 +134,7 @@
     // banner del portale intero, senza titoli ne' pulsanti sopra (richiesta dell'utente 11/09):
     // il testo e' gia' dentro l'immagine
     var hero = el('div', 'vs-hero vs-banner')
+    hero.style.height = 'auto' // alto quanto la foto
     var bimg = el('img'); bimg.src = 'Servizi.png'
     bimg.alt = 'Portale Servizi – Area Sicurezza e Salute. Benvenuti nel portale di Formedil Padova dedicato ai servizi di sicurezza e salute sul lavoro nel settore edile: tutti i moduli di richiesta in un unico punto di accesso.'
     hero.appendChild(bimg)
@@ -150,12 +153,14 @@
       var box = el('div', 'vs-gruppo'); box.id = 'vs-g-' + g.chiave
       box.appendChild(el('h3', null, g.nome))
       var griglia = el('div', g.tipo === 'schede' ? 'vs-schede' : 'vs-tessere')
+      // 6 o 3 riquadri: tre per riga, cosi' nessuno resta da solo
+      if (g.tipo !== 'schede' && ids.length % 4 !== 0 && ids.length % 3 === 0) griglia.classList.add('vs-3')
       ids.forEach(function (id) { usati[id] = true; griglia.appendChild(g.tipo === 'schede' ? scheda(id, schede[id]) : tessera(id, schede[id])) })
       box.appendChild(griglia)
       cont.appendChild(box)
     })
     // eventuali servizi aggiunti in futuro e non ancora in un gruppo: non si perdono
-    var altri = Object.keys(schede).filter(function (id) { return !usati[id] && id !== 'notizie' && id !== 'telegram' })
+    var altri = Object.keys(schede).filter(function (id) { return !usati[id] })
     if (altri.length) {
       var ab = el('div', 'vs-gruppo'); ab.appendChild(el('h3', null, 'Altri servizi'))
       var ag = el('div', 'vs-schede')
@@ -164,23 +169,9 @@
     }
     sez.appendChild(cont)
 
-    var tg = bottone('vs-telegram')
-    var tf = el('div', 'vs-f'); foto(tf, 'telegram'); tg.appendChild(tf)
-    var tb = el('div', 'vs-bar'); tb.appendChild(el('b', null, 'Telegram ›')); tb.appendChild(el('span', null, 'Iscriviti al canale per rimanere sempre aggiornato'))
-    tg.appendChild(tb)
-    tg.onclick = function () { vai('telegram') }
-
-    var bot = el('div', 'vs-bottoni'); foto(bot, 'bottoni')
-    ;[['Novità dell\'Area', 'Notizie e aggiornamenti ›', 'notizie'], ['Chi siamo', 'Il team dei tecnici ›', 'team']].forEach(function (x) {
-      var b = bottone(null); b.appendChild(el('small', null, x[0])); b.appendChild(el('b', null, x[1])); b.onclick = function () { vai(x[2]) }; bot.appendChild(b)
-    })
-
-    var news = el('section', 'vs-news vs-vuota')
-    var nc = el('div', 'vs-cont'); nc.appendChild(el('h2', null, 'News'))
-    var ng = el('div', 'vs-news-grid'); nc.appendChild(ng); news.appendChild(nc)
-
-    ;[hero, sez, tg, bot, news].forEach(function (x) { pag.insertBefore(x, wrap) })
-    ultimeNotizie(news, ng)
+    // tolte su richiesta dell'utente (11/09): banda Telegram larga, bottoni arancioni e sezione news
+    pag.insertBefore(hero, wrap)
+    pag.insertBefore(sez, wrap)
   }
   function tessera(id, c) {
     var b = bottone('vs-t'); foto(b, id)
@@ -209,38 +200,6 @@
     return b
   }
 
-  function mostraNotizie(sez, griglia, items) {
-    var vis = (items || []).filter(function (n) { return n && n.pubblicata !== false && n.titolo }).slice(0, 3)
-    griglia.innerHTML = ''
-    sez.classList.toggle('vs-vuota', !vis.length)
-    vis.forEach(function (n) {
-      var b = bottone('vs-n')
-      if (n.immagine_url && /^https:\/\//.test(n.immagine_url)) {
-        var f = el('div', 'vs-f'); f.style.backgroundImage = 'url("' + String(n.immagine_url).replace(/["\\]/g, '') + '")'; b.appendChild(f)
-      }
-      var tx = el('div', 'vs-testo')
-      var d = String(n.data_pubbl || n.created_at || '').slice(0, 10)
-      if (d) tx.appendChild(el('time', null, d.split('-').reverse().join('/')))
-      tx.appendChild(el('b', null, n.titolo))
-      tx.appendChild(el('em', null, 'Leggi di più ›'))
-      b.appendChild(tx)
-      b.onclick = function () { vai('notizie') }
-      griglia.appendChild(b)
-    })
-  }
-  function ultimeNotizie(sez, griglia) {
-    var c = null
-    try { c = JSON.parse(localStorage.getItem('formedil_news_cache_v2') || 'null') } catch (e) { c = null }
-    mostraNotizie(sez, griglia, c && c.items)
-    var client = null
-    try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
-    if (!client) return
-    client.from('notizie').select('id,titolo,data_pubbl,created_at,pubblicata,immagine_url').eq('pubblicata', true)
-      .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(3)
-      .then(function (r) { if (r && r.data) mostraNotizie(sez, griglia, r.data) })
-      .catch(function () { /* restano quelle in cache */ })
-  }
-
   /* ── pagine interne: foto con il titolo, come le pagine del sito ── */
   var FOTO_PAGINA = { team: 'hero', notizie: 'cielo', telegram: 'telegram', cor: 'cielo', asseverazione: 'cielo', cds: 'cielo', myapp: 'cielo' }
   function pagine() {
@@ -255,30 +214,25 @@
     })
   }
 
-  /* ── piede del sito, sotto tutte le pagine ── */
+  /* ── piede del sito, sotto tutte le pagine: una riga, quattro blocchi ── */
   function piede() {
     var main = document.querySelector('.main')
     if (!main || main.querySelector('.vs-piede')) return
     var f = el('footer', 'vs-piede')
-    var c1 = el('div')
-    c1.appendChild(el('b', null, 'FORMEDIL PADOVA · SCUOLA COSTRUZIONI GIUSEPPE JAPPELLI'))
-    c1.appendChild(el('span', null, 'Area Sicurezza e Salute'))
-    c1.appendChild(el('br'))
-    c1.appendChild(el('span', null, 'Via Basilicata 10 · 35127 Padova'))
-    var tel = el('a', null, 'Tel. 049 761168 (int. 4)'); tel.href = 'tel:049761168'; c1.appendChild(tel)
-    ;['cpt@formedilpadova.it', 'cptpd@did.formedilpadova.it'].forEach(function (m) { var a = el('a', null, m); a.href = 'mailto:' + m; c1.appendChild(a) })
-    f.appendChild(c1)
-    var col = function (tit, righe) {
-      var d = el('div'); d.appendChild(el('b', null, tit))
-      righe.forEach(function (r) { var b = bottone(null, r[0]); b.onclick = r[1]; d.appendChild(b) })
-      return d
-    }
-    f.appendChild(col('Servizi', GRUPPI.map(function (g) { return [g.breve, function () { scorriA('#vs-g-' + g.chiave) }] })))
-    f.appendChild(col('Area Sicurezza e Salute', [['Notizie', function () { vai('notizie') }], ['Il team', function () { vai('team') }], ['Canale Telegram', function () { vai('telegram') }]]))
-    var sito = el('div'); sito.appendChild(el('b', null, 'Formedil Padova'))
-    var w = el('a', null, 'www.formedilpadova.it'); w.href = 'https://www.formedilpadova.it'; w.target = '_blank'; w.rel = 'noopener'; sito.appendChild(w)
-    var app = bottone(null, 'Formedil MyApp'); app.onclick = function () { vai('myapp') }; sito.appendChild(app)
-    f.appendChild(sito)
+    var blocco = function (tit) { var d = el('div'); d.appendChild(el('b', null, tit)); f.appendChild(d); return d }
+    var link = function (d, testo, fn) { var b = bottone(null, testo); b.onclick = fn; d.appendChild(b) }
+    var b1 = blocco('Formedil Padova')
+    b1.appendChild(el('span', null, 'Scuola Costruzioni Giuseppe Jappelli'))
+    b1.appendChild(el('span', null, 'Via Basilicata 10 · 35127 Padova'))
+    var b2 = blocco('Contatti Area Sicurezza e Salute')
+    var tel = el('a', null, 'Tel. 049 761168 (int. 4)'); tel.href = 'tel:049761168'; b2.appendChild(tel)
+    ;['cpt@formedilpadova.it', 'cptpd@did.formedilpadova.it'].forEach(function (m) { var a = el('a', null, m); a.href = 'mailto:' + m; b2.appendChild(a) })
+    var b3 = blocco('Servizi')
+    GRUPPI.forEach(function (g) { link(b3, g.breve, function () { scorriA('#vs-g-' + g.chiave) }) })
+    var b4 = blocco('Area')
+    link(b4, 'Il team', function () { vai('team') })
+    link(b4, 'Canale Telegram', function () { vai('telegram') })
+    var w = el('a', null, 'www.formedilpadova.it'); w.href = 'https://www.formedilpadova.it'; w.target = '_blank'; w.rel = 'noopener'; b4.appendChild(w)
     main.appendChild(f)
   }
 

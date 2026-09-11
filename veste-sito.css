@@ -61,6 +61,7 @@ html[data-veste="sito"] .vs-gruppo{scroll-margin-top:90px}
 html[data-veste="sito"] .vs-gruppo+.vs-gruppo{margin-top:30px}
 html[data-veste="sito"] .vs-gruppo h3{margin:0 0 12px;font:500 19px/1.2 Barlow,sans-serif;color:var(--vs-ardesia)}
 html[data-veste="sito"] .vs-tessere{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+html[data-veste="sito"] .vs-tessere.vs-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 html[data-veste="sito"] .vs-t{position:relative;height:160px;border-radius:16px;overflow:hidden;background-color:var(--vs-ardesia);background-repeat:no-repeat;display:grid;align-content:end;padding:14px;color:#fff;border:0;text-align:left;font:inherit;cursor:pointer}
 html[data-veste="sito"] .vs-t::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 25%,rgba(0,0,0,.66));transition:background .2s}
 html[data-veste="sito"] .vs-t:hover::before{background:linear-gradient(180deg,rgba(0,0,0,.08) 10%,rgba(0,0,0,.78))}
@@ -84,28 +85,9 @@ html[data-veste="sito"] .vs-card b{font:500 20px/1.12 Barlow,sans-serif}
 html[data-veste="sito"] .vs-card small{font-size:12.5px;color:#555;line-height:1.4}
 html[data-veste="sito"] .vs-card em{font-style:normal;color:var(--vs-arancio);font-size:12.5px;font-weight:600}
 html[data-veste="sito"] .vs-card:hover b{color:var(--vs-arancio)}
-html[data-veste="sito"] .vs-telegram{display:block;max-width:1000px;margin:0 auto;transform:translateY(-22px);border-radius:18px;overflow:hidden;border:0;padding:0;width:calc(100% - 68px);cursor:pointer;font:inherit;text-align:left}
-html[data-veste="sito"] .vs-telegram .vs-f{height:90px;background-size:cover;background-position:30% 18%}
-html[data-veste="sito"] .vs-telegram .vs-bar{background:var(--vs-azzurro);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 22px}
-html[data-veste="sito"] .vs-telegram b{font-size:18px;font-weight:600}
-html[data-veste="sito"] .vs-telegram span{font-size:13px;text-align:right}
-html[data-veste="sito"] .vs-bottoni{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:34px max(34px,calc((100% - 1000px)/2));background-size:cover;background-position:80% 30%}
-html[data-veste="sito"] .vs-bottoni::before{content:"";position:absolute;inset:0;background:rgba(40,52,60,.45)}
-html[data-veste="sito"] .vs-bottoni button{position:relative;background:var(--vs-arancio);border:0;border-radius:18px;color:#fff;padding:22px 24px;display:grid;gap:18px;min-height:130px;align-content:space-between;text-align:left;font:inherit;cursor:pointer}
-html[data-veste="sito"] .vs-bottoni button:hover{filter:brightness(1.06)}
-html[data-veste="sito"] .vs-bottoni b{font:600 24px/1.08 Barlow,sans-serif}
-html[data-veste="sito"] .vs-bottoni small{font-size:13px;opacity:.92}
-html[data-veste="sito"] .vs-news{padding:38px 34px 44px}
-html[data-veste="sito"] .vs-news h2{margin:0 0 16px;font:500 30px/1 Barlow,sans-serif}
-html[data-veste="sito"] .vs-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-html[data-veste="sito"] .vs-n{background:#fff;border-radius:18px;box-shadow:0 2px 14px rgba(0,0,0,.08);overflow:hidden;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;display:grid;align-content:start}
-html[data-veste="sito"] .vs-n .vs-f{height:130px;background-size:cover;background-position:center}
-html[data-veste="sito"] .vs-n .vs-testo{padding:14px 16px 16px;display:grid;gap:6px}
-html[data-veste="sito"] .vs-n time{color:var(--vs-arancio);font-size:12px}
-html[data-veste="sito"] .vs-n b{font:500 18px/1.15 Barlow,sans-serif}
-html[data-veste="sito"] .vs-n em{font-style:normal;font-size:12.5px;font-weight:600}
-html[data-veste="sito"] .vs-news.vs-vuota{display:none}
-html[data-veste="sito"] .vs-piede{background:var(--vs-piede);display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:24px;padding:28px max(34px,calc((100% - 1000px)/2)) 34px;font-size:12.5px;line-height:1.6;color:var(--vs-testo)}
+/* piede: una riga, quattro blocchi */
+html[data-veste="sito"] .vs-piede{background:var(--vs-piede);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:start;padding:20px max(34px,calc((100% - 1000px)/2)) 22px;font-size:12.5px;line-height:1.5;color:var(--vs-testo)}
+html[data-veste="sito"] .vs-piede span{display:block}
 html[data-veste="sito"] .vs-piede b{display:block;font-size:12.5px;letter-spacing:.02em;margin-bottom:4px}
 html[data-veste="sito"] .vs-piede a,html[data-veste="sito"] .vs-piede button{color:var(--vs-testo);text-decoration:none;background:none;border:0;padding:0;font:inherit;cursor:pointer;display:block;text-align:left}
 html[data-veste="sito"] .vs-piede a:hover,html[data-veste="sito"] .vs-piede button:hover{color:var(--vs-arancio)}
@@ -176,8 +158,9 @@ html[data-veste="sito"] .sidebar-footer a{color:var(--vs-testo)}
 
 /* ── telefono ── */
 @media(max-width:900px){
-  html[data-veste="sito"] .vs-tessere{grid-template-columns:repeat(2,minmax(0,1fr))}
-  html[data-veste="sito"] .vs-schede,html[data-veste="sito"] .vs-news-grid{grid-template-columns:1fr}
+  html[data-veste="sito"] .vs-tessere,html[data-veste="sito"] .vs-tessere.vs-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-veste="sito"] .vs-schede{grid-template-columns:1fr}
+  html[data-veste="sito"] .vs-piede{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:768px){
   html[data-veste="sito"] .vs-testa{padding:10px 14px}
@@ -202,18 +185,7 @@ html[data-veste="sito"] .sidebar-footer a{color:var(--vs-testo)}
   html[data-veste="sito"] .vs-card .vs-f{min-height:110px}
   html[data-veste="sito"] .vs-card>div:last-child{padding:12px}
   html[data-veste="sito"] .vs-card b{font-size:16px}
-  html[data-veste="sito"] .vs-telegram{width:calc(100% - 28px);transform:translateY(-10px)}
-  html[data-veste="sito"] .vs-telegram .vs-f{height:62px}
-  html[data-veste="sito"] .vs-telegram .vs-bar{padding:9px 12px}
-  html[data-veste="sito"] .vs-telegram b{font-size:14px}
-  html[data-veste="sito"] .vs-telegram span{font-size:11px}
-  html[data-veste="sito"] .vs-bottoni{gap:8px;padding:14px}
-  html[data-veste="sito"] .vs-bottoni button{min-height:92px;padding:12px;border-radius:14px}
-  html[data-veste="sito"] .vs-bottoni b{font-size:16px}
-  html[data-veste="sito"] .vs-bottoni small{font-size:11px}
-  html[data-veste="sito"] .vs-news{padding:20px 14px 24px}
-  html[data-veste="sito"] .vs-news h2{font-size:22px}
-  html[data-veste="sito"] .vs-piede{grid-template-columns:1fr;gap:14px;padding:18px 14px 70px;font-size:12px}
+  html[data-veste="sito"] .vs-piede{gap:14px;padding:18px 14px 70px;font-size:12px}
   html[data-veste="sito"] .page .vs-hero{height:150px}
   html[data-veste="sito"] .page .vs-hero h1{font-size:25px}
   html[data-veste="sito"] .page:not(#page-home)>*:not(.vs-hero){margin-left:14px;margin-right:14px}
