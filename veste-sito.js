@@ -17,12 +17,14 @@
   'use strict'
 
   var CONF = 'CONFERENZA%20DI%20CANTIERE.png'
-  /* immagine, posizione, dimensione — ritagli delle foto gia' nel portale */
+  /* immagine, posizione, dimensione — ritagli delle foto gia' nel portale,
+     piu' tre foto del laboratorio della Scuola (img/sito, da 00_INBOX 11/09/2026) */
   var FOTO = {
     hero: ['RLST.png', '78% 45%', 'cover'],
-    segnalazione: ['pericolo.png', '28% 60%', 'cover'],
+    segnalazione: ['img/sito/pericolo-cantiere.jpg', '50% 20%', 'cover'],
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
-    consulenza: ['cantieri.png', '96% 12%', 'auto 210%'],
+    consulenza: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
+    cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
     rlst: ['RLST.png', '70% 60%', 'cover'],
     rls: ['RLST.png', '93% 55%', 'cover'],
@@ -35,7 +37,6 @@
   }
   var LOGHI = {
     asseverazione: 'logo_asseverazione_cpt.jpg',
-    cor: 'logo_corsi_cpt.png',
     cds: 'CDS.jpg',
     myapp: 'FormedilMyApp.jpg'
   }
