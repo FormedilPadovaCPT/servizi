@@ -4,8 +4,9 @@
    Caricato solo da chi apre il portale con ?veste=sito (vedi lo
    script in testa a index.html). Veste il portale come il nuovo sito
    proposto da Studio Tagliani: testata col menu, in home il banner del
-   portale (Servizi.png) intero senza scritte sopra, riquadri fotografici
-   in quattro gruppi, piede grigio in una riga.
+   portale (Servizi.png) intero, l'ultima notizia, riquadri fotografici per
+   Cantieri e Servizi imprese, Applicativi con la striscia Telegram, piede
+   grigio in una riga. Nelle pagine dei servizi niente emoji.
 
    Titoli, descrizioni ed etichette dei servizi si leggono dalle schede
    della home; ogni riquadro apre la stessa pagina di prima (showPage).
@@ -23,7 +24,7 @@
     hero: ['RLST.png', '78% 45%', 'cover'],
     segnalazione: ['img/sito/pericolo-cantiere.jpg', '50% 20%', 'cover'],
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
-    consulenza: ['cantieri.png', '36% 30%', 'auto 230%'],
+    consulenza: ['img/sito/disegni-casseratura.jpg', '92% 35%', 'auto 170%'],
     asseverazione: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
     notizie: ['RLST.png', '85% 20%', 'auto 200%'],
     cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
@@ -42,10 +43,9 @@
     myapp: 'FormedilMyApp.jpg'
   }
   var GRUPPI = [
+    { chiave: 'cantieri', nome: 'Cantieri', breve: 'Cantieri', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione', 'questionario'], larghi: ['visita'], tipo: 'tessere' },
     { chiave: 'imprese', nome: 'Servizi per le imprese', breve: 'Servizi imprese', pagine: ['rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione', 'cor'], tipo: 'tessere' },
-    { chiave: 'cantieri', nome: 'Cantieri', breve: 'Cantieri', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione'], tipo: 'tessere' },
-    { chiave: 'notizie', nome: 'Notizie e qualità', breve: 'Notizie e qualità', pagine: ['notizie', 'telegram', 'questionario'], larghi: ['notizie'], tipo: 'tessere' },
-    { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede' }
+    { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede', striscia: 'telegram' }
   ]
 
   function el(tag, cls, testo) {
@@ -86,7 +86,11 @@
     var h = p && p.querySelector('.form-header h2')
     if (h && h.textContent.trim()) return h.textContent.trim()
     var n = document.querySelector('.nav-item[onclick="showPage(\'' + id + '\')"]')
-    return n ? n.textContent.replace(/\s+/g, ' ').trim() : ''
+    if (!n) return ''
+    // dal menu solo il testo: niente icona ne' contatore delle notizie
+    var copia = n.cloneNode(true)
+    copia.querySelectorAll('span').forEach(function (x) { x.remove() })
+    return copia.textContent.replace(/\s+/g, ' ').trim()
   }
 
   /* ── testata col menu, per tutte le pagine ── */
@@ -144,8 +148,8 @@
 
     var sez = el('section', 'vs-sez'); sez.id = 'vs-servizi'
     var cont = el('div', 'vs-cont')
-    cont.appendChild(el('h2', null, 'Servizi per imprese e cantieri'))
-    cont.appendChild(el('p', null, 'Tutti i servizi dell\'Area Sicurezza e Salute si chiedono da qui, in pochi minuti. Su ogni servizio trovi le condizioni: gratuito per le imprese iscritte alla Cassa Edile, obbligatorio, anche anonimo.'))
+    // in apertura l'ultima notizia, larga quanto i riquadri: un clic porta alla pagina Notizie
+    cont.appendChild(ultimaNotizia())
     var usati = {}
     GRUPPI.forEach(function (g) {
       var ids = g.pagine.filter(function (p) { return schede[p] })
@@ -164,11 +168,12 @@
         if (larghi.indexOf(id) >= 0) r.classList.add('vs-largo')
         griglia.appendChild(r)
       })
+      if (g.striscia === 'telegram') griglia.appendChild(strisciaTelegram())
       box.appendChild(griglia)
       cont.appendChild(box)
     })
     // eventuali servizi aggiunti in futuro e non ancora in un gruppo: non si perdono
-    var altri = Object.keys(schede).filter(function (id) { return !usati[id] })
+    var altri = Object.keys(schede).filter(function (id) { return !usati[id] && id !== 'notizie' && id !== 'telegram' })
     if (altri.length) {
       var ab = el('div', 'vs-gruppo'); ab.appendChild(el('h3', null, 'Altri servizi'))
       var ag = el('div', 'vs-schede')
@@ -180,6 +185,83 @@
     // tolte su richiesta dell'utente (11/09): banda Telegram larga, bottoni arancioni e sezione news
     pag.insertBefore(hero, wrap)
     pag.insertBefore(sez, wrap)
+  }
+  function ultimaNotizia() {
+    var b = bottone('vs-ultima vs-senza-foto')
+    b.setAttribute('aria-label', 'Apri le notizie')
+    var f = el('div', 'vs-f')
+    var tx = el('div', 'vs-testo')
+    var et = el('span', 'vs-et', 'Notizie e aggiornamenti')
+    var tit = el('b', null, 'Comunicazioni, normative ed eventi dell\'Area Sicurezza e Salute')
+    var est = el('p')
+    tx.appendChild(et); tx.appendChild(tit); tx.appendChild(est); tx.appendChild(el('em', null, 'Tutte le notizie ›'))
+    b.appendChild(f); b.appendChild(tx)
+    b.onclick = function () { vai('notizie') }
+    var mostra = function (items) {
+      var n = (items || []).filter(function (x) { return x && x.pubblicata !== false && x.titolo })[0]
+      if (!n) return
+      var d = String(n.data_pubbl || n.created_at || '').slice(0, 10)
+      et.textContent = 'Ultima notizia' + (d ? ' · ' + d.split('-').reverse().join('/') : '')
+      tit.textContent = n.titolo
+      // il corpo e' HTML scritto dalla redazione: se ne prende solo il testo
+      var testo = ''
+      try { testo = new DOMParser().parseFromString(String(n.corpo || ''), 'text/html').body.textContent || '' } catch (e) { testo = '' }
+      testo = testo.replace(/\s+/g, ' ').trim()
+      est.textContent = testo.length > 230 ? testo.slice(0, 227).replace(/\s+\S*$/, '') + '…' : testo
+      if (n.immagine_url && /^https:\/\//.test(n.immagine_url)) {
+        f.style.backgroundImage = 'url("' + String(n.immagine_url).replace(/["\\]/g, '') + '")'
+        b.classList.remove('vs-senza-foto')
+      } else {
+        f.style.backgroundImage = ''
+        b.classList.add('vs-senza-foto')
+      }
+    }
+    var c = null
+    try { c = JSON.parse(localStorage.getItem('formedil_news_cache_v2') || 'null') } catch (e) { c = null }
+    mostra(c && c.items)
+    var client = null
+    try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
+    if (client) {
+      client.from('notizie').select('id,titolo,corpo,data_pubbl,created_at,pubblicata,immagine_url').eq('pubblicata', true)
+        .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(1)
+        .then(function (r) { if (r && r.data) mostra(r.data) })
+        .catch(function () { /* resta quella in cache */ })
+    }
+    return b
+  }
+  function strisciaTelegram() {
+    var b = bottone('vs-tg')
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.4 3.6 2.9 10.7c-1.2.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.6c.2.6.4.8.8.8s.6-.2.9-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.8-1.4-1.4ZM9.3 13.3l8.8-5.6c.4-.3.8-.1.5.2l-7.3 6.6-.3 3.1-1.7-4.3Z"/></svg>'
+    var tx = el('div')
+    var c = document.querySelector('.service-card[onclick="showPage(\'telegram\')"]')
+    tx.appendChild(el('b', null, 'Canale Telegram'))
+    tx.appendChild(el('small', null, 'Notizie in tempo reale, eventi formativi e novità normative'))
+    b.appendChild(tx)
+    b.appendChild(el('i', null, '›'))
+    b.title = c && c.querySelector('.sc-desc') ? c.querySelector('.sc-desc').textContent.trim() : ''
+    b.onclick = function () { vai('telegram') }
+    return b
+  }
+  /* via le emoji dalle pagine dei servizi (titoli, elenchi, pulsanti); le tendine no:
+     il testo di un'opzione senza value e' il valore che si invia */
+  // intervalli espliciti (non \p{Extended_Pictographic}, che prenderebbe anche © ® ™)
+  var EMOJI = /(?:[\u{1F000}-\u{1FAFF}]|[\u2600-\u27BF]|[\u2B00-\u2BFF]|[\u2300-\u23FF]|[\u2190-\u21FF]|[\u25A0-\u25FF]|\u2139)(?:\uFE0F|\u200D(?:[\u{1F000}-\u{1FAFF}]|[\u2600-\u27BF]))*\uFE0F?/gu
+  function togliEmoji(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var p = n.parentNode && n.parentNode.nodeName
+        if (p === 'OPTION' || p === 'SELECT' || p === 'TEXTAREA' || p === 'SCRIPT' || p === 'STYLE') return NodeFilter.FILTER_REJECT
+        EMOJI.lastIndex = 0
+        return EMOJI.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
+      }
+    })
+    var nodi = []
+    while (w.nextNode()) nodi.push(w.currentNode)
+    nodi.forEach(function (n) {
+      EMOJI.lastIndex = 0
+      n.nodeValue = n.nodeValue.replace(EMOJI, '').replace(/^\s+(?=\S)/, function (m) { return /\n/.test(m) ? m : '' })
+    })
+    root.querySelectorAll('.fi-icon, .rc-icon, .form-header h2 svg').forEach(function (x) { x.style.display = 'none' })
   }
   function tessera(id, c) {
     var b = bottone('vs-t'); foto(b, id)
@@ -214,6 +296,7 @@
     document.querySelectorAll('.page').forEach(function (p) {
       var id = p.id.replace(/^page-/, '')
       if (id === 'home' || p.querySelector(':scope > .vs-hero')) return
+      try { togliEmoji(p) } catch (e) { /* se qualcosa va storto le icone restano */ }
       var h = el('div', 'vs-hero')
       foto(h, FOTO[id] ? id : (FOTO_PAGINA[id] || 'hero'))
       var hc = el('div'); hc.appendChild(el('h1', null, titoloPagina(id))); h.appendChild(hc)
@@ -238,6 +321,7 @@
     var b3 = blocco('Servizi')
     GRUPPI.forEach(function (g) { link(b3, g.breve, function () { scorriA('#vs-g-' + g.chiave) }) })
     var b4 = blocco('Area')
+    link(b4, 'Notizie', function () { vai('notizie') })
     link(b4, 'Il team', function () { vai('team') })
     link(b4, 'Canale Telegram', function () { vai('telegram') })
     var w = el('a', null, 'www.formedilpadova.it'); w.href = 'https://www.formedilpadova.it'; w.target = '_blank'; w.rel = 'noopener'; b4.appendChild(w)
