@@ -3557,6 +3557,14 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyft6DeRiyFV0o1ZzBwUJ4_
 // Non blocca e non decide nulla — serve all'ufficio per accorgersi di una
 // richiesta partita che sul foglio non e' arrivata.
 const SPECCHIO_URL   = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/ricezione-portale';
+/* STRADA DIRETTA (12/09/2026): i moduli in MODULI_DIRETTI non passano più da
+   Apps Script e dal foglio, ma vanno alla funzione portale-richieste sul
+   database, che crea subito la pratica nell'app segreteria, salva le foto su
+   Drive, scrive la copia della riga sul foglio e manda le due mail. Risponde
+   nella stessa forma di Apps Script, quindi il resto del portale non cambia.
+   Si aggiungono qui un modulo alla volta. */
+const RICHIESTE_URL  = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/portale-richieste';
+const MODULI_DIRETTI = ['seg'];
 const MAX_ALLEGATO_MB = 8;
 const TEL_UFFICIO     = '049 761168';
 
@@ -4264,12 +4272,20 @@ const codaScrivi = (rec) => codaOp('readwrite', st => st.put(rec))
   .catch(e => { console.warn('coda non disponibile:', e); return false; });
 const codaTogli  = (id)  => codaOp('readwrite', st => st.delete(id)).catch(e => console.warn('coda:', e));
 const codaTutte  = ()    => codaOp('readonly',  st => st.getAll()).catch(e => (console.warn('coda:', e), []));
+/* Le richieste in viaggio in questo momento. Senza, la coda che parte da sola
+   quattro secondi dopo l'apertura rimandava una richiesta che il modulo stava
+   già inviando: due invii identici insieme (prova del 12/09/2026). Il server
+   regge lo stesso, ma è inutile fargli fare due volte la strada. */
+const inVolo = new Set();
 
 /* ── invio vero, con lettura della risposta ──────────────────────── */
 async function inviaAlServer(payload) {
+  /* la coda ripassa di qui: una richiesta salvata prima dell'aggiornamento
+     prende comunque la strada giusta per il suo modulo */
+  const diretto = MODULI_DIRETTI.includes(payload && payload.tipo_modulo);
   let resp;
   try {
-    resp = await fetch(GAS_URL, {
+    resp = await fetch(diretto ? RICHIESTE_URL : GAS_URL, {
       method: 'POST',
       mode: 'cors',
       redirect: 'follow',
@@ -4285,7 +4301,20 @@ async function inviaAlServer(payload) {
      passa da solo, il secondo si ripeterebbe identico. Apps Script risponde
      con un redirect e ogni tanto la pagina del risultato non c'è (404): la
      richiesta però è stata eseguita — successo il 04/09/2026. */
-  if (!resp.ok) return { ok: false, riprovabile: true, motivo: 'il server ha risposto ' + resp.status };
+  if (!resp.ok) {
+    /* la strada diretta dice da sé se insistere serve: un modulo rifiutato
+       per un dato mancante resterebbe rifiutato uguale, una foto non salvata
+       su Drive invece si completa riprovando */
+    if (diretto) {
+      let d = null;
+      try { d = await resp.json(); } catch (e) { /* risposta senza corpo leggibile */ }
+      if (d && d.riprovabile === false) {
+        return { ok: false, riprovabile: false, motivo: d.message || 'il server ha rifiutato la richiesta' };
+      }
+      return { ok: false, riprovabile: true, motivo: (d && d.message) || 'il server ha risposto ' + resp.status };
+    }
+    return { ok: false, riprovabile: true, motivo: 'il server ha risposto ' + resp.status };
+  }
   let dati;
   try { dati = await resp.json(); }
   catch (err) { return { ok: false, riprovabile: true, motivo: 'risposta del server non leggibile' }; }
@@ -4345,7 +4374,11 @@ async function ritentaCoda() {
     const righe = await codaTutte();
     for (const rec of righe || []) {
       if (Date.now() - (rec.creato || 0) > CODA_GIORNI * 86400000) { await codaTogli(rec.submission_id); continue; }
-      const esito = await inviaAlServer(rec.payload);
+      if (inVolo.has(rec.submission_id)) continue;   // la sta già mandando il modulo aperto
+      inVolo.add(rec.submission_id);
+      let esito;
+      try { esito = await inviaAlServer(rec.payload); }
+      finally { inVolo.delete(rec.submission_id); }
       if (esito.ok) {
         await codaTogli(rec.submission_id);
         if (rec.payload && rec.payload.tipo_modulo) chiudiCompilazione(rec.payload.tipo_modulo);
@@ -4451,11 +4484,16 @@ async function submitForm(formId, prefix, buildPayload) {
           disponibile, cosa che qui si verifica invece di darla per buona */
     const inCoda = await codaScrivi({ submission_id: payload.submission_id, payload, creato: Date.now(), tentativi: 0 });
 
-    /* 2. specchio sul secondo canale (non blocca) */
-    specchia(payload);
+    /* 2. specchio sul secondo canale (non blocca). Non per la strada diretta:
+          lì la copia in s_portale_ricezioni la scrive la funzione stessa,
+          prima di ogni altra cosa */
+    if (!MODULI_DIRETTI.includes(prefix)) specchia(payload);
 
     /* 3. invio vero, e la risposta si LEGGE */
-    const esito = await inviaConUnaSecondaOccasione(payload);
+    inVolo.add(payload.submission_id);
+    let esito;
+    try { esito = await inviaConUnaSecondaOccasione(payload); }
+    finally { inVolo.delete(payload.submission_id); }
 
     if (esito.ok) {
       await codaTogli(payload.submission_id);
