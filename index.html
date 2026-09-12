@@ -23,9 +23,10 @@
   <title>Formedil Padova – Area Sicurezza e Salute</title>
 
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#1e2d5e">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Formedil PD">
   <link rel="manifest" href="PWA/manifest.json">
   <link rel="apple-touch-icon" href="PWA/icons/icon-192x192.png">
@@ -745,6 +746,31 @@
     @media (max-width: 480px) {
       .services-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Invito a installare l'app (12/09/2026) ── */
+    .app-invito[hidden], #nav-installa[hidden], #nav-installa-label[hidden] { display: none !important; }
+    .app-invito {
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 100%; max-width: 520px; z-index: 450;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--white); color: var(--text);
+      border-top: 3px solid var(--orange);
+      box-shadow: 0 -6px 24px rgba(0,0,0,.14);
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+      font-family: 'Barlow', sans-serif;
+    }
+    html[data-veste] .app-invito { bottom: 56px; }
+    .app-invito img { width: 40px; height: 40px; flex-shrink: 0; border-radius: 8px; border: 1px solid var(--border); }
+    .app-invito-testo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .app-invito-testo strong { font-size: 14px; font-weight: 700; line-height: 1.25; }
+    .app-invito-testo span { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+    .app-invito-testo svg { vertical-align: -2px; }
+    .app-invito-azioni { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .app-invito-azioni button { font: 600 13px/1 'Barlow', sans-serif; border: 0; cursor: pointer; padding: 9px 14px; border-radius: 6px; }
+    .app-invito-si { background: var(--orange); color: #fff; }
+    .app-invito-si:hover { background: var(--orange2); }
+    .app-invito-no { background: transparent; color: var(--muted); }
+    .app-invito-azioni button:focus-visible { outline: 2px solid var(--gray); outline-offset: 2px; }
   </style>
 
   <!-- Supabase -->
@@ -856,6 +882,12 @@
       </a>
       <a class="nav-item" onclick="showPage('myapp')" href="#">
         <span class="ni-icon">📱</span> Formedil MyApp
+      </a>
+
+      <!-- Compare solo dove il portale si può installare (vedi «App sul telefono» in fondo) -->
+      <div class="nav-section-label" id="nav-installa-label" hidden>App</div>
+      <a class="nav-item" id="nav-installa" href="#" onclick="apriInvitoApp(); return false;" hidden>
+        <span class="ni-icon">📲</span> Installa l'app
       </a>
     </nav>
 
@@ -4788,15 +4820,142 @@ FORM_PREFIXES.forEach(p => calcProgressForm(p));
 document.querySelector('.topbar').classList.add('home-mode');
 document.getElementById('topbarLogo').style.display  = 'block';
 document.getElementById('topbarTitle').style.display = 'none';
+// Scorciatoie dell'icona dell'app (PWA/manifest.json): ?pagina=segnalazione apre subito quella pagina
+(function () {
+  var p = new URLSearchParams(location.search).get('pagina');
+  if (p && p !== 'home' && /^[a-z]+$/.test(p) && document.getElementById('page-' + p)) showPage(p);
+})();
 </script>
 
-<!-- PWA Service Worker Registration -->
 <!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()">
   <span id="lightbox-close" onclick="closeLightbox()">✕</span>
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<script src="PWA/pwacompat.js"></script>
+<!-- ══════════════════════════════════════════════════════
+     APP SUL TELEFONO (12/09/2026)
+     - registra sw.js (rete prima, copia salvata se manca la rete)
+       e ritira il vecchio PWA/sw.js, che non ha mai funzionato;
+     - invita a installare: su Android/Chrome col pulsante vero,
+       su iPhone/iPad con le istruzioni (Safari non ha il pulsante).
+     La barra compare solo sul telefono, solo nella home, non prima
+     di 5 secondi, e sparisce appena si apre un'altra pagina: chi sta
+     compilando un modulo non la vede. «Non ora» la tace per 30 giorni;
+     la voce «Installa l'app» nel menu resta.
+     ══════════════════════════════════════════════════════ -->
+<div id="app-invito" class="app-invito" role="dialog" aria-labelledby="app-invito-titolo" aria-describedby="app-invito-sub" hidden>
+  <img src="PWA/icons/icon-96x96.png" alt="">
+  <div class="app-invito-testo">
+    <strong id="app-invito-titolo">Aggiungi l'app al telefono</strong>
+    <span id="app-invito-sub">Il portale si apre dall'icona, come le altre app.</span>
+  </div>
+  <div class="app-invito-azioni">
+    <button type="button" class="app-invito-si" id="app-invito-si">Installa</button>
+    <button type="button" class="app-invito-no" id="app-invito-no">Non ora</button>
+  </div>
+</div>
+<script>
+(function () {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      var vecchio = new URL('PWA/', location.href).href;
+      navigator.serviceWorker.getRegistrations().then(function (rr) {
+        rr.forEach(function (r) { if (r.scope === vecchio) r.unregister(); });
+      }).catch(function () {});
+      navigator.serviceWorker.register('sw.js').catch(function (e) {
+        console.warn('Service worker non registrato:', e);
+      });
+    });
+  }
+
+  var CHIAVE = 'servizi.invitoApp.chiusoIl';
+  var GIORNI = 30;
+  var mm = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+  var installata = mm('(display-mode: standalone)') || navigator.standalone === true;
+  // Istruzioni iPhone solo in Safari: nei browser interni alle app (Telegram, WhatsApp,
+  // Facebook…) e in Chrome/Firefox per iPhone «Aggiungi alla schermata Home» non c'è o sta
+  // altrove. Il browser interno che usa Safari (SFSafariViewController) non si distingue.
+  var ua = navigator.userAgent;
+  var ios = (/iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
+            /Safari\//.test(ua) &&
+            !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|FBAN|FBAV|Instagram|Line\/|MicroMessenger|Telegram|WhatsApp/i.test(ua);
+  var richiesta = null;   // evento beforeinstallprompt tenuto da parte
+  var pronta = false;     // passati i primi secondi (splash)
+  var barra = document.getElementById('app-invito');
+  var voce  = document.getElementById('nav-installa');
+  var etich = document.getElementById('nav-installa-label');
+  var si = document.getElementById('app-invito-si');
+  var no = document.getElementById('app-invito-no');
+  var ICONA_CONDIVIDI = '<svg width="14" height="16" viewBox="0 0 14 18" fill="none" aria-hidden="true">' +
+    '<path d="M7 1v11M3.5 4.5L7 1l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M4.5 7.5H2.5a1 1 0 0 0-1 1V16a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V8.5a1 1 0 0 0-1-1h-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+  function chiusaDaPoco() {
+    try { var t = Number(localStorage.getItem(CHIAVE)); return t > 0 && Date.now() - t < GIORNI * 864e5; }
+    catch (e) { return false; }
+  }
+  function segnaChiusa() { try { localStorage.setItem(CHIAVE, String(Date.now())); } catch (e) {} }
+  function inHome() { var h = document.getElementById('page-home'); return !!(h && h.classList.contains('active')); }
+  function aggiornaVoce() {
+    var visibile = !installata && !!(richiesta || ios);
+    voce.hidden = !visibile; etich.hidden = !visibile;
+  }
+  function nascondi() { barra.hidden = true; }
+  function mostra(automatica) {
+    if (installata || !(richiesta || ios)) return;
+    if (automatica && (chiusaDaPoco() || !mm('(max-width: 768px)') || !inHome())) return;
+    if (ios) {
+      document.getElementById('app-invito-titolo').textContent = 'Aggiungi l\'app alla Home';
+      document.getElementById('app-invito-sub').innerHTML =
+        'Tocca ' + ICONA_CONDIVIDI + ' <b>Condividi</b>, poi «Aggiungi alla schermata Home».';
+      si.textContent = 'Ho capito';
+      no.hidden = true;
+    }
+    barra.hidden = false;
+  }
+  function tentaDaSola() { if (pronta) mostra(true); }
+
+  si.addEventListener('click', function () {
+    if (!richiesta) { segnaChiusa(); nascondi(); return; }
+    var r = richiesta;
+    r.prompt();
+    r.userChoice.then(function (scelta) {
+      if (scelta.outcome !== 'accepted') segnaChiusa();
+    }).catch(function () {}).then(function () {
+      richiesta = null; nascondi(); aggiornaVoce();
+    });
+  });
+  no.addEventListener('click', function () { segnaChiusa(); nascondi(); });
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    richiesta = e;
+    aggiornaVoce();
+    tentaDaSola();
+  });
+  window.addEventListener('appinstalled', function () {
+    installata = true; richiesta = null; nascondi(); aggiornaVoce();
+  });
+
+  // Aprendo un'altra pagina la barra se ne va: nei moduli non deve stare.
+  var mostraPagina = window.showPage;
+  if (typeof mostraPagina === 'function') {
+    window.showPage = function (id) {
+      if (id !== 'home') nascondi();
+      return mostraPagina.apply(this, arguments);
+    };
+  }
+
+  // Dal menu: sempre disponibile, anche dopo «Non ora».
+  window.apriInvitoApp = function () {
+    if (typeof closeSidebar === 'function') closeSidebar();
+    mostra(false);
+  };
+
+  aggiornaVoce();
+  setTimeout(function () { pronta = true; tentaDaSola(); }, 5000);
+})();
+</script>
 </body>
 </html>

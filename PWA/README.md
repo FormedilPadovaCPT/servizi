@@ -1,100 +1,46 @@
-# PWA Formedil Padova - Istruzioni di Deploy
+# App sul telefono — manifest, icone, service worker
 
-## Contenuto cartella PWA
+> Riscritto il **12/09/2026**. La versione precedente di questo file (e `INTEGRAZIONE.md`, tolto) descriveva un'impostazione del 27/04/2026 che **non ha mai funzionato**: il service worker stava in `PWA/`, quindi poteva controllare solo questa cartella e non il portale, e la sua lista di file puntava a percorsi inesistenti (`/servizi/foto/…`), per cui l'installazione falliva a ogni visita. Inoltre `pwacompat.js` ricaricava la pagina a ogni aggiornamento, cioè avrebbe cancellato un modulo mentre lo si compilava.
 
-| File | Descrizione |
-|------|-------------|
-| `manifest.json` | Configurazione PWA (nome, icone, colors, shortcuts) |
-| `sw.js` | Service Worker per cache offline |
-| `pwacompat.js` | Registrazione Service Worker + gestione install |
-| `README.md` | Questa guida |
+## Dove stanno le cose
 
----
+| File | A cosa serve |
+|---|---|
+| `../sw.js` | **Il service worker vero.** Sta nella radice del portale perché GitHub Pages non permette di allargare lo scope con un'intestazione: da `PWA/` controllerebbe solo `PWA/`. |
+| `manifest.json` | Nome, icone, colori, schermate e scorciatoie. I percorsi sono **relativi al manifest** (`"../"`), così funziona uguale in locale e su `/servizi/`. Solo `id` è assoluto (`/servizi/`): è l'identità dell'app installata e **non va cambiato**, altrimenti i telefoni la vedono come un'app diversa. |
+| `sw.js` | **Ritirato.** Se un telefono l'avesse registrato, si installa, svuota la vecchia cache e si deregistra. Copiato al posto di `../sw.js` è l'interruttore che spegne il service worker del portale. |
+| `icons/icon-*.png` | Icone «any» (logo ufficiale su bianco). |
+| `icons/icon-maskable-*.png` | Icone per Android, che le ritaglia a cerchio o goccia: lo stesso logo, **non alterato**, rimpicciolito dentro la zona sicura (cerchio dell'80%). |
+| `screenshots/home-*.png` | Schermate mostrate da Chrome nella finestra di installazione (telefono 1080×2340, PC 1280×800), catturate dal portale pubblico il 12/09/2026. |
+| `pwa-test.html` | Pagina di prova storica, non collegata. |
 
-## Come attivare la PWA
+La registrazione e l'invito a installare stanno in fondo a `../index.html`, sezione «APP SUL TELEFONO».
 
-### 1. Caricare i file sul server
+## Come si comporta il service worker
 
-Carica **tutta la cartella `PWA/`** nella root del tuo sito web, in modo che sia accessibile da:
+1. **Solo i file del portale**: stessa origine e dentro `/servizi/`. Moduli (Apps Script), specchio e notizie (Supabase), font e Telegram non passano da lì; le richieste non GET non le vede nemmeno. Sulla stessa origine `formedilpadovacpt.github.io` vivono anche le altre app dell'ente: per questo non esce da `/servizi/` e cancella solo le cache che iniziano con `servizi-`.
+2. **Rete prima**, scavalcando la cache HTTP di GitHub Pages (10 minuti): una pubblicazione si vede subito, meglio di prima. La copia salvata serve **solo se la rete manca**. Unica eccezione le **immagini**: dopo 4 secondi senza risposta si prende la copia, e la rete intanto aggiorna quella della volta dopo. HTML, script e stili aspettano sempre la rete quando c'è: la pagina contiene i moduli, e chi è online ma lento non deve compilarne uno vecchio (corretto in revisione prima della pubblicazione).
+3. **Nessun ricaricamento automatico** quando esce una versione nuova.
+4. Le richieste già compilate e non partite **restano nella coda IndexedDB del portale** (7 giorni) e ripartono al ritorno della rete: quello non è compito del service worker e non è cambiato.
 
-```
-https://tuo-dominio.it/servizi/PWA/manifest.json
-https://tuo-dominio.it/servizi/PWA/sw.js
-```
+**Quando si alza `VERSIONE`** (`servizi-v1` → `v2`): solo se cambia la lista `DA_SALVARE` o il comportamento del service worker. **Non serve** per pubblicare modifiche al portale, che con la rete prima arrivano da sole.
 
-### 2. Aggiungere i tag meta nell'HTML
+## L'invito a installare
 
-In `index.html`, dentro il `<head>`, aggiungi:
+- **Android / Chrome / Edge**: il browser annuncia che il portale si può installare (`beforeinstallprompt`); la barra «Aggiungi l'app al telefono» con **Installa** apre la finestra di sistema.
+- **iPhone / iPad**: Safari non ha un pulsante; la barra spiega «Tocca Condividi, poi Aggiungi alla schermata Home». **Solo in Safari**: nei browser interni alle app (il link aperto da Telegram, WhatsApp, Facebook…) e in Chrome/Firefox per iPhone quel comando non c'è o sta altrove, e un'istruzione sbagliata farebbe premere «Ho capito» tacendo l'invito per 30 giorni. Il browser interno che usa Safari (SFSafariViewController) non si distingue da Safari: lì l'istruzione può ancora comparire.
+- La barra compare **solo sul telefono, solo in home, dopo 5 secondi**, e sparisce appena si apre un'altra pagina: dentro un modulo non c'è mai. «Non ora» la tace per **30 giorni** (`localStorage` `servizi.invitoApp.chiusoIl`). La voce **«Installa l'app»** nel menu resta sempre, finché il portale non è installato.
+- Scorciatoie dall'icona (pressione lunga su Android): Segnala un cantiere, Richiesta consulenza, Notizie → `?pagina=<id>`, che `index.html` apre all'avvio.
 
-```html
-<!-- PWA Meta Tags -->
-<meta name="theme-color" content="#1e2d5e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Formedil PD">
-<link rel="manifest" href="/servizi/PWA/manifest.json">
-```
+## Come si verifica
 
-### 3. Includere lo script di registrazione
+In locale: `.claude/launch.json` del vault, configurazione `servizi-static` (porta 8767). In Chrome, DevTools → Application → Manifest e Service workers; oppure da console:
 
-Prima della chiusura `</body>` in `index.html`:
-
-```html
-<script src="/servizi/PWA/pwacompat.js"></script>
+```js
+(await navigator.serviceWorker.getRegistrations()).map(r => r.scope)   // una sola, la radice del portale
+await caches.keys()                                                     // ['servizi-v1']
 ```
 
-### 4. Creare le icone
+Prova senza rete: aperta la pagina una volta, fermare il server e ricaricare. Deve comparire il portale.
 
-Crea una cartella `icons/` dentro `PWA/` con le seguenti immagini PNG:
-
-| File | Dimensioni |
-|------|------------|
-| `icon-72x72.png` | 72x72 px |
-| `icon-96x96.png` | 96x96 px |
-| `icon-128x128.png` | 128x128 px |
-| `icon-144x144.png` | 144x144 px |
-| `icon-152x152.png` | 152x152 px |
-| `icon-192x192.png` | 192x192 px |
-| `icon-384x384.png` | 384x384 px |
-| `icon-512x512.png` | 512x512 px |
-
-**Nota:** Puoi usare il logo Formedil come base. Le icone devono essere quadrate (senza sfrangiature).
-
-### 5. (Opzionale) Screenshot
-
-Crea una cartella `screenshots/` dentro `PWA/` con uno screenshot dell'app (`home.png`, 1280x720px).
-
----
-
-## Test locale
-
-1. Apri `index.html` con Chrome
-2. Apri DevTools → Application → Service Workers
-3. Verifica che il Service Worker sia registrato
-4. In DevTools → Application → Manifest, verifica il manifest
-
----
-
-## Per pubblicare su GitHub Pages
-
-1. Copia la cartella `PWA/` nel branch `gh-pages`
-2. Assicurati che i path nel manifest siano corretti:
-   - `/servizi/PWA/manifest.json`
-   - `/servizi/PWA/sw.js`
-
----
-
-## Funzionalità PWA
-
-- ✅ Installabile sul telefono ("Aggiungi alla schermata Home")
-- ✅ Funziona offline (visualizza la cache)
-- ✅ Shortcuts nel menu contestuale
-- ✅ Tema color conforme al brand Formedil
-
----
-
-## Aggiornare la PWA
-
-Quando pubblichi una nuova versione:
-1. Aggiorna il Service Worker (cambia `CACHE_NAME` in `v2`, `v3`, ecc.)
-2. Ogni utente riceverà la notifica di aggiornamento al prossimo accesso
+⚠️ **Dopo la pubblicazione, sul telefono**: la prima visita registra il service worker, dalla seconda la pagina è sotto il suo controllo. Chi aveva il portale già aperto non deve fare niente.
