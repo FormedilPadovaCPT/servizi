@@ -3562,10 +3562,11 @@ const SPECCHIO_URL   = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/ri
    database, che crea subito la pratica nell'app segreteria, salva le foto su
    Drive, scrive la copia della riga sul foglio e manda le due mail. Risponde
    nella stessa forma di Apps Script, quindi il resto del portale non cambia.
-   Si aggiungono qui un modulo alla volta: segnalazione (12/09/2026),
-   notifica cantiere (12/09/2026). */
+   Segnalazione e notifica dal 12/09/2026, tutti gli altri moduli dal
+   13/09/2026. Togliere un prefisso da qui = rimandare quel modulo ad Apps
+   Script, che resta in piedi come riserva. */
 const RICHIESTE_URL  = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/portale-richieste';
-const MODULI_DIRETTI = ['seg', 'not'];
+const MODULI_DIRETTI = ['seg', 'not', 'cons', 'vis', 'conf', 'att', 'rlst', 'rls', 'qst'];
 const MAX_ALLEGATO_MB = 8;
 const TEL_UFFICIO     = '049 761168';
 
