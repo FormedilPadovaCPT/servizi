@@ -4,7 +4,7 @@
    Caricato solo da chi apre il portale con ?veste=sito (vedi lo
    script in testa a index.html). Veste il portale come il nuovo sito
    proposto da Studio Tagliani: testata col menu, in home il banner del
-   portale (Servizi.png) intero, l'ultima notizia, riquadri fotografici per
+   portale in una fascia arancio, l'ultima notizia, riquadri fotografici per
    Cantieri e Servizi imprese, Applicativi con la striscia Telegram, piede
    grigio in una riga. Nelle pagine dei servizi niente emoji.
 
@@ -133,15 +133,16 @@
   function home() {
     var pag = document.getElementById('page-home')
     var wrap = pag && pag.querySelector('.services-grid-wrap')
-    if (!pag || !wrap || pag.querySelector('.vs-hero')) return
+    if (!pag || !wrap || pag.querySelector('#vs-servizi')) return
 
-    // banner del portale intero, senza titoli ne' pulsanti sopra (richiesta dell'utente 11/09):
-    // il testo e' gia' dentro l'immagine
-    var hero = el('div', 'vs-hero vs-banner')
-    hero.style.height = 'auto' // alto quanto la foto
-    var bimg = el('img'); bimg.src = 'Servizi.png'
-    bimg.alt = 'Portale Servizi – Area Sicurezza e Salute. Benvenuti nel portale di Formedil Padova dedicato ai servizi di sicurezza e salute sul lavoro nel settore edile: tutti i moduli di richiesta in un unico punto di accesso.'
-    hero.appendChild(bimg)
+    // fascia arancio istituzionale al posto del banner Servizi.png (richiesta dell'utente 13/09):
+    // scritta in HTML, il testo si adatta alla larghezza e resta centrato
+    var hero = el('header', 'vs-fascia')
+    var dentro = el('div')
+    dentro.appendChild(el('h1', null, 'Portale Servizi'))
+    dentro.appendChild(el('p', 'vs-sotto', 'Area Sicurezza e Salute'))
+    dentro.appendChild(el('p', null, 'Benvenuti nel portale di Formedil Padova dedicato ai servizi di sicurezza e salute sul lavoro nel settore edile. Tutti i moduli di richiesta in un unico punto di accesso.'))
+    hero.appendChild(dentro)
 
     var schede = {}
     wrap.querySelectorAll('.service-card').forEach(function (c) { var id = paginaDi(c); if (id) schede[id] = c })

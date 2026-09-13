@@ -41,10 +41,18 @@ html[data-veste="sito"] #page-home .home-hero,html[data-veste="sito"] #page-home
 html[data-veste="sito"] .vs-hero{position:relative;height:320px;background-size:cover;background-position:center;display:grid;place-items:center;text-align:center;overflow:hidden}
 html[data-veste="sito"] .vs-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52))}
 html[data-veste="sito"] .vs-hero>div{position:relative;display:grid;gap:14px;justify-items:center;padding:0 20px}
-/* home: il banner del portale intero, senza velatura ne' scritte sopra */
-html[data-veste="sito"] #page-home .vs-hero.vs-banner{height:auto;display:block;background:#e9edf0}
-html[data-veste="sito"] .vs-hero.vs-banner::before{display:none}
-html[data-veste="sito"] .vs-hero.vs-banner img{display:block;width:100%;height:auto}
+/* home: fascia arancio istituzionale (#e7500f) con titolo, sottotitolo e benvenuto, centrata */
+html[data-veste="sito"] .vs-fascia{background:#e7500f;color:#fff;text-align:center;padding:44px 24px 48px}
+html[data-veste="sito"] .vs-fascia>div{max-width:780px;margin:0 auto;display:grid;gap:8px;justify-items:center}
+html[data-veste="sito"] .vs-fascia h1{margin:0;font:700 48px/1.02 Barlow,sans-serif;color:#fff;letter-spacing:-.01em;text-wrap:balance}
+html[data-veste="sito"] .vs-fascia p{margin:8px 0 0;font:400 17px/1.5 Barlow,sans-serif;color:#fff;max-width:62ch;text-wrap:balance}
+html[data-veste="sito"] .vs-fascia .vs-sotto{margin:0;font:500 23px/1.2 Barlow,sans-serif}
+@media(max-width:768px){
+  html[data-veste="sito"] .vs-fascia{padding:30px 18px 34px}
+  html[data-veste="sito"] .vs-fascia h1{font-size:34px}
+  html[data-veste="sito"] .vs-fascia .vs-sotto{font-size:19px}
+  html[data-veste="sito"] .vs-fascia p{font-size:15.5px}
+}
 html[data-veste="sito"] .vs-hero h1{color:#fff;font:700 40px/1.08 Barlow,sans-serif;text-shadow:0 1px 10px rgba(0,0,0,.35);margin:0}
 html[data-veste="sito"] .vs-hero p{color:#fff;margin:0;font-size:15px;max-width:52ch;text-shadow:0 1px 6px rgba(0,0,0,.4)}
 html[data-veste="sito"] .vs-pillola{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--vs-testo);border:0;border-radius:20px;padding:7px 18px;font:500 14px/1 Barlow,sans-serif;cursor:pointer;text-decoration:none}
