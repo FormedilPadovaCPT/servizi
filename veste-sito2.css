@@ -53,8 +53,29 @@ html[data-veste="sito"][data-variante="sito2"] .vs-ultima:focus-visible,
 html[data-veste="sito"][data-variante="sito2"] .vs-card:hover,
 html[data-veste="sito"][data-variante="sito2"] .vs-card:focus-visible{border-color:var(--vs2-arancio)}
 
+/* home: una griglia sola da quattro tessere per riga, spazio piu' largo (13/09) */
+html[data-veste="sito"][data-variante="sito2"] .vs-cont{max-width:1160px}
+html[data-veste="sito"][data-variante="sito2"] .vs-piede{padding-left:max(34px,calc((100% - 1160px)/2));padding-right:max(34px,calc((100% - 1160px)/2))}
+html[data-veste="sito"][data-variante="sito2"] #vs-g-servizi .vs-tessere{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* pagina Notizie: banda verde Formedil bassa al posto della foto; scritta scura, perche' il
+   bianco sul #95C22F non si legge (contrasto 2:1) */
+html[data-veste="sito"][data-variante="sito2"] .page .vs-hero.vs-banda-verde{height:auto;background:var(--vs2-verde);padding:22px 20px}
+html[data-veste="sito"][data-variante="sito2"] .page .vs-hero.vs-banda-verde::before{display:none}
+html[data-veste="sito"][data-variante="sito2"] .page .vs-hero.vs-banda-verde h1{color:#22292e;text-shadow:none;font-size:32px}
+
+/* pagine con foto: titolo in basso a sinistra, allineato alla colonna del modulo, come sulle
+   tessere. Centrato cadeva sui volti (foto dell'asseverazione, 13/09) */
+html[data-veste="sito"][data-variante="sito2"] .page .vs-hero:not(.vs-banda-verde){place-items:end start;text-align:left}
+html[data-veste="sito"][data-variante="sito2"] .page .vs-hero:not(.vs-banda-verde)>div{justify-items:start;padding:0 max(34px,calc((100% - 860px)/2)) 18px}
+
+@media(max-width:900px){
+  html[data-veste="sito"][data-variante="sito2"] #vs-g-servizi .vs-tessere{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media(max-width:768px){
   html[data-veste="sito"][data-variante="sito2"] .vs-t b{font-size:17px}
+  html[data-veste="sito"][data-variante="sito2"] .page .vs-hero.vs-banda-verde{padding:14px 16px}
+  html[data-veste="sito"][data-variante="sito2"] .page .vs-hero.vs-banda-verde h1{font-size:24px}
 }
 @media (prefers-reduced-motion:reduce){
   html[data-veste="sito"][data-variante="sito2"] .vs-t,

@@ -29,7 +29,7 @@
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
     consulenza: ['img/sito/richiesta-consulenza.jpg', '62% 40%', 'cover'],
     asseverazione: ['img/sito/asseverazione-consegna-attestato.jpg', '50% 38%', 'cover'],
-    'asseverazione:pagina': ['img/sito/asseverazione-sala-riunioni.jpg', '50% 55%', 'cover'],
+    'asseverazione:pagina': ['img/sito/asseverazione-sala-riunioni.jpg', '50% 34%', 'cover'], // 13/09: al 55% i volti restavano fuori dalla fascia
     notizie: ['RLST.png', '85% 20%', 'auto 200%'],
     cor: ['img/sito/avvio-corsi-aula.jpg', '50% 45%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
@@ -53,6 +53,18 @@
     { chiave: 'imprese', nome: 'Servizi per le imprese', breve: 'Servizi imprese', pagine: ['rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione', 'cor'], tipo: 'tessere' },
     { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede', striscia: 'telegram' }
   ]
+
+  /* «Sito nuovo 2» (?veste=sito2, 13/09/2026): stessi file piu' veste-sito2.css. Qui solo le
+     differenze di struttura chieste dall'utente: tessere tutte in una griglia da quattro, senza
+     la divisione Cantieri / Servizi per le imprese, Visita larga come le altre, il Canale Telegram
+     come dodicesima tessera (11 lasciavano un buco nell'ultima riga), niente «Servizi» nel menu,
+     pagina Notizie con una banda verde al posto della foto */
+  function sito2() { return document.documentElement.getAttribute('data-variante') === 'sito2' }
+  var GRUPPI_SITO2 = [
+    { chiave: 'servizi', nome: '', breve: 'Servizi', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione', 'questionario', 'rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione', 'cor', 'telegram'], tipo: 'tessere' },
+    { chiave: 'applicativi', nome: 'Applicativi', breve: 'Applicativi', pagine: ['cds', 'myapp'], tipo: 'schede' }
+  ]
+  function gruppi() { return sito2() ? GRUPPI_SITO2 : GRUPPI }
 
   function el(tag, cls, testo) {
     var e = document.createElement(tag)
@@ -119,6 +131,7 @@
       ['Telegram', function () { vai('telegram') }, 'telegram'],
       ['Contatti', function () { scorriA('.vs-piede') }, null]
     ].forEach(function (v) {
+      if (sito2() && v[0] === 'Servizi') return
       var b = bottone(null, v[0]); b.onclick = v[1]; b.dataset.pag = v[2] || ''
       voci.push(b); menu.appendChild(b)
     })
@@ -158,11 +171,11 @@
     // in apertura l'ultima notizia, larga quanto i riquadri: un clic porta alla pagina Notizie
     cont.appendChild(ultimaNotizia())
     var usati = {}
-    GRUPPI.forEach(function (g) {
+    gruppi().forEach(function (g) {
       var ids = g.pagine.filter(function (p) { return schede[p] })
       if (!ids.length) return
       var box = el('div', 'vs-gruppo'); box.id = 'vs-g-' + g.chiave
-      box.appendChild(el('h3', null, g.nome))
+      if (g.nome) box.appendChild(el('h3', null, g.nome))
       var griglia = el('div', g.tipo === 'schede' ? 'vs-schede' : 'vs-tessere')
       // 6 o 3 riquadri: tre per riga, cosi' nessuno resta da solo
       // i riquadri «larghi» (Notizie) occupano due posti
@@ -307,7 +320,9 @@
       if (id === 'home' || p.querySelector(':scope > .vs-hero')) return
       try { togliEmoji(p) } catch (e) { /* se qualcosa va storto le icone restano */ }
       var h = el('div', 'vs-hero')
-      foto(h, FOTO[id + ':pagina'] ? id + ':pagina' : FOTO[id] ? id : (FOTO_PAGINA[id] || 'hero'))
+      // sito2: nella pagina Notizie una banda verde bassa con la scritta, senza foto
+      if (sito2() && id === 'notizie') h.classList.add('vs-banda-verde')
+      else foto(h, FOTO[id + ':pagina'] ? id + ':pagina' : FOTO[id] ? id : (FOTO_PAGINA[id] || 'hero'))
       var hc = el('div'); hc.appendChild(el('h1', null, titoloPagina(id))); h.appendChild(hc)
       p.insertBefore(h, p.firstChild)
       p.querySelectorAll('.btn-back').forEach(function (b) { if (/home/i.test(b.textContent)) b.textContent = '‹ Tutti i servizi' })
@@ -328,7 +343,7 @@
     var tel = el('a', null, 'Tel. 049 761168 (int. 4)'); tel.href = 'tel:049761168'; b2.appendChild(tel)
     ;['cpt@formedilpadova.it', 'cptpd@did.formedilpadova.it'].forEach(function (m) { var a = el('a', null, m); a.href = 'mailto:' + m; b2.appendChild(a) })
     var b3 = blocco('Servizi')
-    GRUPPI.forEach(function (g) { link(b3, g.breve, function () { scorriA('#vs-g-' + g.chiave) }) })
+    gruppi().forEach(function (g) { link(b3, g.breve, function () { scorriA('#vs-g-' + g.chiave) }) })
     var b4 = blocco('Area')
     link(b4, 'Notizie', function () { vai('notizie') })
     link(b4, 'Il team', function () { vai('team') })
