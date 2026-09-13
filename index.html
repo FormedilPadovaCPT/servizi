@@ -3561,14 +3561,17 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbyft6DeRiyFV0o1ZzBwUJ4_
 // richiesta partita che sul foglio non e' arrivata.
 const SPECCHIO_URL   = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/ricezione-portale';
 /* STRADA DIRETTA (12/09/2026): i moduli in MODULI_DIRETTI non passano più da
-   Apps Script e dal foglio, ma vanno alla funzione portale-richieste sul
-   database, che crea subito la pratica nell'app segreteria, salva le foto su
-   Drive, scrive la copia della riga sul foglio e manda le due mail. Risponde
-   nella stessa forma di Apps Script, quindi il resto del portale non cambia.
-   Segnalazione e notifica dal 12/09/2026, tutti gli altri moduli dal
-   13/09/2026. Togliere un prefisso da qui = rimandare quel modulo ad Apps
-   Script, che resta in piedi come riserva. */
-const RICHIESTE_URL  = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/portale-richieste';
+   Apps Script e dal foglio. Segnalazione e notifica dal 12/09/2026, tutti gli
+   altri moduli dal 13/09/2026. Togliere un prefisso da qui = rimandare quel
+   modulo ad Apps Script, che resta in piedi come riserva.
+   CASSETTA DELLE LETTERE (13/09/2026): la richiesta va a portale-ricevi sul
+   progetto Supabase Servizi, che la custodisce e avvisa il Gestionale; il
+   Gestionale la va a prendere, crea la pratica, salva foto e PDF su Drive e
+   manda le due mail. La porta aperta a internet non ha in mano né il database
+   del Gestionale né la posta dell'ente. Risponde nella stessa forma di prima;
+   se il Gestionale non risponde in tempo, dice «ricevuta» senza numero
+   (in_attesa) e il numero arriva con la mail di conferma. */
+const RICHIESTE_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/functions/v1/portale-ricevi';
 const MODULI_DIRETTI = ['seg', 'not', 'cons', 'vis', 'conf', 'att', 'rlst', 'rls', 'qst'];
 const MAX_ALLEGATO_MB = 8;
 const TEL_UFFICIO     = '049 761168';
@@ -4326,7 +4329,7 @@ async function inviaAlServer(payload) {
   if (!dati || dati.status !== 'ok') {
     return { ok: false, riprovabile: false, motivo: (dati && dati.message) || 'il server ha rifiutato la richiesta' };
   }
-  return { ok: true, progressivo: dati.progressivo, duplicato: !!dati.duplicato, email: dati.email };
+  return { ok: true, progressivo: dati.progressivo, duplicato: !!dati.duplicato, email: dati.email, inAttesa: !!dati.in_attesa };
 }
 
 /* ── specchio sul secondo canale: non blocca, non decide ──────────── */
@@ -4507,10 +4510,17 @@ async function submitForm(formId, prefix, buildPayload) {
       const p = okBox.querySelector('.ricevuta') || okBox.insertBefore(
         Object.assign(document.createElement('p'), { className: 'ricevuta' }),
         okBox.querySelector('button'));
-      p.innerHTML = '<strong>Richiesta registrata'
-        + (esito.progressivo ? ' con il n° ' + esito.progressivo : '') + '.</strong>'
-        + (dove ? '<br>Riceverai una email di conferma a <strong>' + dove + '</strong>: '
-                + 'se non arriva entro 15 minuti chiamaci allo ' + TEL_UFFICIO + '.' : '');
+      /* senza numero e «in attesa»: la richiesta è al sicuro nella cassetta, ma
+         il Gestionale non l'ha ancora presa in carico — il numero arriva con la mail */
+      p.innerHTML = (!esito.progressivo && esito.inAttesa)
+        ? '<strong>Richiesta ricevuta.</strong>'
+          + (dove ? '<br>Il numero di pratica ti arriverà con l\'email di conferma a <strong>' + dove + '</strong>: '
+                  + 'se non arriva entro un\'ora chiamaci allo ' + TEL_UFFICIO + '.'
+                  : '<br>L\'ufficio la prende in carico a breve.')
+        : '<strong>Richiesta registrata'
+          + (esito.progressivo ? ' con il n° ' + esito.progressivo : '') + '.</strong>'
+          + (dove ? '<br>Riceverai una email di conferma a <strong>' + dove + '</strong>: '
+                  + 'se non arriva entro 15 minuti chiamaci allo ' + TEL_UFFICIO + '.' : '');
       okBox.style.display = 'block';
       btn.textContent = '✓ Inviata';
       const fill = document.getElementById(prefix + '-progFill');
