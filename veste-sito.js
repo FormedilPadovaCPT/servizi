@@ -136,12 +136,12 @@
     if (!pag || !wrap || pag.querySelector('#vs-servizi')) return
 
     // fascia arancio istituzionale al posto del banner Servizi.png (richiesta dell'utente 13/09):
-    // scritta in HTML, il testo si adatta alla larghezza e resta centrato
+    // scritta in HTML, il testo si adatta alla larghezza e resta centrato.
+    // Tolto il testo di benvenuto (richiesta dell'utente 13/09) per abbassare la fascia.
     var hero = el('header', 'vs-fascia')
     var dentro = el('div')
     dentro.appendChild(el('h1', null, 'Portale Servizi'))
     dentro.appendChild(el('p', 'vs-sotto', 'Area Sicurezza e Salute'))
-    dentro.appendChild(el('p', null, 'Benvenuti nel portale di Formedil Padova dedicato ai servizi di sicurezza e salute sul lavoro nel settore edile. Tutti i moduli di richiesta in un unico punto di accesso.'))
     hero.appendChild(dentro)
 
     var schede = {}

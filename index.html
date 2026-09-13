@@ -15,8 +15,8 @@
       var v = localStorage.getItem('servizi.veste')
       if (VESTI.indexOf(v) < 0) return
       document.documentElement.setAttribute('data-veste', v)
-      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'veste-' + v + '.css?v=9'; document.head.appendChild(l)
-      var s = document.createElement('script'); s.src = 'veste-' + v + '.js?v=9'; document.head.appendChild(s)
+      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'veste-' + v + '.css?v=10'; document.head.appendChild(l)
+      var s = document.createElement('script'); s.src = 'veste-' + v + '.js?v=10'; document.head.appendChild(s)
     } catch (e) { /* senza localStorage resta la veste attuale */ }
   })()
   </script>
