@@ -3539,40 +3539,20 @@
 
 <script>
 // ══════════════════════════════════════════════════════
-//  CONFIGURAZIONE GAS URL
+//  DOVE VANNO I MODULI
 //  ─────────────────────────────────────────────────────
-//  Progetto Apps Script: «Portale Servizi – backend (ATTIVO)»
-//  id 1MhzIyhO_BZjEBOfWTQUcp9boD60d6vXzNGRsdlJd2AoPlYEyvc_rXslg
-//  account cptpd · sorgente nel vault:
-//    9_APPLICATIVI/Formedil_Servizi_PWA/Code_Portale_Formedil.gs
-//
-//  ⚠️ Quando si ripubblica lo script si usa SEMPRE
-//     «Gestisci deployment → modifica → nuova versione».
-//     Creando un deployment NUOVO cambia l'URL e questo qui punta a
-//     un cadavere: e' esattamente cio' che e' successo dal 27/07/2026
-//     al 01/09/2026, cinque settimane di moduli persi.
-//  Dopo ogni ripubblicazione: lanciare a mano il workflow
-//  «Battito portale servizi» su GitHub e controllarne l'esito.
+//  CASSETTA DELLE LETTERE (13/09/2026): la richiesta va a portale-ricevi sul
+//  progetto Supabase Servizi, che la custodisce e avvisa il Gestionale; il
+//  Gestionale la va a prendere, crea la pratica, salva foto e PDF su Drive e
+//  manda le due mail. La porta aperta a internet non ha in mano né il database
+//  del Gestionale né la posta dell'ente. Se il Gestionale non risponde in
+//  tempo, dice «ricevuta» senza numero (in_attesa) e il numero arriva con la
+//  mail di conferma.
+//  ⚠️ Fino al 12/09/2026 i moduli andavano a un backend Apps Script che li
+//  scriveva su un foglio Google (dal 27/07 al 01/09/2026 era morto: cinque
+//  settimane di moduli persi). Script e foglio sono stati spenti il 13/09/2026.
 // ══════════════════════════════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyft6DeRiyFV0o1ZzBwUJ4_r4UlgbkjlVCiywmMwlSAl0k-KYEkMrJCbJKpYGknYU2k/exec';
-
-// Secondo canale, indipendente da Google: ogni invio viene specchiato qui.
-// Non blocca e non decide nulla — serve all'ufficio per accorgersi di una
-// richiesta partita che sul foglio non e' arrivata.
-const SPECCHIO_URL   = 'https://utdantrfugnmqsuujxbe.supabase.co/functions/v1/ricezione-portale';
-/* STRADA DIRETTA (12/09/2026): i moduli in MODULI_DIRETTI non passano più da
-   Apps Script e dal foglio. Segnalazione e notifica dal 12/09/2026, tutti gli
-   altri moduli dal 13/09/2026. Togliere un prefisso da qui = rimandare quel
-   modulo ad Apps Script, che resta in piedi come riserva.
-   CASSETTA DELLE LETTERE (13/09/2026): la richiesta va a portale-ricevi sul
-   progetto Supabase Servizi, che la custodisce e avvisa il Gestionale; il
-   Gestionale la va a prendere, crea la pratica, salva foto e PDF su Drive e
-   manda le due mail. La porta aperta a internet non ha in mano né il database
-   del Gestionale né la posta dell'ente. Risponde nella stessa forma di prima;
-   se il Gestionale non risponde in tempo, dice «ricevuta» senza numero
-   (in_attesa) e il numero arriva con la mail di conferma. */
 const RICHIESTE_URL  = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/functions/v1/portale-ricevi';
-const MODULI_DIRETTI = ['seg', 'not', 'cons', 'vis', 'conf', 'att', 'rlst', 'rls', 'qst'];
 const MAX_ALLEGATO_MB = 8;
 const TEL_UFFICIO     = '049 761168';
 
@@ -4288,12 +4268,12 @@ const inVolo = new Set();
 
 /* ── invio vero, con lettura della risposta ──────────────────────── */
 async function inviaAlServer(payload) {
-  /* la coda ripassa di qui: una richiesta salvata prima dell'aggiornamento
-     prende comunque la strada giusta per il suo modulo */
-  const diretto = MODULI_DIRETTI.includes(payload && payload.tipo_modulo);
+  /* tutti i moduli vanno alla cassetta delle lettere: dal 13/09/2026 Apps
+     Script e il foglio Google sono spenti. Anche la coda ripassa di qui, quindi
+     una richiesta salvata prima dell'aggiornamento prende la strada nuova. */
   let resp;
   try {
-    resp = await fetch(diretto ? RICHIESTE_URL : GAS_URL, {
+    resp = await fetch(RICHIESTE_URL, {
       method: 'POST',
       mode: 'cors',
       redirect: 'follow',
@@ -4306,22 +4286,16 @@ async function inviaAlServer(payload) {
       : 'il dispositivo è offline' };
   }
   /* «riprovabile» distingue un intoppo di trasporto da un rifiuto: il primo
-     passa da solo, il secondo si ripeterebbe identico. Apps Script risponde
-     con un redirect e ogni tanto la pagina del risultato non c'è (404): la
-     richiesta però è stata eseguita — successo il 04/09/2026. */
+     passa da solo, il secondo si ripeterebbe identico. La cassetta dice da sé
+     se insistere serve: un modulo rifiutato per un dato mancante resterebbe
+     rifiutato uguale, un allegato non salvato invece si completa riprovando */
   if (!resp.ok) {
-    /* la strada diretta dice da sé se insistere serve: un modulo rifiutato
-       per un dato mancante resterebbe rifiutato uguale, una foto non salvata
-       su Drive invece si completa riprovando */
-    if (diretto) {
-      let d = null;
-      try { d = await resp.json(); } catch (e) { /* risposta senza corpo leggibile */ }
-      if (d && d.riprovabile === false) {
-        return { ok: false, riprovabile: false, motivo: d.message || 'il server ha rifiutato la richiesta' };
-      }
-      return { ok: false, riprovabile: true, motivo: (d && d.message) || 'il server ha risposto ' + resp.status };
+    let d = null;
+    try { d = await resp.json(); } catch (e) { /* risposta senza corpo leggibile */ }
+    if (d && d.riprovabile === false) {
+      return { ok: false, riprovabile: false, motivo: d.message || 'il server ha rifiutato la richiesta' };
     }
-    return { ok: false, riprovabile: true, motivo: 'il server ha risposto ' + resp.status };
+    return { ok: false, riprovabile: true, motivo: (d && d.message) || 'il server ha risposto ' + resp.status };
   }
   let dati;
   try { dati = await resp.json(); }
@@ -4330,24 +4304,6 @@ async function inviaAlServer(payload) {
     return { ok: false, riprovabile: false, motivo: (dati && dati.message) || 'il server ha rifiutato la richiesta' };
   }
   return { ok: true, progressivo: dati.progressivo, duplicato: !!dati.duplicato, email: dati.email, inAttesa: !!dati.in_attesa };
-}
-
-/* ── specchio sul secondo canale: non blocca, non decide ──────────── */
-function specchia(payload) {
-  try {
-    const snello = {};
-    for (const k in payload) {
-      if (!Object.prototype.hasOwnProperty.call(payload, k)) continue;
-      if (/base64$/.test(k)) continue;               // gli allegati restano su Drive
-      snello[k] = payload[k];
-    }
-    fetch(SPECCHIO_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(snello),
-      keepalive: true,
-    }).catch(() => {});
-  } catch (e) { /* lo specchio non deve mai disturbare l'invio */ }
 }
 
 /* ── l'identificativo è della COMPILAZIONE, non del tentativo ──────
@@ -4492,12 +4448,8 @@ async function submitForm(formId, prefix, buildPayload) {
           disponibile, cosa che qui si verifica invece di darla per buona */
     const inCoda = await codaScrivi({ submission_id: payload.submission_id, payload, creato: Date.now(), tentativi: 0 });
 
-    /* 2. specchio sul secondo canale (non blocca). Non per la strada diretta:
-          lì la copia in s_portale_ricezioni la scrive la funzione stessa,
-          prima di ogni altra cosa */
-    if (!MODULI_DIRETTI.includes(prefix)) specchia(payload);
-
-    /* 3. invio vero, e la risposta si LEGGE */
+    /* 2. invio vero, e la risposta si LEGGE (la copia nella scatola nera la
+          scrive il Gestionale, prima di ogni altra cosa) */
     inVolo.add(payload.submission_id);
     let esito;
     try { esito = await inviaConUnaSecondaOccasione(payload); }
