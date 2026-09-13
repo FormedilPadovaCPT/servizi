@@ -34,7 +34,7 @@
     cor: ['img/sito/avvio-corsi-aula.jpg', '50% 45%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
     rlst: ['RLST.png', '72% 80%', 'auto 150%'],
-    rls: ['RLST.png', '96% 80%', 'auto 150%'],
+    rls: ['img/sito/rls-rappresentante-sicurezza.jpg', '72% 40%', 'cover'],
     notifica: [CONF, '62% 0%', 'auto 170%'],
     attestazione: ['img/sito/attestazione-dm132-cantiere.jpg', '60% 50%', 'cover'],
     'attestazione:pagina': ['img/sito/attestazione-dm132-ufficio.jpg', '55% 45%', 'cover'],
