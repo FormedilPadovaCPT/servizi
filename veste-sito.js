@@ -191,6 +191,8 @@
     var b = bottone('vs-ultima vs-senza-foto')
     b.setAttribute('aria-label', 'Apri le notizie')
     var f = el('div', 'vs-f')
+    // sulla foto la scritta «Notizie», come il titolo sulle tessere dei servizi (richiesta dell'utente 13/09)
+    f.appendChild(el('span', 'vs-ft', 'Notizie'))
     var tx = el('div', 'vs-testo')
     var et = el('span', 'vs-et', 'Notizie e aggiornamenti')
     var tit = el('b', null, 'Comunicazioni, normative ed eventi dell\'Area Sicurezza e Salute')
