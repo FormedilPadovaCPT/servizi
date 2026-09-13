@@ -390,17 +390,18 @@
       b.classList.toggle('ora', (t === 'notizie' && id === 'notizie') || (t === 'segnala' && id === 'segnalazione') || (t === 'servizi' && id !== 'notizie' && id !== 'segnalazione'))
     })
   }
-  /* contatore delle notizie da leggere: lo stesso numero della scheda in home */
+  /* contatore delle notizie da leggere: lo stesso numero della scheda in home. La scheda si
+     nasconde togliendo la classe «vis» e lascia il vecchio numero nel testo: si guarda la classe */
   function contatore() {
     var src = document.getElementById('home-nbadge')
     if (!src) return
     var copia = function () {
       var n = parseInt(src.textContent, 10) || 0
-      var nascosto = src.style.display === 'none' || !n
+      var nascosto = !src.classList.contains('vis') || !n
       document.querySelectorAll('.s3-conta').forEach(function (c) { c.textContent = String(n); c.hidden = nascosto })
     }
     copia()
-    new MutationObserver(copia).observe(src, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['style'] })
+    new MutationObserver(copia).observe(src, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] })
   }
 
   function avviso() {
