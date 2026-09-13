@@ -18,22 +18,28 @@
   'use strict'
 
   var CONF = 'CONFERENZA%20DI%20CANTIERE.png'
-  /* immagine, posizione, dimensione — ritagli delle foto gia' nel portale,
-     piu' tre foto del laboratorio della Scuola (img/sito, da 00_INBOX 11/09/2026) */
+  /* immagine, posizione, dimensione — ritagli delle foto gia' nel portale, tre foto del
+     laboratorio della Scuola (img/sito, da 00_INBOX 11/09/2026) e le immagini dei servizi
+     date dall'utente il 13/09/2026 (img/sito, originali .jfif in 00_INBOX).
+     «<servizio>:pagina» = foto in testa alla pagina del servizio, quando e' diversa da
+     quella del riquadro in home (i servizi con due varianti) */
   var FOTO = {
     hero: ['RLST.png', '78% 45%', 'cover'],
-    segnalazione: ['img/sito/pericolo-cantiere.jpg', '50% 20%', 'cover'],
+    segnalazione: ['img/sito/segnalazione-cantiere-pericoloso.jpg', '62% 35%', 'cover'],
     visita: ['cantieri.png', '42% 12%', 'auto 210%'],
-    consulenza: ['img/sito/disegni-casseratura.jpg', '92% 35%', 'auto 170%'],
-    asseverazione: ['img/sito/disegni-casseratura.jpg', '45% 55%', 'cover'],
+    consulenza: ['img/sito/richiesta-consulenza.jpg', '62% 40%', 'cover'],
+    asseverazione: ['img/sito/asseverazione-consegna-attestato.jpg', '50% 38%', 'cover'],
+    'asseverazione:pagina': ['img/sito/asseverazione-sala-riunioni.jpg', '50% 55%', 'cover'],
     notizie: ['RLST.png', '85% 20%', 'auto 200%'],
-    cor: ['img/sito/attrezzi-laboratorio.jpg', '50% 30%', 'cover'],
+    cor: ['img/sito/avvio-corsi-aula.jpg', '50% 45%', 'cover'],
     conferenza: [CONF, '72% 50%', 'cover'],
     rlst: ['RLST.png', '72% 80%', 'auto 150%'],
     rls: ['RLST.png', '96% 80%', 'auto 150%'],
     notifica: [CONF, '62% 0%', 'auto 170%'],
-    attestazione: ['pericolo.png', '88% 45%', 'cover'],
-    questionario: [CONF, '86% 70%', 'auto 150%'],
+    attestazione: ['img/sito/attestazione-dm132-cantiere.jpg', '60% 50%', 'cover'],
+    'attestazione:pagina': ['img/sito/attestazione-dm132-ufficio.jpg', '55% 45%', 'cover'],
+    questionario: ['img/sito/valutazione-sopralluogo-ufficio.jpg', '70% 45%', 'cover'],
+    'questionario:pagina': ['img/sito/valutazione-sopralluogo-cantiere.jpg', '55% 35%', 'cover'],
     telegram: [CONF, '12% 12%', 'cover'],
     bottoni: ['RLST.png', '100% 35%', 'auto 280%'],
     cielo: [CONF, '20% 25%', 'cover']
@@ -301,7 +307,7 @@
       if (id === 'home' || p.querySelector(':scope > .vs-hero')) return
       try { togliEmoji(p) } catch (e) { /* se qualcosa va storto le icone restano */ }
       var h = el('div', 'vs-hero')
-      foto(h, FOTO[id] ? id : (FOTO_PAGINA[id] || 'hero'))
+      foto(h, FOTO[id + ':pagina'] ? id + ':pagina' : FOTO[id] ? id : (FOTO_PAGINA[id] || 'hero'))
       var hc = el('div'); hc.appendChild(el('h1', null, titoloPagina(id))); h.appendChild(hc)
       p.insertBefore(h, p.firstChild)
       p.querySelectorAll('.btn-back').forEach(function (b) { if (/home/i.test(b.textContent)) b.textContent = '‹ Tutti i servizi' })
