@@ -340,7 +340,8 @@
   function avviso() {
     if (document.querySelector('.vs-prova')) return
     var a = el('div', 'vs-prova'); a.setAttribute('role', 'status')
-    a.appendChild(el('span', null, 'Veste «Sito nuovo» in prova'))
+    var nome = document.documentElement.getAttribute('data-variante') === 'sito2' ? 'Sito nuovo 2' : 'Sito nuovo'
+    a.appendChild(el('span', null, 'Veste «' + nome + '» in prova'))
     var l = el('a', null, 'Torna all\'attuale'); l.href = location.pathname + '?veste=attuale'
     a.appendChild(l)
     document.body.appendChild(a)
