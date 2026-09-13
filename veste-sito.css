@@ -42,13 +42,13 @@ html[data-veste="sito"] .vs-hero{position:relative;height:320px;background-size:
 html[data-veste="sito"] .vs-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52))}
 html[data-veste="sito"] .vs-hero>div{position:relative;display:grid;gap:14px;justify-items:center;padding:0 20px}
 /* home: fascia arancio istituzionale (#e7500f) con titolo, sottotitolo e benvenuto, centrata */
-html[data-veste="sito"] .vs-fascia{background:#e7500f;color:#fff;text-align:center;padding:44px 24px 48px}
+html[data-veste="sito"] .vs-fascia{background:#e7500f;color:#fff;text-align:center;padding:31px 24px 35px}
 html[data-veste="sito"] .vs-fascia>div{max-width:780px;margin:0 auto;display:grid;gap:8px;justify-items:center}
 html[data-veste="sito"] .vs-fascia h1{margin:0;font:700 48px/1.02 Barlow,sans-serif;color:#fff;letter-spacing:-.01em;text-wrap:balance}
-html[data-veste="sito"] .vs-fascia p{margin:8px 0 0;font:400 17px/1.5 Barlow,sans-serif;color:#fff;max-width:62ch;text-wrap:balance}
+html[data-veste="sito"] .vs-fascia p{margin:8px 0 0;font:400 17px/1.15 Barlow,sans-serif;color:#fff;max-width:62ch;text-wrap:balance}
 html[data-veste="sito"] .vs-fascia .vs-sotto{margin:0;font:500 23px/1.2 Barlow,sans-serif}
 @media(max-width:768px){
-  html[data-veste="sito"] .vs-fascia{padding:30px 18px 34px}
+  html[data-veste="sito"] .vs-fascia{padding:22px 18px 26px}
   html[data-veste="sito"] .vs-fascia h1{font-size:34px}
   html[data-veste="sito"] .vs-fascia .vs-sotto{font-size:19px}
   html[data-veste="sito"] .vs-fascia p{font-size:15.5px}
