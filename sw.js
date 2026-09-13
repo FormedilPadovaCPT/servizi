@@ -23,6 +23,11 @@
       versione nuova: cancellerebbe un modulo mentre lo si compila
       (lo faceva il vecchio PWA/pwacompat.js, ritirato oggi).
 
+   4. Avvisi delle notizie (13/09/2026): riceve la notifica mandata
+      dalla funzione push-notizie (progetto Servizi) e la mostra; al
+      tocco apre la pagina Notizie. Se il portale e' gia' aperto NON lo
+      ricarica: gli chiede di mostrare la pagina (regola 3).
+
    Per spegnerlo del tutto: sostituire questo file con il
    contenuto di PWA/sw.js (si installa, svuota la cache e si
    deregistra da solo).
@@ -110,5 +115,41 @@ self.addEventListener('fetch', (e) => {
       if (salvata) return salvata;
       throw err;
     }
+  })());
+});
+
+// ── Avvisi delle notizie ─────────────────────────────────────
+// Il messaggio arriva cifrato e lo decifra il browser: { titolo, testo, url, tag }.
+// Ogni avviso ricevuto va mostrato (iPhone toglie il permesso a chi non lo fa).
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { testo: e.data ? e.data.text() : '' }; }
+  const titolo = String(d.titolo || 'Formedil Padova – Notizie').slice(0, 120);
+  e.waitUntil(self.registration.showNotification(titolo, {
+    body: String(d.testo || '').slice(0, 240),
+    icon: 'PWA/icons/icon-192x192.png',
+    tag: String(d.tag || 'notizie'),
+    lang: 'it',
+    data: { url: typeof d.url === 'string' ? d.url : './?pagina=notizie' },
+  }));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const scope = self.registration.scope;
+  let dest;
+  try { dest = new URL((e.notification.data && e.notification.data.url) || './?pagina=notizie', scope); }
+  catch (err) { dest = new URL('./?pagina=notizie', scope); }
+  if (!dest.href.startsWith(scope)) dest = new URL('./?pagina=notizie', scope);   // mai fuori dal portale
+  const pagina = dest.searchParams.get('pagina') || 'notizie';
+  e.waitUntil((async () => {
+    const aperte = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of aperte) {
+      if (c.url.startsWith(scope)) {
+        c.postMessage({ tipo: 'apri-pagina', pagina });
+        return c.focus();
+      }
+    }
+    return self.clients.openWindow(dest.href);
   })());
 });

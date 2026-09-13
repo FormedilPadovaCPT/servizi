@@ -307,6 +307,14 @@
 
     /* ── PAGINA NOTIZIE ── */
     .news-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+    /* avvisi delle notizie sul telefono (13/09/2026) */
+    .avvisi-box { background:var(--white); border:1px solid var(--border); border-left:4px solid var(--orange); border-radius:var(--radius); padding:12px 14px; margin:0 0 18px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+    .avvisi-box[hidden], .avvisi-btn[hidden] { display:none; }
+    .avvisi-testo { flex:1 1 240px; display:flex; flex-direction:column; gap:2px; font-size:14px; color:var(--text); }
+    .avvisi-testo span { color:var(--muted); font-size:13px; line-height:1.4; }
+    .avvisi-btn { flex:0 0 auto; background:var(--orange); color:#fff; border:0; border-radius:999px; padding:9px 16px; font-weight:600; font-size:14px; cursor:pointer; }
+    .avvisi-btn:disabled { opacity:.6; cursor:default; }
+    .avvisi-privacy { flex:1 1 100%; margin:0; font-size:11.5px; color:var(--muted); line-height:1.5; }
     .news-header h2 { font-size:1.1rem; font-weight:700; }
     .news-list { display:flex; flex-direction:column; gap:14px; }
     .news-item {
@@ -1089,6 +1097,15 @@
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:3px" id="news-count-label"></div>
         </div>
+      </div>
+
+      <div class="avvisi-box" id="avvisi-box" hidden>
+        <div class="avvisi-testo">
+          <strong id="avvisi-titolo">Avvisi sul telefono</strong>
+          <span id="avvisi-sub">Ricevi una notifica quando pubblichiamo una notizia.</span>
+        </div>
+        <button type="button" class="avvisi-btn" id="avvisi-btn" hidden>🔔 Attiva gli avvisi</button>
+        <p class="avvisi-privacy">Per mandare gli avvisi conserviamo solo l'indirizzo tecnico che il browser ci fornisce: nessun nome, nessuna e-mail. Si disattivano da qui in ogni momento.</p>
       </div>
 
       <div class="news-loader" id="news-loader">
@@ -4960,6 +4977,160 @@ document.getElementById('topbarTitle').style.display = 'none';
 
   aggiornaVoce();
   setTimeout(function () { pronta = true; tentaDaSola(); }, 5000);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     AVVISI DELLE NOTIZIE (13/09/2026)
+     Nella pagina Notizie «Attiva gli avvisi» iscrive questo browser alla
+     funzione push-notizie del progetto Servizi; la notifica parte da sola
+     quando una notizia viene pubblicata (trigger sul database).
+     - Il permesso si chiede SOLO al tocco del pulsante: su iPhone e'
+       obbligatorio, e altrove non disturba chi apre il portale.
+     - iPhone/iPad: funziona solo dall'app aggiunta alla schermata Home
+       (iOS 16.4 e successivi); in Safari si spiega come fare.
+     - Lo stato vero e' quello del browser (pushManager.getSubscription):
+       non si ricorda niente a parte. Ogni 7 giorni l'iscrizione si rinnova
+       in silenzio, cosi' il database resta allineato.
+     - Tocco sulla notifica con il portale gia' aperto: si mostra la pagina
+       Notizie senza ricaricare, perche' potrebbe esserci un modulo a meta'.
+     ══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  var URL_AVVISI = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/functions/v1/push-notizie';
+  var RINNOVO = 'servizi.avvisi.rinnovatoIl';
+  var box = document.getElementById('avvisi-box');
+  if (!box) return;
+  var tit = document.getElementById('avvisi-titolo');
+  var sub = document.getElementById('avvisi-sub');
+  var btn = document.getElementById('avvisi-btn');
+  var ua = navigator.userAgent;
+  var appleMobile = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var installata = !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var supportato = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  var azione = null;
+
+  function mostra(titolo, testo, etichetta, fn) {
+    tit.textContent = titolo;
+    sub.textContent = testo;
+    azione = fn || null;
+    btn.hidden = !fn;
+    btn.disabled = false;
+    if (etichetta) btn.textContent = etichetta;
+    box.hidden = false;
+  }
+  function dispositivo() {
+    return appleMobile ? 'iphone' : /android/i.test(ua) ? 'android' : /mobi/i.test(ua) ? 'altro' : 'computer';
+  }
+  function daB64u(s) {
+    s = String(s).replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var bin = atob(s), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function registrazione() {
+    return Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise(function (ok) { setTimeout(function () { ok(null); }, 8000); }),
+    ]);
+  }
+  async function manda(corpo) {
+    var r = await fetch(URL_AVVISI, {
+      method: 'POST', mode: 'cors',
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify(corpo),
+    });
+    var j = await r.json().catch(function () { return {}; });
+    if (!r.ok) throw new Error(j.error || ('risposta ' + r.status));
+    return j;
+  }
+  function segnaRinnovo() { try { localStorage.setItem(RINNOVO, String(Date.now())); } catch (e) {} }
+  function daRinnovare() {
+    try { return Date.now() - Number(localStorage.getItem(RINNOVO) || 0) > 7 * 864e5; } catch (e) { return false; }
+  }
+
+  async function aggiorna() {
+    if (!supportato) {
+      if (appleMobile && !installata) {
+        mostra('Avvisi sul telefono', 'Su iPhone e iPad gli avvisi arrivano solo dall\'app: aggiungi il portale alla schermata Home (Condividi, poi «Aggiungi alla schermata Home») e aprilo da lì.', null, null);
+      } else {
+        box.hidden = true;
+      }
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      mostra('Avvisi bloccati', 'Le notifiche per questo sito sono bloccate: si riattivano dalle impostazioni del browser o del telefono.', null, null);
+      return;
+    }
+    var reg = await registrazione();
+    if (!reg) { box.hidden = true; return; }
+    var iscr = await reg.pushManager.getSubscription();
+    if (iscr) {
+      mostra('🔔 Avvisi attivi', 'Ti avvisiamo su questo dispositivo quando pubblichiamo una notizia.', 'Disattiva', disattiva);
+      if (Notification.permission === 'granted' && daRinnovare()) {
+        manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() }).then(segnaRinnovo).catch(function () {});
+      }
+    } else {
+      mostra('Avvisi sul telefono', 'Ricevi una notifica quando pubblichiamo una notizia.', '🔔 Attiva gli avvisi', attiva);
+    }
+  }
+
+  async function attiva() {
+    btn.disabled = true;
+    try {
+      // per prima cosa, ancora dentro il tocco: iPhone non accetta la richiesta dopo un'attesa
+      var permesso = await Notification.requestPermission();
+      if (permesso !== 'granted') { await aggiorna(); return; }
+      btn.textContent = 'Attivazione…';
+      var reg = await registrazione();
+      if (!reg) throw new Error('l\'app non è ancora pronta, riprova fra qualche secondo');
+      var iscr = await reg.pushManager.getSubscription();
+      if (!iscr) {
+        var r = await fetch(URL_AVVISI, { cache: 'no-store' });
+        var j = await r.json().catch(function () { return {}; });
+        if (!r.ok || !j.chiave) throw new Error('servizio degli avvisi non raggiungibile');
+        iscr = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: daB64u(j.chiave) });
+      }
+      try {
+        await manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() });
+      } catch (e) {
+        // se il server non l'ha salvata, il browser non deve credersi iscritto
+        await iscr.unsubscribe().catch(function () {});
+        throw e;
+      }
+      segnaRinnovo();
+      await aggiorna();
+    } catch (e) {
+      mostra('Avvisi non attivati', 'Non è stato possibile: ' + (e && e.message ? e.message : e) + '.', 'Riprova', attiva);
+    }
+  }
+
+  async function disattiva() {
+    btn.disabled = true;
+    try {
+      var reg = await registrazione();
+      var iscr = reg && await reg.pushManager.getSubscription();
+      if (iscr) {
+        var endpoint = iscr.endpoint;
+        await iscr.unsubscribe();
+        manda({ azione: 'cancella', endpoint: endpoint }).catch(function () {});
+      }
+    } catch (e) {}
+    await aggiorna();
+  }
+
+  btn.addEventListener('click', function () { if (azione) azione(); });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function (e) {
+      var d = e.data || {};
+      if (d.tipo === 'apri-pagina' && /^[a-z]+$/.test(d.pagina) && document.getElementById('page-' + d.pagina)) showPage(d.pagina);
+    });
+    navigator.serviceWorker.startMessages();
+  }
+
+  aggiorna().catch(function () { box.hidden = true; });
 })();
 </script>
 </body>
