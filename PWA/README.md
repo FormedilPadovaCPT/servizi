@@ -11,7 +11,7 @@
 | `sw.js` | **Ritirato.** Se un telefono l'avesse registrato, si installa, svuota la vecchia cache e si deregistra. Copiato al posto di `../sw.js` è l'interruttore che spegne il service worker del portale. |
 | `icons/icon-*.png` | Icone «any» (logo ufficiale su bianco). |
 | `icons/icon-maskable-*.png` | Icone per Android, che le ritaglia a cerchio o goccia: lo stesso logo, **non alterato**, rimpicciolito dentro la zona sicura (cerchio dell'80%). |
-| `screenshots/home-*.png` | Schermate mostrate da Chrome nella finestra di installazione (telefono 1080×2340, PC 1280×800), catturate dal portale pubblico il 12/09/2026. |
+| `screenshots/home-*.png` | Schermate mostrate da Chrome nella finestra di installazione (telefono 1080×2340, PC 1280×800). **Rifatte il 14/09/2026** con la veste «Sito 3 · Sportello», dal portale pubblico con Edge senza interfaccia (`--headless=new --screenshot`, `--virtual-time-budget=10000` per far passare la schermata d'avvio). ⚠️ Per il telefono non basta `--window-size=360,780`: Edge non stringe la finestra sotto i ~500 px e il sito si impagina più largo, con i bordi tagliati. Si cattura una paginetta con un `<iframe>` di 360×780 (finestra 520×780, `--force-device-scale-factor=3`) e si ritaglia a 1080×2340. Vanno rifatte quando la home cambia aspetto. |
 | `pwa-test.html` | Pagina di prova storica, non collegata. |
 
 La registrazione e l'invito a installare stanno in fondo a `../index.html`, sezione «APP SUL TELEFONO».
