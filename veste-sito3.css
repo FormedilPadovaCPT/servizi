@@ -1,8 +1,8 @@
 /* ============================================================
-   Veste «Sito 3 · Sportello» del portale servizi — IN PROVA (13/09/2026)
+   Veste grafica del portale servizi: «Sito 3 · Sportello»
 
-   Si apre con ?veste=sito3. Proposta libera, chiesta dall'utente dopo
-   «Sito nuovo» e «Sito nuovo 2»: un'app chiara e intuitiva su PC e telefono.
+   Proposta libera del 13/09/2026, chiesta dall'utente dopo «Sito nuovo» e
+   «Sito nuovo 2»; scelta il 14/09/2026 come unica veste del portale.
    Le funzioni stanno in veste-sito3.js; tutto qui e' sotto
    html[data-veste="sito3"], quindi senza la veste non cambia niente.
 
@@ -180,8 +180,6 @@ html[data-veste="sito3"] .team-section-label{text-transform:none;letter-spacing:
 
 /* ── barra in basso: solo telefono ── */
 html[data-veste="sito3"] .s3-tab{display:none}
-html[data-veste="sito3"] .s3-prova{position:fixed;right:12px;bottom:12px;z-index:400;display:flex;gap:10px;align-items:center;background:var(--s3-testo);color:#fff;font:500 12.5px/1.3 Barlow,sans-serif;padding:8px 14px;border-radius:18px;box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
-html[data-veste="sito3"] .s3-prova a{color:#ffb28a}
 
 @media(max-width:900px){
   html[data-veste="sito3"] .s3-evidenza{grid-template-columns:1fr}
@@ -231,7 +229,6 @@ html[data-veste="sito3"] .s3-prova a{color:#ffb28a}
   html[data-veste="sito3"] .s3-tab button.ora{color:var(--s3-arancio-scuro)}
   html[data-veste="sito3"] .s3-tab button[data-tab="segnala"]{color:var(--s3-arancio)}
   html[data-veste="sito3"] .s3-tab .s3-conta{position:absolute;top:5px;left:calc(50% + 6px)}
-  html[data-veste="sito3"] .s3-prova{left:10px;right:10px;bottom:calc(74px + env(safe-area-inset-bottom));justify-content:space-between}
   html[data-veste="sito3"] .app-invito{bottom:calc(66px + env(safe-area-inset-bottom))}
 }
 @media (prefers-reduced-motion:reduce){

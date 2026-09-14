@@ -1,30 +1,17 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-veste="sito3">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Vesti IN PROVA (11/09/2026): «Ciclo» con ?veste=ciclo, «Sito nuovo» con ?veste=sito, «Sito nuovo 2» con ?veste=sito2
-       (13/09: il Sito nuovo con le tessere a solo titolo e bordino verde; stessi file più veste-sito2.css), «Sito 3 · Sportello»
-       con ?veste=sito3 (13/09: proposta libera, file propri veste-sito3.css/.js), «Sito 4 · Istantanea» con ?veste=sito4
-       (13/09: la proposta 4 dell'11/09, file propri veste-sito4.css/.js); il dispositivo ricorda la scelta, ?veste=attuale la toglie. Il pubblico non scarica i file veste-*.css/.js. Vedi proposte_grafiche/2026_09_11_portale-servizi. -->
-  <script>
-  (function () {
-    try {
-      var q = new URLSearchParams(location.search).get('veste')
-      var VESTI = ['ciclo', 'sito', 'sito2', 'sito3', 'sito4']
-      if (VESTI.indexOf(q) >= 0) localStorage.setItem('servizi.veste', q)
-      else if (q === 'attuale') localStorage.removeItem('servizi.veste')
-      var v = localStorage.getItem('servizi.veste')
-      if (VESTI.indexOf(v) < 0) return
-      var base = v === 'sito2' ? 'sito' : v
-      document.documentElement.setAttribute('data-veste', base)
-      if (v !== base) document.documentElement.setAttribute('data-variante', v)
-      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'veste-' + base + '.css?v=18'; document.head.appendChild(l)
-      if (v !== base) { var l2 = document.createElement('link'); l2.rel = 'stylesheet'; l2.href = 'veste-' + v + '.css?v=18'; document.head.appendChild(l2) }
-      var s = document.createElement('script'); s.src = 'veste-' + base + '.js?v=18'; document.head.appendChild(s)
-    } catch (e) { /* senza localStorage resta la veste attuale */ }
-  })()
-  </script>
+  <!-- Veste grafica «Sito 3 · Sportello», scelta il 14/09/2026 come unica veste del portale. Testata, home, barra in basso
+       e intestazioni delle pagine le costruisce veste-sito3.js leggendo le schede della home qui sotto (restano la fonte di
+       titoli, descrizioni ed etichette); lo stile sta in veste-sito3.css, tutto sotto html[data-veste="sito3"].
+       Il foglio di stile sta QUI, prima dello <style> principale, come quando lo aggiungeva il caricatore delle prove.
+       Le vesti provate prima (Ciclo, Sito nuovo, Sito nuovo 2, Sito 4) sono archiviate in
+       proposte_grafiche/2026_09_11_portale-servizi/vesti_provate_nel_portale/.
+       ⚠️ Quando si modificano i due file si alza ?v=N qui E nell'elenco DA_SALVARE di sw.js. -->
+  <link rel="stylesheet" href="veste-sito3.css?v=19">
+  <script src="veste-sito3.js?v=19" defer></script>
   <title>Formedil Padova – Area Sicurezza e Salute</title>
 
   <!-- PWA Meta Tags -->

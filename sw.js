@@ -46,6 +46,11 @@ const DA_SALVARE = [
   'PWA/icons/icon-512x512.png',
   'Logo_Formedil_pd_piccolo.png',
   'Formedil_Padova_Positivo_colori.png',
+  // la veste grafica (14/09/2026): ?v= deve essere lo stesso di index.html,
+  // perché per questi file la copia si cerca con la query
+  'veste-sito3.css?v=19',
+  'veste-sito3.js?v=19',
+  'img/sito/logo-formedil-padova.png',
 ];
 
 self.addEventListener('install', (e) => {
@@ -78,7 +83,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin || !url.href.startsWith(scope)) return;
 
   // La home si salva sempre sotto la stessa chiave, qualunque sia la
-  // query (?veste=…, ?pagina=…): è quella che serve quando manca la rete.
+  // query (?pagina=…): è quella che serve quando manca la rete.
   const home = req.mode === 'navigate' &&
     (url.pathname === new URL(scope).pathname || url.pathname === new URL('index.html', scope).pathname);
   const chiave = home ? new URL('./', scope).href : req;

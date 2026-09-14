@@ -1,8 +1,9 @@
 /* ============================================================
-   Veste «Sito 3 · Sportello» del portale servizi — IN PROVA (13/09/2026)
+   Veste grafica del portale servizi: «Sito 3 · Sportello»
 
-   Caricato solo con ?veste=sito3 (vedi lo script in testa a index.html).
-   Proposta libera: lo sportello online dell'Area Sicurezza e Salute.
+   Proposta libera del 13/09/2026, scelta dall'utente il 14/09/2026 come
+   unica veste del portale: index.html la carica sempre (data-veste="sito3").
+   Lo sportello online dell'Area Sicurezza e Salute.
    - Home che parte da «Cosa ti serve?»: ricerca che capisce anche le
      parole di chi scrive («patente a crediti», «corso», «pericolo») e
      quattro situazioni; i servizi sono righe con icona, nome, frase ed
@@ -58,6 +59,7 @@
     cor: '<path d="M3.5 5.5c3-1.3 5.8-1.3 8.5 0v14c-2.7-1.3-5.5-1.3-8.5 0z"/><path d="M12 5.5c2.7-1.3 5.5-1.3 8.5 0v14c-3-1.3-5.8-1.3-8.5 0"/>',
     cds: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
     myapp: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',
+    installa: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M12 7v7M9.2 11.3 12 14l2.8-2.7"/>',
     notizie: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
     telegram: '<path d="M21 4 3 11l6.5 2.2L12 20l3.2-4.6L20 19z"/><path d="m9.5 13.2 6-4.7"/>',
     cerca: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
@@ -210,6 +212,18 @@
       elenco.appendChild(g)
     })
     h.appendChild(elenco)
+    // «Installa l'app»: nella grafica di prima stava nel menu laterale, che qui non si vede. La riga segue la
+    // voce #nav-installa, che lo script dell'invito in index.html mostra solo quando il browser lo permette
+    var gInf = elenco.querySelector('.s3-gruppo[data-sit="informato"] .s3-righe'), voce = document.getElementById('nav-installa')
+    if (gInf && voce) {
+      var ins = bottone('s3-riga s3-installa'); ins.dataset.sit = 'informato'; ins.dataset.pag = 'installa'; ins.hidden = true
+      var ii = el('span', 's3-ico'); ii.appendChild(icona('installa')); ins.appendChild(ii)
+      var it = el('span', 's3-testo'); it.appendChild(el('b', null, 'Installa l\'app')); it.appendChild(el('small', null, 'Il portale si apre da un\'icona, come le altre app.')); ins.appendChild(it)
+      ins.appendChild(icona('freccia'))
+      ins.onclick = function () { if (typeof window.apriInvitoApp === 'function') window.apriInvitoApp() }
+      gInf.appendChild(ins)
+      new MutationObserver(function () { applica() }).observe(voce, { attributes: true, attributeFilter: ['hidden'] })
+    }
     var vuoto = el('p', 's3-vuoto'); vuoto.hidden = true; vuoto.id = 's3-vuoto'
     h.appendChild(vuoto)
 
@@ -241,6 +255,7 @@
     h.appendChild(ct)
 
     pag.insertBefore(h, pag.firstChild)
+    applica()
 
     var aggiorna = function () { stato.testo = inp.value; sv.hidden = !inp.value; kbd.hidden = !!inp.value; applica() }
     inp.addEventListener('input', aggiorna)
@@ -291,6 +306,9 @@
         }
       }
     })
+    var inst = document.querySelector('.s3-installa'), voce = document.getElementById('nav-installa')
+    if (inst) inst.hidden = !(voce && !voce.hidden) || !(stato.sit === 'tutti' || stato.sit === 'informato') ||
+      !parole.every(function (p) { return 'installa installare app applicazione telefono icona home'.indexOf(p) >= 0 })
     var visibili = 0
     document.querySelectorAll('.s3-gruppo').forEach(function (g) {
       var n = g.querySelectorAll('.s3-riga:not([hidden])').length
@@ -421,18 +439,9 @@
     new MutationObserver(copia).observe(src, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] })
   }
 
-  function avviso() {
-    if (document.querySelector('.s3-prova')) return
-    var a = el('div', 's3-prova'); a.setAttribute('role', 'status')
-    a.appendChild(el('span', null, 'Veste «Sito 3 · Sportello» in prova'))
-    var l = el('a', null, 'Torna all\'attuale'); l.href = location.pathname + '?veste=attuale'
-    a.appendChild(l)
-    document.body.appendChild(a)
-  }
-
   function avvia() {
     if (document.documentElement.getAttribute('data-veste') !== 'sito3') return
-    ;[caratteri, testata, home, pagine, barra, contatore, avviso].forEach(function (fn) {
+    ;[caratteri, testata, home, pagine, barra, contatore].forEach(function (fn) {
       try { fn() } catch (e) { console.log('[veste-sito3] ' + fn.name + ':', e && e.message) }
     })
     aggiornaNavigazione()
