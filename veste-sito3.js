@@ -73,6 +73,8 @@
   }
   var TEL = '049 761168', TEL_INT = '(int. 4)', TEL_HREF = 'tel:049761168'
   var SEDE = 'Via Basilicata 10, 35127 Padova'
+  // informativa privacy: la stessa del piede di www.formedilpadova.it (14/09/2026, indicata dall'utente)
+  var PRIVACY = 'https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf'
   /* la sede apre il navigatore (14/09/2026, chiesto dall'utente): su iPhone e iPad Mappe di Apple,
      altrove Google Maps, che sul telefono Android apre l'app col percorso in auto e sul PC la mappa */
   function hrefNavigatore() {
@@ -253,6 +255,13 @@
     cg.appendChild(team)
     ct.appendChild(cg)
     h.appendChild(ct)
+
+    // piede con l'informativa sulla privacy
+    var piede = el('footer', 's3-piede')
+    piede.appendChild(el('span', null, 'Formedil Padova – Area Sicurezza e Salute · ' + SEDE))
+    var pr = el('a', null, 'Informativa sulla privacy'); pr.href = PRIVACY; pr.target = '_blank'; pr.rel = 'noopener'
+    piede.appendChild(pr)
+    h.appendChild(piede)
 
     pag.insertBefore(h, pag.firstChild)
     applica()

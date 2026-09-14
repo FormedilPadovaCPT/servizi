@@ -48,8 +48,8 @@ const DA_SALVARE = [
   'Formedil_Padova_Positivo_colori.png',
   // la veste grafica (14/09/2026): ?v= deve essere lo stesso di index.html,
   // perché per questi file la copia si cerca con la query
-  'veste-sito3.css?v=19',
-  'veste-sito3.js?v=19',
+  'veste-sito3.css?v=20',
+  'veste-sito3.js?v=20',
   'img/sito/logo-formedil-padova.png',
 ];
 

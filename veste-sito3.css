@@ -142,8 +142,10 @@ html[data-veste="sito3"] .s3-contatto small.s3-sotto{margin-top:10px}
 html[data-veste="sito3"] .s3-contatto a{color:inherit;text-decoration:none}
 html[data-veste="sito3"] .s3-contatto a:hover{color:var(--s3-arancio-scuro);text-decoration:underline}
 html[data-veste="sito3"] a.s3-contatto:hover{text-decoration:none}
-html[data-veste="sito3"] .s3-piede{max-width:1120px;margin:0 auto;padding:18px 28px 28px;border-top:1px solid var(--s3-linea);font-size:13.5px;color:var(--s3-tenue);display:flex;flex-wrap:wrap;gap:6px 18px}
-html[data-veste="sito3"] .s3-piede a{color:var(--s3-grigio)}
+/* piede della home con l'informativa sulla privacy (14/09/2026): sta dentro .s3-home, che ha gia' i margini */
+html[data-veste="sito3"] .s3-piede{margin-top:36px;padding-top:16px;border-top:1px solid var(--s3-linea);font-size:13.5px;line-height:1.4;color:var(--s3-tenue);display:flex;flex-wrap:wrap;gap:6px 18px}
+html[data-veste="sito3"] .s3-piede a{color:var(--s3-grigio);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+html[data-veste="sito3"] .s3-piede a:hover{color:var(--s3-arancio-scuro)}
 
 /* ── pagine dei servizi ── */
 html[data-veste="sito3"] .page:not(#page-home){padding:0 0 60px;max-width:none}
@@ -216,7 +218,7 @@ html[data-veste="sito3"] .s3-tab{display:none}
   html[data-veste="sito3"] .s3-testo b{font-size:17px}
   html[data-veste="sito3"] .s3-testo small{font-size:13.5px}
   html[data-veste="sito3"] .s3-contatti-griglia{grid-template-columns:1fr}
-  html[data-veste="sito3"] .s3-piede{display:none}
+  html[data-veste="sito3"] .s3-piede{margin-top:28px;font-size:13px;gap:4px 14px}
   html[data-veste="sito3"] .s3-pag-testa{padding:14px 16px 4px}
   html[data-veste="sito3"] .s3-pag-testa h1{font-size:32px}
   html[data-veste="sito3"] .page:not(#page-home)>*:not(.s3-pag-testa){margin-left:16px;margin-right:16px}
