@@ -43,12 +43,14 @@
     telegram: 'canale telegram notifiche messaggi'
   }
   var ICONE = {
-    visita: '<path d="M3 20.5h9"/><path d="M5 20.5V10l5-3.5v14"/><circle cx="16" cy="13" r="4"/><path d="m19 16 2.5 2.5"/>',
+    /* gru a torre (14/09/2026, chiesta dall'utente) */
+    visita: '<path d="M3.5 21h8"/><path d="M6 21V6.5M9 21V6.5"/><path d="M6 10.5 9 14l-3 3.5L9 21"/><path d="M2.5 6.5h19"/><path d="M6 6.5 7.5 3 9 6.5M7.5 3l14 3.5M7.5 3 2.5 6.5"/><path d="M17 6.5V11"/><path d="M15.3 11h3.4v3h-3.4z"/>',
     conferenza: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.3"/><path d="M15.6 14.1A4.5 4.5 0 0 1 21 18.5"/>',
     notifica: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/>',
     segnalazione: '<path d="M12 3.5 2.8 19.5h18.4z"/><path d="M12 10v4.5"/><path d="M12 17.2v.3"/>',
     questionario: '<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
-    rlst: '<path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9 4-1.3 7-4.7 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+    /* operaio col caschetto (14/09/2026, chiesto dall'utente) */
+    rlst: '<path d="M7.5 9V8a4.5 4.5 0 0 1 9 0v1"/><path d="M5.8 9h12.4"/><path d="M12 3.5v2.3"/><path d="M8.8 10.5a3.2 3.2 0 0 0 6.4 0"/><path d="M4.8 21a7.2 7.2 0 0 1 14.4 0"/>',
     rls: '<circle cx="12" cy="7.5" r="3.5"/><path d="M5 20.5a7 7 0 0 1 14 0"/><path d="M12 14.5v3.5"/>',
     consulenza: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
     attestazione: '<circle cx="12" cy="9" r="5"/><path d="m9 13.5-1.5 7L12 18l4.5 2.5-1.5-7"/>',
@@ -228,9 +230,8 @@
     cg.appendChild(em)
     var sede = el('a', 's3-contatto'); sede.href = hrefNavigatore(); sede.target = '_blank'; sede.rel = 'noopener'
     sede.setAttribute('aria-label', 'Sede: ' + SEDE + '. Apri il percorso nel navigatore')
-    var tocco = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+    // tutto il riquadro e' il pulsante, senza scritte d'istruzione (14/09/2026, chiesto dall'utente)
     sede.appendChild(icona('sede')); sede.appendChild(el('small', null, 'Sede')); sede.appendChild(el('b', null, 'Via Basilicata 10')); sede.appendChild(el('span', null, '35127 Padova'))
-    sede.appendChild(el('span', 's3-azione', tocco ? 'Tocca per il navigatore' : 'Apri il percorso sulla mappa'))
     cg.appendChild(sede)
     var team = bottone('s3-contatto')
     team.appendChild(icona('team')); team.appendChild(el('small', null, 'Chi siamo')); team.appendChild(el('b', null, 'Il team dell\'Area')); team.appendChild(el('span', null, 'Tecnici e referenti'))
