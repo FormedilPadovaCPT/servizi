@@ -68,6 +68,15 @@
     chiudi: '<path d="M6 6l12 12M18 6 6 18"/>'
   }
   var TEL = '049 761168', TEL_INT = '(int. 4)', TEL_HREF = 'tel:049761168'
+  var SEDE = 'Via Basilicata 10, 35127 Padova'
+  /* la sede apre il navigatore (14/09/2026, chiesto dall'utente): su iPhone e iPad Mappe di Apple,
+     altrove Google Maps, che sul telefono Android apre l'app col percorso in auto e sul PC la mappa */
+  function hrefNavigatore() {
+    var ua = navigator.userAgent || '', dest = encodeURIComponent(SEDE)
+    var apple = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
+    return apple ? 'https://maps.apple.com/?daddr=' + dest + '&dirflg=d'
+      : 'https://www.google.com/maps/dir/?api=1&destination=' + dest + '&travelmode=driving&dir_action=navigate'
+  }
 
   function el(tag, cls, testo) { var e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e }
   function bottone(cls, testo) { var b = el('button', cls, testo); b.type = 'button'; return b }
@@ -212,9 +221,16 @@
     var em = el('div', 's3-contatto')
     em.appendChild(icona('email')); em.appendChild(el('small', null, 'Email'))
     ;['cpt@formedilpadova.it', 'cptpd@did.formedilpadova.it'].forEach(function (m, i) { var a = el('a', null, m); a.href = 'mailto:' + m; var w = el(i ? 'span' : 'b'); w.appendChild(a); em.appendChild(w) })
+    // sotto le email il sito dell'ente, che si apre in un'altra scheda
+    em.appendChild(el('small', 's3-sotto', 'Sito web'))
+    var web = el('a', null, 'www.formedilpadova.it'); web.href = 'https://www.formedilpadova.it'; web.target = '_blank'; web.rel = 'noopener'
+    var wb = el('b'); wb.appendChild(web); em.appendChild(wb)
     cg.appendChild(em)
-    var sede = el('div', 's3-contatto')
+    var sede = el('a', 's3-contatto'); sede.href = hrefNavigatore(); sede.target = '_blank'; sede.rel = 'noopener'
+    sede.setAttribute('aria-label', 'Sede: ' + SEDE + '. Apri il percorso nel navigatore')
+    var tocco = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
     sede.appendChild(icona('sede')); sede.appendChild(el('small', null, 'Sede')); sede.appendChild(el('b', null, 'Via Basilicata 10')); sede.appendChild(el('span', null, '35127 Padova'))
+    sede.appendChild(el('span', 's3-azione', tocco ? 'Tocca per il navigatore' : 'Apri il percorso sulla mappa'))
     cg.appendChild(sede)
     var team = bottone('s3-contatto')
     team.appendChild(icona('team')); team.appendChild(el('small', null, 'Chi siamo')); team.appendChild(el('b', null, 'Il team dell\'Area')); team.appendChild(el('span', null, 'Tecnici e referenti'))
@@ -241,7 +257,7 @@
     })
   }
   function riga(id, scheda, s) {
-    var b = bottone('s3-riga'); b.dataset.sit = s.id
+    var b = bottone('s3-riga'); b.dataset.sit = s.id; b.dataset.pag = id
     var ic = el('span', 's3-ico'); ic.appendChild(icona(id)); b.appendChild(ic)
     var tx = el('span', 's3-testo')
     var titolo = (scheda.querySelector('.sc-title') || {}).textContent || id

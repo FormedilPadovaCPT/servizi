@@ -19,9 +19,9 @@
       var base = v === 'sito2' ? 'sito' : v
       document.documentElement.setAttribute('data-veste', base)
       if (v !== base) document.documentElement.setAttribute('data-variante', v)
-      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'veste-' + base + '.css?v=16'; document.head.appendChild(l)
-      if (v !== base) { var l2 = document.createElement('link'); l2.rel = 'stylesheet'; l2.href = 'veste-' + v + '.css?v=16'; document.head.appendChild(l2) }
-      var s = document.createElement('script'); s.src = 'veste-' + base + '.js?v=16'; document.head.appendChild(s)
+      var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'veste-' + base + '.css?v=17'; document.head.appendChild(l)
+      if (v !== base) { var l2 = document.createElement('link'); l2.rel = 'stylesheet'; l2.href = 'veste-' + v + '.css?v=17'; document.head.appendChild(l2) }
+      var s = document.createElement('script'); s.src = 'veste-' + base + '.js?v=17'; document.head.appendChild(s)
     } catch (e) { /* senza localStorage resta la veste attuale */ }
   })()
   </script>

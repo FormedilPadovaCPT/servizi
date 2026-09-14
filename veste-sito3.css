@@ -105,6 +105,12 @@ html[data-veste="sito3"] [data-sit="cantiere"] .s3-ico{background:var(--s3-aranc
 html[data-veste="sito3"] [data-sit="impresa"] .s3-ico{background:var(--s3-ardesia-chiaro);color:var(--s3-ardesia)}
 html[data-veste="sito3"] [data-sit="formazione"] .s3-ico{background:var(--s3-verde-chiaro);color:var(--s3-verde-scuro)}
 html[data-veste="sito3"] [data-sit="informato"] .s3-ico{background:#eceef0;color:var(--s3-grigio)}
+/* colori propri di tre icone (14/09/2026, chiesti dall'utente): notizie campanello giallo, Telegram azzurro, asseverazione blu */
+html[data-veste="sito3"] .s3-riga[data-pag="notizie"] .s3-ico,html[data-veste="sito3"] .s3-notizia .s3-cerchio{background:#fff4cc;color:#946800}
+html[data-veste="sito3"] .s3-riga[data-pag="notizie"] .s3-ico svg,html[data-veste="sito3"] .s3-notizia .s3-cerchio svg{fill:#ffc21a}
+html[data-veste="sito3"] .s3-riga[data-pag="telegram"] .s3-ico{background:#e2f3fc;color:#1273a8}
+html[data-veste="sito3"] .s3-riga[data-pag="telegram"] .s3-ico svg{fill:#2aabee}
+html[data-veste="sito3"] .s3-riga[data-pag="asseverazione"] .s3-ico{background:#e3ebf9;color:#1d57b5}
 html[data-veste="sito3"] .s3-testo{display:grid;gap:3px;min-width:0}
 html[data-veste="sito3"] .s3-testo b{font:600 18px/1.2 Barlow,sans-serif;color:var(--s3-testo)}
 html[data-veste="sito3"] .s3-testo small{font-size:14px;line-height:1.38;color:var(--s3-tenue);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -130,6 +136,13 @@ html[data-veste="sito3"] .s3-contatto svg{grid-row:span 3;width:22px;height:22px
 html[data-veste="sito3"] .s3-contatto small{font:600 11.5px/1.2 Barlow,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--s3-tenue)}
 html[data-veste="sito3"] .s3-contatto b{font:600 16px/1.3 Barlow,sans-serif;color:var(--s3-testo);overflow-wrap:anywhere}
 html[data-veste="sito3"] .s3-contatto span{font-size:14px;color:var(--s3-tenue);overflow-wrap:anywhere}
+/* l'icona occupa tre righe: tutto il resto sta nella seconda colonna, anche oltre la terza riga (sito web, «tocca per il navigatore») */
+html[data-veste="sito3"] .s3-contatto>:not(svg){grid-column:2}
+html[data-veste="sito3"] .s3-contatto small.s3-sotto{margin-top:10px}
+html[data-veste="sito3"] .s3-contatto span.s3-azione{margin-top:4px;font-weight:600;color:var(--s3-arancio-scuro)}
+html[data-veste="sito3"] .s3-contatto a{color:inherit;text-decoration:none}
+html[data-veste="sito3"] .s3-contatto a:hover{color:var(--s3-arancio-scuro);text-decoration:underline}
+html[data-veste="sito3"] a.s3-contatto:hover{text-decoration:none}
 html[data-veste="sito3"] .s3-piede{max-width:1120px;margin:0 auto;padding:18px 28px 28px;border-top:1px solid var(--s3-linea);font-size:13.5px;color:var(--s3-tenue);display:flex;flex-wrap:wrap;gap:6px 18px}
 html[data-veste="sito3"] .s3-piede a{color:var(--s3-grigio)}
 
