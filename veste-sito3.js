@@ -75,13 +75,21 @@
   var SEDE = 'Via Basilicata 10, 35127 Padova'
   // informativa privacy: la stessa del piede di www.formedilpadova.it (14/09/2026, indicata dall'utente)
   var PRIVACY = 'https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf'
-  /* la sede apre il navigatore (14/09/2026, chiesto dall'utente): su iPhone e iPad Mappe di Apple,
-     altrove Google Maps, che sul telefono Android apre l'app col percorso in auto e sul PC la mappa */
-  function hrefNavigatore() {
+  /* la sede apre il navigatore col percorso in auto fino a Via Basilicata (14/09/2026, chiesto dall'utente).
+     - iPhone e iPad: Mappe di Apple.
+     - Android (15/09/2026): il link web a Google Maps in una nuova finestra non basta a far partire il
+       navigatore dall'app installata, quindi si chiama l'app Google Maps con un intent di Chrome in modalita'
+       navigazione; se l'app non c'e', Chrome apre lo stesso percorso sul sito (browser_fallback_url). Nei
+       browser interni alle app (WebView «wv») e in Firefox l'intent non e' affidabile: resta il link web.
+     - PC: Google Maps sul sito, in un'altra scheda. */
+  function navigatore() {
     var ua = navigator.userAgent || '', dest = encodeURIComponent(SEDE)
-    var apple = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)
-    return apple ? 'https://maps.apple.com/?daddr=' + dest + '&dirflg=d'
-      : 'https://www.google.com/maps/dir/?api=1&destination=' + dest + '&travelmode=driving&dir_action=navigate'
+    var percorso = 'www.google.com/maps/dir/?api=1&destination=' + dest + '&travelmode=driving&dir_action=navigate'
+    if (/iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1))
+      return { href: 'https://maps.apple.com/?daddr=' + dest + '&dirflg=d', altraScheda: true }
+    if (/Android/.test(ua) && /Chrome\//.test(ua) && !/; wv\)|Firefox\//.test(ua))
+      return { href: 'intent://' + percorso + '#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=' + encodeURIComponent('https://' + percorso) + ';end', altraScheda: false }
+    return { href: 'https://' + percorso, altraScheda: true }
   }
 
   function el(tag, cls, testo) { var e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e }
@@ -244,7 +252,8 @@
     var web = el('a', null, 'www.formedilpadova.it'); web.href = 'https://www.formedilpadova.it'; web.target = '_blank'; web.rel = 'noopener'
     var wb = el('b'); wb.appendChild(web); em.appendChild(wb)
     cg.appendChild(em)
-    var sede = el('a', 's3-contatto'); sede.href = hrefNavigatore(); sede.target = '_blank'; sede.rel = 'noopener'
+    var nav = navigatore(), sede = el('a', 's3-contatto'); sede.href = nav.href
+    if (nav.altraScheda) { sede.target = '_blank'; sede.rel = 'noopener' }
     sede.setAttribute('aria-label', 'Sede: ' + SEDE + '. Apri il percorso nel navigatore')
     // tutto il riquadro e' il pulsante, senza scritte d'istruzione (14/09/2026, chiesto dall'utente)
     sede.appendChild(icona('sede')); sede.appendChild(el('small', null, 'Sede')); sede.appendChild(el('b', null, 'Via Basilicata 10')); sede.appendChild(el('span', null, '35127 Padova'))
