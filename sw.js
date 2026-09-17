@@ -33,7 +33,7 @@
    deregistra da solo).
    ============================================================ */
 
-const VERSIONE = 'servizi-v1';
+const VERSIONE = 'servizi-v2';
 const PREFISSO = 'servizi-';
 const ATTESA_MS = 4000;
 
@@ -44,6 +44,7 @@ const DA_SALVARE = [
   'PWA/manifest.json',
   'PWA/icons/icon-192x192.png',
   'PWA/icons/icon-512x512.png',
+  'PWA/icons/apple-touch-icon.png',
   'Logo_Formedil_pd_piccolo.png',
   'Formedil_Padova_Positivo_colori.png',
   // la veste grafica (14/09/2026): ?v= deve essere lo stesso di index.html,
