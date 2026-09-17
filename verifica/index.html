@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Verifica attestato</title>
+<meta name="description" content="Verifica di un attestato rilasciato da Formedil Padova: numero e codice stampati sull'attestato.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  VERIFICA PUBBLICA DEGLI ATTESTATI (17/09/2026, deciso dall'utente)
+
+  Il QR degli attestati della serie N/aaaa porta qui con ?n=<numero>&c=<codice>.
+  La pagina chiede al progetto Supabase Servizi la funzione verifica_attestato,
+  che risponde SOLO se numero e codice tornano insieme, e con i soli dati
+  minimi (niente nome, codice fiscale, impresa: le iniziali). I dati li copia
+  lì il Gestionale (funzione attestati-verifica). Il database principale da
+  qui non si raggiunge.
+  Sorgenti lato database: segreteria-app/supabase/progetto-servizi/sql/2026_09_17_verifica_attestati.sql
+-->
+<style>
+  :root {
+    --arancio: #E7500F; --grigio: #565C66; --verde: #2e7d32; --rosso: #b3261e;
+    --fondo: #f2f1ee; --carta: #ffffff; --bordo: #d4d2ca; --testo: #2c2c2a; --tenue: #5f5e5a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --fondo: #1d1d1b; --carta: #2a2a28; --bordo: #44433f; --testo: #ecebe6; --tenue: #b5b3ab; --verde: #7cc47f; --rosso: #f2867e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--testo); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; line-height: 1.45; }
+  header { background: var(--carta); border-bottom: 4px solid var(--arancio); padding: 12px 16px; }
+  header .riga { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  header img { height: 40px; width: auto; background: #fff; border-radius: 4px; padding: 2px 4px; }
+  header span { color: var(--tenue); font-size: 14px; }
+  main { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sotto { color: var(--tenue); margin: 0 0 18px; }
+  .scheda { background: var(--carta); border: 1px solid var(--bordo); border-radius: 10px; padding: 18px; }
+  .esito { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+  .bollo { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 24px; font-weight: 700; flex: 0 0 auto; }
+  .valido .bollo { background: var(--verde); }
+  .revocato .bollo, .nontrovato .bollo { background: var(--rosso); }
+  .esito strong { font-size: 20px; display: block; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; }
+  dt { color: var(--tenue); }
+  dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+  form { display: grid; gap: 10px; }
+  label { font-weight: 600; font-size: 14px; }
+  input { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--bordo); border-radius: 8px; background: var(--carta); color: var(--testo); }
+  button { font: inherit; font-weight: 700; padding: 11px 16px; border: 0; border-radius: 8px; background: var(--arancio); color: #fff; cursor: pointer; }
+  .nota { color: var(--tenue); font-size: 14px; margin-top: 18px; }
+  .nota a { color: var(--arancio); }
+  .altra { margin-top: 14px; display: inline-block; color: var(--arancio); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header><div class="riga">
+  <img src="../img/sito/logo-formedil-padova.png" alt="Formedil Padova">
+  <span>Area Sicurezza e Salute</span>
+</div></header>
+
+<main>
+  <h1>Verifica di un attestato</h1>
+  <p class="sotto">Numero e codice sono stampati sull'attestato, sotto il QR.</p>
+
+  <div id="attesa" class="scheda" hidden>Verifico…</div>
+
+  <div id="risultato" class="scheda" hidden></div>
+
+  <div id="modulo" class="scheda" hidden>
+    <form id="form" autocomplete="off">
+      <div><label for="n">Numero dell'attestato</label>
+        <input id="n" name="n" placeholder="es. 12/2027" inputmode="text" required maxlength="20"></div>
+      <div><label for="c">Codice di verifica</label>
+        <input id="c" name="c" placeholder="es. ABCDE-FGHJK" required maxlength="24" autocapitalize="characters"></div>
+      <button type="submit">Verifica</button>
+    </form>
+  </div>
+
+  <p class="nota">Per tutela dei dati personali la pagina mostra solo le iniziali del corsista.
+    Per confrontarle, chiedete l'attestato alla persona. Per dubbi o conferme:
+    Formedil Padova, tel. <a href="tel:+39049761168">049 761168</a>,
+    <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</p>
+</main>
+
+<script>
+(() => {
+  const URL_RPC = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/rest/v1/rpc/verifica_attestato';
+  const ANON = 'sb_publishable_-kqDtjogVmbMFM-9TDSOAA_lbrd7zSk';   // chiave pubblica del portale: apre solo verifica_attestato
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const dataIt = (s) => (s ? String(s).slice(0, 10).split('-').reverse().join('/') : '');
+  const ore = (x) => (x == null ? '' : String(x).replace('.', ','));
+
+  function mostra(quale) {
+    ['attesa', 'risultato', 'modulo'].forEach((id) => { $(id).hidden = id !== quale; });
+  }
+
+  function scheda(r, numero) {
+    if (!r || !r.trovato) {
+      return `<div class="esito nontrovato"><div class="bollo">!</div>
+        <div><strong>Attestato non trovato</strong>Numero e codice non corrispondono a nessun attestato.</div></div>
+        <p>Controllate di averli scritti come sono stampati${numero ? ` (numero inserito: ${esc(numero)})` : ''}.
+        Se l'errore resta, contattate la segreteria. Gli attestati con numero senza anno, emessi prima di settembre 2026, non sono verificabili da questa pagina.</p>
+        <a href="./" class="altra">Verifica un altro attestato</a>`;
+    }
+    const valido = r.stato === 'valido';
+    const periodo = r.data_inizio && r.data_fine && r.data_inizio !== r.data_fine
+      ? `dal ${dataIt(r.data_inizio)} al ${dataIt(r.data_fine)}` : dataIt(r.data_fine || r.data_inizio);
+    return `<div class="esito ${valido ? 'valido' : 'revocato'}"><div class="bollo">${valido ? '✓' : '✕'}</div>
+        <div><strong>${valido ? 'Attestato valido' : 'Attestato revocato'}</strong>
+        ${valido ? `Rilasciato da ${esc(r.ente)}.` : `Revocato il ${esc(dataIt(r.revocato_il))}: non ha più valore.`}</div></div>
+      <dl>
+        <dt>Numero</dt><dd>${esc(r.numero)}</dd>
+        <dt>Tipo</dt><dd>${esc(r.tipo)}</dd>
+        <dt>Corso</dt><dd>${esc(r.corso)}</dd>
+        ${r.tipologia ? `<dt>Modalità</dt><dd>${esc(r.tipologia)}</dd>` : ''}
+        ${periodo ? `<dt>Svolto</dt><dd>${esc(periodo)}</dd>` : ''}
+        ${r.durata_ore != null ? `<dt>Durata</dt><dd>${esc(ore(r.durata_ore))} ore${r.ore_frequentate != null ? ` · frequentate ${esc(ore(r.ore_frequentate))}` : ''}</dd>` : ''}
+        <dt>Rilasciato il</dt><dd>${esc(dataIt(r.data_rilascio))}</dd>
+        <dt>Corsista</dt><dd>iniziali ${esc(r.iniziali)}</dd>
+      </dl>
+      <a href="./" class="altra">Verifica un altro attestato</a>`;
+  }
+
+  async function verifica(numero, codice) {
+    mostra('attesa');
+    try {
+      const risp = await fetch(URL_RPC, {
+        method: 'POST',
+        headers: { apikey: ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_numero: numero.trim(), p_codice: codice.trim() }),
+      });
+      if (!risp.ok) throw new Error('HTTP ' + risp.status);
+      $('risultato').innerHTML = scheda(await risp.json(), numero);
+    } catch (e) {
+      $('risultato').innerHTML = `<div class="esito nontrovato"><div class="bollo">!</div>
+        <div><strong>Verifica non riuscita</strong>Il servizio non ha risposto. Riprovate fra qualche minuto.</div></div>
+        <a href="" class="altra">Riprova</a>`;
+    }
+    mostra('risultato');
+  }
+
+  const q = new URLSearchParams(location.search);
+  const n = q.get('n'), c = q.get('c');
+  if (n && c) verifica(n.replace(/-/g, '/'), c);
+  else mostra('modulo');
+
+  $('form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const numero = $('n').value.replace(/-/g, '/'), codice = $('c').value;
+    history.replaceState(null, '', `?n=${encodeURIComponent(numero.replace('/', '-'))}&c=${encodeURIComponent(codice.replace(/[^A-Za-z0-9]/g, '').toUpperCase())}`);
+    verifica(numero, codice);
+  });
+})();
+</script>
+</body>
+</html>
