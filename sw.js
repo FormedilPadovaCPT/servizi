@@ -33,7 +33,7 @@
    deregistra da solo).
    ============================================================ */
 
-const VERSIONE = 'servizi-v3';
+const VERSIONE = 'servizi-v4';
 const PREFISSO = 'servizi-';
 const ATTESA_MS = 4000;
 
