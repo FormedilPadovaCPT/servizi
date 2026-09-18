@@ -75,6 +75,7 @@ html[data-veste="sito3"] .s3-segnala{background:var(--s3-arancio);color:#fff;bor
 html[data-veste="sito3"] .s3-segnala:hover{background:#cf4609}
 html[data-veste="sito3"] .s3-notizia{background:var(--s3-bianco);color:var(--s3-testo);border:1px solid var(--s3-linea)}
 html[data-veste="sito3"] .s3-notizia:hover{border-color:var(--s3-grigio)}
+html[data-veste="sito3"] .s3-notizia[hidden]{display:none}
 html[data-veste="sito3"] .s3-evidenza .s3-cerchio{width:50px;height:50px;border-radius:14px;display:grid;place-items:center}
 html[data-veste="sito3"] .s3-segnala .s3-cerchio{background:rgba(255,255,255,.18)}
 html[data-veste="sito3"] .s3-notizia .s3-cerchio{background:var(--s3-fondo);color:var(--s3-grigio)}
