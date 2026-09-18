@@ -3355,6 +3355,23 @@
         <h3 id="iz-h-persone" style="margin:26px 0 6px;font-size:17px">Chi partecipa</h3>
         <p class="hint" style="margin:0 0 14px"><strong>Ogni partecipante pu&ograve; appartenere a un&rsquo;impresa diversa.</strong>
            Se sono della stessa, il pulsante «copia impresa» risparmia di riscriverla.</p>
+        <!-- ⚠️ Per chi iscrive parecchie persone, riempire le schede a mano è
+             il modo più sicuro di sbagliare. Il modello Excel ha le stesse
+             colonne del modulo: si compila comodi e si ricarica qui. -->
+        <div id="iz-excel" style="background:#fff;border:1px dashed var(--border);border-radius:10px;
+             padding:14px 16px;margin-bottom:16px">
+          <strong style="display:block;margin-bottom:4px">Molte persone da iscrivere?</strong>
+          <p class="hint" style="margin:0 0 10px">Scaricate il modello, compilatelo in Excel e ricaricatelo qui:
+             le schede si riempiono da sole. Le colonne sono le stesse di questo modulo.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button type="button" class="btn-reset" id="iz-modello">&#11015; Scarica il modello</button>
+            <label class="btn-reset" style="cursor:pointer;display:inline-flex;align-items:center">&#128194; Carica il file compilato
+              <input type="file" id="iz-file" accept=".xlsx,.xls" hidden></label>
+            <button type="button" class="btn-reset" id="iz-scarica" hidden>&#11015; Scarica l&rsquo;elenco</button>
+          </div>
+          <p class="hint" id="iz-excel-esito" style="margin:10px 0 0;display:none"></p>
+        </div>
+
         <div id="iz-persone"></div>
         <button type="button" class="iz-aggiungi" id="iz-piu">&#43; Aggiungi un&rsquo;altra persona</button>
 
@@ -6247,6 +6264,191 @@ document.getElementById('topbarTitle').style.display = 'none';
     return box;
   }
 
+  /* \u2500\u2500 IMPORTAZIONE DA EXCEL \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+     Le colonne del modello sono le stesse del modulo, e si riconoscono
+     DAL TITOLO, non dalla posizione: chi compila in Excel sposta le colonne,
+     ne aggiunge, ne lascia vuote (\u00e8 la stessa regola degli abbinamenti stage
+     nell'app segreteria). Ogni titolo ha le sue varianti ammesse. */
+  var COLONNE_ISCR = [
+    ['titolo',         ['titolo']],
+    ['cognome',        ['cognome']],
+    ['nome',           ['nome']],
+    ['sesso',          ['sesso', 'm/f']],
+    ['cf',             ['codice fiscale', 'cod. fiscale', 'cf', 'codicefiscale']],
+    ['nato_il',        ['nato il', 'data di nascita', 'data nascita', 'nascita']],
+    ['comune_nascita', ['comune di nascita', 'comune nascita', 'luogo di nascita']],
+    ['stato_nascita',  ['stato estero di nascita', 'stato estero', 'stato di nascita']],
+    ['cittadinanza',   ['cittadinanza', 'nazionalit\u00e0']],
+    ['ruolo',          ['ruolo']],
+    ['mansione',       ['mansione']],
+    ['email',          ['e-mail', 'email', 'mail', 'posta elettronica']],
+    ['imp_rs',         ['ragione sociale', 'impresa', 'ditta', 'azienda']],
+    ['imp_piva',       ['partita iva', 'p. iva', 'p.iva', 'piva']],
+    ['imp_indirizzo',  ['indirizzo', 'via']],
+    ['imp_comune',     ['comune', 'citt\u00e0', 'comune impresa']],
+    ['imp_cap',        ['cap']],
+    ['imp_prov',       ['provincia', 'prov', 'prov.']]
+  ];
+  var INTESTAZIONI_ISCR = ['TITOLO','COGNOME','NOME','SESSO','CODICE FISCALE','NATO IL',
+    'COMUNE DI NASCITA','STATO ESTERO DI NASCITA','CITTADINANZA','RUOLO','MANSIONE','E-MAIL',
+    'RAGIONE SOCIALE','PARTITA IVA','INDIRIZZO','COMUNE','CAP','PROVINCIA'];
+
+  /* la libreria si carica SOLO quando serve: il portale si apre anche in
+     cantiere con poca rete, e questi 400 KB li usa solo chi iscrive gruppi.
+     \u00c8 la stessa versione del modulo storico, non una nuova. */
+  var xlsxPronta = null;
+  function caricaXLSX() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (xlsxPronta) return xlsxPronta;
+    xlsxPronta = new Promise(function (ok, no) {
+      var sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      sc.onload = function () { ok(window.XLSX); };
+      sc.onerror = function () { xlsxPronta = null; no(new Error('libreria non raggiungibile')); };
+      document.head.appendChild(sc);
+    });
+    return xlsxPronta;
+  }
+
+  function esitoExcel(testo, guaio) {
+    var e = document.getElementById('iz-excel-esito');
+    e.textContent = testo;
+    e.style.color = guaio ? 'var(--danger, #b3261e)' : 'var(--muted)';
+    e.style.display = testo ? 'block' : 'none';
+  }
+
+  function normTit(v) {
+    return String(v == null ? '' : v).toLowerCase().replace(/[\s_*]+/g, ' ')
+      .replace(/[^a-z0-9\u00e0-\u00ff .]/g, '').trim();
+  }
+
+  /* \u2500\u2500 il modello da compilare \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+     Si genera al volo dalle stesse colonne che legge: cos\u00ec non pu\u00f2 esistere
+     un modello che il modulo non sa pi\u00f9 leggere. Porta una riga d'esempio,
+     riconoscibile e da cancellare. */
+  async function scaricaModello() {
+    var X;
+    try { X = await caricaXLSX(); }
+    catch (e) { return esitoExcel('Non riusciamo a preparare il modello: controllate la connessione.', true); }
+    var esempio = ['Sig.', 'ROSSI', 'Mario', 'M', 'RSSMRA80A01G224E', '01/01/1980', 'Padova', '',
+      'Italiana', 'DIPENDENTE', 'Muratore', 'mario.rossi@esempio.it',
+      'ROSSI COSTRUZIONI SRL', '01234567890', 'Via Roma 1', 'Padova', '35100', 'PD'];
+    var f = X.utils.aoa_to_sheet([INTESTAZIONI_ISCR, esempio]);
+    f['!cols'] = INTESTAZIONI_ISCR.map(function (t) { return { wch: Math.max(12, t.length + 2) }; });
+    var libro = X.utils.book_new();
+    X.utils.book_append_sheet(libro, f, 'Partecipanti');
+    X.writeFile(libro, 'Formedil-Padova_partecipanti_da-compilare.xlsx');
+    esitoExcel('Modello scaricato. La riga di esempio va cancellata o sovrascritta.', false);
+  }
+
+  /* \u2500\u2500 la lettura del file compilato \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+     \u26a0\ufe0f Le righe si AGGIUNGONO a quelle gi\u00e0 compilate a mano, non le
+     sostituiscono: chi ha gi\u00e0 scritto due nomi e poi carica un file non deve
+     vederli sparire. Le righe vuote si saltano; quelle senza cognome e senza
+     codice fiscale si contano e si dicono, invece di entrare mute. */
+  async function importaDaFile(file) {
+    var X;
+    try { X = await caricaXLSX(); }
+    catch (e) { return esitoExcel('Non riusciamo a leggere il file: controllate la connessione.', true); }
+
+    var dati;
+    try {
+      var buf = await file.arrayBuffer();
+      var libro = X.read(buf, { type: 'array', cellDates: true });
+      var foglio = libro.Sheets[libro.SheetNames[0]];
+      dati = X.utils.sheet_to_json(foglio, { defval: '', raw: false });
+    } catch (e) {
+      return esitoExcel('Il file non si legge. Usate il modello scaricato da qui.', true);
+    }
+    if (!dati.length) return esitoExcel('Il file non contiene righe.', true);
+
+    /* la mappa titolo-del-file \u2192 campo, fatta una volta sola */
+    var intest = Object.keys(dati[0]);
+    var mappa = {};
+    COLONNE_ISCR.forEach(function (c) {
+      var trovata = intest.filter(function (t) { return c[1].indexOf(normTit(t)) >= 0; })[0];
+      if (trovata) mappa[c[0]] = trovata;
+    });
+    if (!mappa.cognome && !mappa.cf) {
+      return esitoExcel('Nel file non trovo le colonne COGNOME e CODICE FISCALE: \u00e8 il modello giusto?', true);
+    }
+
+    /* la scheda vuota aperta all'inizio si toglie: chi carica un file non deve
+       poi cancellare a mano una riga che non ha mai compilato */
+    var prime = document.querySelectorAll('#iz-persone .iz-persona');
+    if (prime.length === 1 && !leggiPersone().length) { prime[0].remove(); nPersone = 0; }
+
+    var messe = 0, saltate = 0;
+    dati.forEach(function (riga) {
+      var pieno = Object.keys(mappa).some(function (k) { return String(riga[mappa[k]] || '').trim(); });
+      if (!pieno) return;
+      var cogn = String(riga[mappa.cognome] || '').trim();
+      var cf = String(riga[mappa.cf] || '').trim();
+      if (!cogn && !cf) { saltate++; return; }
+
+      if (nPersone >= 30) { saltate++; return; }
+      var box = persona(nPersone);
+      document.getElementById('iz-persone').appendChild(box);
+      nPersone++;
+
+      Object.keys(mappa).forEach(function (campo) {
+        var v = riga[mappa[campo]];
+        if (v instanceof Date) {
+          v = v.getFullYear() + '-' + String(v.getMonth() + 1).padStart(2, '0') + '-' + String(v.getDate()).padStart(2, '0');
+        }
+        v = String(v == null ? '' : v).trim();
+        if (!v) return;
+        var n = box.querySelector('.p-' + campo);
+        if (!n) return;
+        if (campo === 'cf') v = v.toUpperCase();
+        if (campo === 'nato_il' && /^\d{2}[\/.-]\d{2}[\/.-]\d{4}$/.test(v)) {
+          var p = v.split(/[\/.-]/); v = p[2] + '-' + p[1] + '-' + p[0];
+        }
+        if (n.tagName === 'SELECT') {
+          /* un valore che la tendina non ha (un ruolo scritto a modo suo) non
+             si butta: si aggiunge come opzione, e la segreteria lo vedr\u00e0 */
+          var c = [].slice.call(n.options).filter(function (o) { return o.value.toLowerCase() === v.toLowerCase(); })[0];
+          if (!c) { var op = document.createElement('option'); op.value = v; op.textContent = v; n.appendChild(op); c = op; }
+          n.value = c.value;
+        } else {
+          n.value = v;
+        }
+      });
+      messe++;
+    });
+
+    rinumera();
+    document.getElementById('iz-scarica').hidden = false;
+    esitoExcel('Aggiunti ' + messe + ' partecipant' + (messe === 1 ? 'e' : 'i') +
+      (saltate ? ', ' + saltate + (saltate === 1 ? ' riga saltata' : ' righe saltate') +
+        ' (senza cognome n\u00e9 codice fiscale, o oltre le 30)' : '') +
+      '. Controllateli prima di inviare.', false);
+    document.getElementById('iz-file').value = '';
+  }
+
+  /* \u2500\u2500 lo scarico di quello che si \u00e8 compilato \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+     Serve a rileggerlo con calma, a conservarlo, e a ricaricarlo un'altra
+     volta: esce con le stesse colonne del modello. */
+  async function scaricaElenco() {
+    var X;
+    try { X = await caricaXLSX(); }
+    catch (e) { return esitoExcel('Non riusciamo a preparare il file: controllate la connessione.', true); }
+    var righe = [INTESTAZIONI_ISCR];
+    document.querySelectorAll('#iz-persone .iz-persona').forEach(function (b) {
+      righe.push(COLONNE_ISCR.map(function (c) {
+        var n = b.querySelector('.p-' + c[0]);
+        return n ? String(n.value || '') : '';
+      }));
+    });
+    if (righe.length < 2) return esitoExcel('Non c\u2019\u00e8 ancora nessun partecipante da scaricare.', true);
+    var f = X.utils.aoa_to_sheet(righe);
+    f['!cols'] = INTESTAZIONI_ISCR.map(function (t) { return { wch: Math.max(12, t.length + 2) }; });
+    var libro = X.utils.book_new();
+    X.utils.book_append_sheet(libro, f, 'Partecipanti');
+    X.writeFile(libro, 'Formedil-Padova_partecipanti.xlsx');
+    esitoExcel('Elenco scaricato.', false);
+  }
+
   /* copia i dati d'impresa dalla scheda precedente: quando i partecipanti
      sono della stessa ditta \u00e8 il gesto che evita di riscriverla ogni volta
      (il modulo storico aveva lo stesso pulsante, e serviva) */
@@ -6348,6 +6550,12 @@ document.getElementById('topbarTitle').style.display = 'none';
   }
   window.apriIscrizione = apriEvento;
 
+  document.getElementById('iz-modello').onclick = scaricaModello;
+  document.getElementById('iz-scarica').onclick = scaricaElenco;
+  document.getElementById('iz-file').onchange = function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (f) { esitoExcel('Leggo il file\u2026', false); importaDaFile(f); }
+  };
   document.getElementById('iz-piu').onclick = function () {
     if (nPersone >= 30) {
       /* trenta e' quanto ne tiene un invio: oltre, si manda due volte. Meglio
