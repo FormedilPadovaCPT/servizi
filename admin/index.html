@@ -75,6 +75,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
+/* galleria delle immagini caricate (18/09/2026) */
+.igal{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.igal-it{position:relative;width:78px;height:78px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--bg)}
+.igal-it img{width:100%;height:100%;object-fit:cover;display:block}
+.igal-x{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.igal-x:hover{background:#dc2626}
+.igal-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.66);color:#fff;font-size:9.5px;font-weight:700;text-align:center;padding:2px 0;letter-spacing:.03em}
+
 /* LIST */
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .sec-title{font-size:20px;font-weight:800}
@@ -255,13 +263,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
           </div>
 
           <div class="ec">
-            <div class="ec-hd">Immagine</div>
+            <div class="ec-hd">Immagini</div>
             <div class="ec-bd">
               <div class="upz" id="iz" onclick="document.getElementById('fi').click()" ondragover="dg(event,'iz')" ondragleave="rdg('iz')" ondrop="dp(event,'img')">
-                <input type="file" id="fi" accept="image/*" onchange="hfs(this,'img')">
-                <span class="ui">🖼️</span><div class="ut">Clicca o trascina un'immagine</div><div class="us">JPG, PNG, WebP – max 5 MB</div>
+                <input type="file" id="fi" accept="image/*" multiple onchange="hfs(this,'img')">
+                <span class="ui">🖼️</span><div class="ut">Clicca o trascina una o più immagini</div><div class="us">La prima è la copertina, le altre fanno il carosello · si rimpiccioliscono da sole</div>
               </div>
               <div class="upprev" id="ipr"><span class="un" id="inm"></span><span class="ur" onclick="clrF('img')">✕</span></div>
+              <div class="igal" id="igal"></div>
               <div class="upprog" id="ipg"><div class="pb"><div class="pf" id="ipf"></div></div><div class="pl" id="ipl">Caricamento…</div></div>
             </div>
           </div>
@@ -362,6 +371,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── STATO ─────────────────────────────────────────────────────
 let quill = null, editId = null, upImg = null, upAtt = null;
+let upImgs = [];   // immagini oltre la copertina: fanno il carosello (18/09/2026)
 
 // ── INIT ──────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
@@ -479,7 +489,7 @@ async function loadList(){
 
 // ── NUOVA ─────────────────────────────────────────────────────
 function newNotizia(){
-  editId=null; upImg=null; upAtt=null;
+  editId=null; upImg=null; upImgs=[]; upAtt=null;
   ['f-titolo','f-link','f-youtube'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('#cat-chips-admin .cat-chip').forEach(c => c.classList.remove('sel'));
   document.getElementById('cat-err').style.display = 'none';
@@ -500,10 +510,15 @@ async function editN(id){
   if(error){toast('Errore caricamento','error');return;}
   editId=id;
   upImg=data.immagine_url?{url:data.immagine_url,path:data.immagine_path}:null;
+  try{ const al=Array.isArray(data.immagini)?data.immagini:JSON.parse(data.immagini||'[]');
+       upImgs=al.map(x=>typeof x==='string'?{url:x,path:null}:x).filter(x=>x&&x.url); }
+  catch(e){ upImgs=[]; }
   upAtt=data.allegato_url?{url:data.allegato_url,path:data.allegato_path,name:data.allegato_nome}:null;
   document.getElementById('f-titolo').value=data.titolo||'';
   document.getElementById('f-link').value=(!data.link_esterno||data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be'))?'':(data.link_esterno||'');
-  document.getElementById('f-youtube').value=(data.link_esterno&&(data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be')))?data.link_esterno:'';
+  // il video sta nel campo suo; se e una notizia vecchia puo essere ancora in link_esterno
+  document.getElementById('f-youtube').value = data.video_url ||
+    ((data.link_esterno&&(data.link_esterno.includes('youtube')||data.link_esterno.includes('youtu.be')))?data.link_esterno:'');
   setSelectedCats(data.categoria);
   document.getElementById('f-prio').value=data.priorita||'normale';
   document.getElementById('f-autore').value=data.autore||'';
@@ -513,7 +528,7 @@ async function editN(id){
     el.className='popt'+(el.dataset.v===data.priorita?` s${data.priorita[0]}`:'');
   });
   if(quill) data.corpo ? quill.clipboard.dangerouslyPasteHTML(data.corpo) : quill.setContents([]);
-  if(upImg){document.getElementById('inm').textContent='Immagine presente ✓';document.getElementById('ipr').classList.add('show');}
+  disegnaGalleria();
   if(upAtt){document.getElementById('anm').textContent=data.allegato_nome||'Allegato presente ✓';document.getElementById('apr').classList.add('show');}
   updSum(); showPanel('editor');
 }
@@ -538,9 +553,11 @@ async function save(pub){
     categoria:cats,
     autore:document.getElementById('f-autore').value.trim(),
     data_pubbl:document.getElementById('f-data').value||new Date().toISOString().split('T')[0],
-    link_esterno:document.getElementById('f-youtube').value.trim() || document.getElementById('f-link').value.trim() || null,
+    video_url:document.getElementById('f-youtube').value.trim() || null,
+    link_esterno:document.getElementById('f-link').value.trim() || null,
     pubblicata:pub,
     immagine_url:upImg?.url||null, immagine_path:upImg?.path||null,
+    immagini: upImgs.length ? upImgs.map(i=>i.url) : null,
     allegato_url:upAtt?.url||null, allegato_path:upAtt?.path||null, allegato_nome:upAtt?.name||null,
     updated_at:new Date().toISOString()
   };
@@ -558,7 +575,7 @@ async function save(pub){
   setTimeout(()=>cancelEdit(), 900);
 }
 
-function cancelEdit(){ editId=null; upImg=null; upAtt=null; showPanel('list'); }
+function cancelEdit(){ editId=null; upImg=null; upImgs=[]; upAtt=null; showPanel('list'); }
 
 // ── ELIMINA ───────────────────────────────────────────────────
 function confirmDel(id,titolo){
@@ -576,31 +593,113 @@ async function delN(id){
 }
 
 // ── UPLOAD ────────────────────────────────────────────────────
-function hfs(inp,t){ if(inp.files&&inp.files[0]) upFile(inp.files[0],t); }
+async function hfs(inp,t){
+  if(!inp.files || !inp.files.length) return;
+  if(t==='att'){ await upFile(inp.files[0],'att'); return; }
+  for(const f of inp.files) await upFile(f,'img');   // più immagini = carosello
+  inp.value='';
+}
 function dg(e,zid){ e.preventDefault(); document.getElementById(zid).classList.add('dg'); }
 function rdg(zid){ document.getElementById(zid).classList.remove('dg'); }
-function dp(e,t){ e.preventDefault(); rdg(t==='img'?'iz':'az'); if(e.dataTransfer.files[0]) upFile(e.dataTransfer.files[0],t); }
+async function dp(e,t){
+  e.preventDefault(); rdg(t==='img'?'iz':'az');
+  const fs=[...e.dataTransfer.files];
+  if(!fs.length) return;
+  if(t==='att'){ await upFile(fs[0],'att'); return; }
+  for(const f of fs) await upFile(f,'img');
+}
+
+// ── RIDIMENSIONAMENTO DELLE IMMAGINI (18/09/2026) ─────────────
+// Le copertine arrivavano da 2-3,4 MB l'una e la pagina Notizie se le
+// scaricava tutte a ogni apertura: è lì che se ne andava la banda del
+// piano gratuito, non nei video (che stanno su YouTube). Qui l'immagine
+// si rimpicciolisce NEL BROWSER prima di partire: 1600 px sul lato lungo
+// in WebP, cioè 80-150 KB, a occhio identica sul telefono.
+const IMG_LATO_MAX = 1600, IMG_QUALITA = 0.82;
+async function ridimensiona(file){
+  // le GIF animate perderebbero l'animazione, i file non-immagine non si toccano
+  if(!file.type.startsWith('image/') || file.type==='image/gif') return file;
+  try{
+    const bmp = await createImageBitmap(file);
+    const scala = Math.min(1, IMG_LATO_MAX/Math.max(bmp.width,bmp.height));
+    const w = Math.round(bmp.width*scala), h = Math.round(bmp.height*scala);
+    const cv = document.createElement('canvas'); cv.width=w; cv.height=h;
+    cv.getContext('2d').drawImage(bmp,0,0,w,h);
+    const blob = await new Promise(r=>cv.toBlob(r,'image/webp',IMG_QUALITA));
+    if(!blob || blob.size >= file.size) return file;   // se non si guadagna niente, si tiene l'originale
+    return new File([blob], file.name.replace(/\.[^.]+$/,'')+'.webp', {type:'image/webp'});
+  }catch(e){
+    console.warn('Ridimensionamento non riuscito, carico l\'originale:', e);
+    return file;                                       // meglio l'originale pesante che nessuna immagine
+  }
+}
 
 async function upFile(file,type){
-  const isI=type==='img', mx=isI?5:10;
+  const isI=type==='img';
   const pgEl=document.getElementById(isI?'ipg':'apg');
   const pfEl=document.getElementById(isI?'ipf':'apf');
   const plEl=document.getElementById(isI?'ipl':'apl');
-  if(file.size>mx*1024*1024){toast(`File troppo grande (max ${mx} MB)`,'error');return;}
-  pgEl.classList.add('show'); pfEl.style.width='30%'; plEl.textContent='Caricamento…';
-  const ext=file.name.split('.').pop();
+  // Tetto in ingresso largo: quello che conta è il peso DOPO il ridimensionamento.
+  const mxIn = isI?25:10;
+  if(file.size>mxIn*1024*1024){toast(`File troppo grande (max ${mxIn} MB)`,'error');return;}
+
+  pgEl.classList.add('show'); pfEl.style.width='15%';
+  const originale = file.size;
+  if(isI){ plEl.textContent='Ottimizzazione…'; file = await ridimensiona(file); }
+  pfEl.style.width='45%'; plEl.textContent='Caricamento…';
+
+  if(file.size>10*1024*1024){ pgEl.classList.remove('show'); toast('Immagine troppo pesante anche dopo l\'ottimizzazione (max 10 MB)','error'); return; }
+
+  const ext=(file.name.split('.').pop()||'bin').toLowerCase();
   const path=`${type}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const {error}=await sb.storage.from(BUCKET).upload(path,file,{upsert:true});
+  const {error}=await sb.storage.from(BUCKET).upload(path,file,{upsert:true,contentType:file.type||undefined});
   pfEl.style.width='100%';
   if(error){pgEl.classList.remove('show');toast('Errore upload: '+error.message,'error');return;}
   const {data:ud}=sb.storage.from(BUCKET).getPublicUrl(path);
-  setTimeout(()=>pgEl.classList.remove('show'),800); plEl.textContent='Caricato ✓';
-  if(isI){upImg={url:ud.publicUrl,path};document.getElementById('inm').textContent=file.name;document.getElementById('ipr').classList.add('show');}
-  else   {upAtt={url:ud.publicUrl,path,name:file.name};document.getElementById('anm').textContent=file.name;document.getElementById('apr').classList.add('show');}
+  setTimeout(()=>pgEl.classList.remove('show'),800);
+  const kb = n => n>=1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB';
+  plEl.textContent = isI && file.size<originale ? `Caricata ✓ (${kb(originale)} → ${kb(file.size)})` : 'Caricato ✓';
+
+  if(isI){
+    const img={url:ud.publicUrl,path,nome:file.name};
+    if(!upImg) upImg=img; else upImgs.push(img);      // la prima è la copertina, le altre il carosello
+    disegnaGalleria();
+  } else {
+    upAtt={url:ud.publicUrl,path,name:file.name};
+    document.getElementById('anm').textContent=file.name;
+    document.getElementById('apr').classList.add('show');
+  }
+  updSum();
+}
+
+// Miniature delle immagini caricate: la prima è la copertina, le altre il carosello.
+function disegnaGalleria(){
+  const box=document.getElementById('igal');
+  if(!box) return;
+  const tutte = upImg ? [upImg,...upImgs] : [];
+  box.innerHTML = tutte.map((im,i)=>`
+    <div class="igal-it">
+      <img src="${im.url}" alt="">
+      <span class="igal-x" onclick="togliImmagine(${i})">✕</span>
+      <span class="igal-tag">${i===0?'copertina':i+1}</span>
+    </div>`).join('');
+  const pr=document.getElementById('ipr');
+  if(tutte.length){
+    pr.classList.add('show');
+    document.getElementById('inm').textContent = tutte.length===1
+      ? 'Una immagine (copertina)'
+      : `${tutte.length} immagini — carosello`;
+  } else { pr.classList.remove('show'); document.getElementById('inm').textContent=''; }
+}
+function togliImmagine(i){
+  const tutte = upImg ? [upImg,...upImgs] : [];
+  tutte.splice(i,1);
+  upImg = tutte[0]||null; upImgs = tutte.slice(1);
+  disegnaGalleria(); updSum();
 }
 
 function clrF(t){
-  if(t==='img') upImg=null; else upAtt=null;
+  if(t==='img'){ upImg=null; upImgs=[]; disegnaGalleria(); } else upAtt=null;
   document.getElementById(t==='img'?'ipr':'apr').classList.remove('show');
   document.getElementById(t==='img'?'inm':'anm').textContent='';
   document.getElementById(t==='img'?'fi':'fa').value='';
@@ -629,7 +728,8 @@ function updSum(){
     <div><strong>Autore:</strong> ${au?esc(au):'<em style="opacity:.4">—</em>'}</div>
     <div><strong>Data:</strong> ${da?fDate(da):'<em style="opacity:.4">oggi</em>'}</div>
     <div><strong>Caratteri:</strong> ${ch}</div>
-    <div><strong>Immagine:</strong> ${upImg?'✓ Caricata':'—'}</div>
+    <div><strong>Immagini:</strong> ${upImg?(upImgs.length?`✓ ${upImgs.length+1} — carosello`:'✓ una, copertina'):'—'}</div>
+    <div><strong>Video:</strong> ${document.getElementById('f-youtube')?.value.trim()?'▶ YouTube':'—'}</div>
     <div><strong>Allegato:</strong> ${upAtt?'✓ '+esc(upAtt.name):'—'}</div>
     <div><strong>Stato:</strong> <span class="badge ${pu?'bp':'bd'}">${pu?'● Pubblica':'○ Bozza'}</span></div>
   </div>`;

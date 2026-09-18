@@ -349,6 +349,79 @@
     .news-img { width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-bottom:12px; display:block; cursor:zoom-in; transition:opacity .2s; }
     .news-img:hover { opacity:.88; }
 
+    /* ── CARD NOTIZIE, VERSIONE 18/09/2026 ──────────────────────────
+       Card compatta: copertina (o carosello, o video), anteprima di due
+       righe e apertura sul posto. Le classi vecchie (.news-item, .ntitle…)
+       restano per non toccare il resto della pagina; le nuove portano il
+       prefisso nz- perché il portale è un file solo e i nomi corti si
+       pestano i piedi. */
+    .nz-chips { display:flex; gap:7px; overflow-x:auto; padding-bottom:12px; margin-bottom:4px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .nz-chips::-webkit-scrollbar { display:none; }
+    .nz-chip { flex:0 0 auto; font-size:12.5px; font-weight:600; padding:6px 13px; border-radius:999px; background:var(--white); border:1px solid var(--border); color:var(--muted); cursor:pointer; white-space:nowrap; font-family:inherit; }
+    .nz-chip:hover { border-color:var(--gray); }
+    .nz-chip.on { background:var(--gray); border-color:var(--gray); color:#fff; }
+    .nz-chip .nz-n { opacity:.6; font-weight:500; margin-left:3px; }
+
+    .nz-card { background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:14px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .nz-card.urg { border-color:#f0b49a; }
+    .nz-media { position:relative; background:var(--light); }
+    .nz-media img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; cursor:zoom-in; }
+    .nz-flag { position:absolute; top:10px; left:10px; display:flex; gap:6px; pointer-events:none; }
+    .nz-flag span { font-size:10.5px; font-weight:800; letter-spacing:.03em; padding:4px 9px; border-radius:999px; background:var(--orange); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    .nz-flag span.nuovo { background:var(--green); color:#1d1d1b; }
+    .nz-in { padding:13px 15px 15px; }
+    .nz-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:7px; }
+    .nz-t { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:3px 8px; border-radius:999px; background:var(--light); color:var(--gray); }
+    .nz-t.normativa  { background:#eef3fb; color:#2855a0; }
+    .nz-t.circolare  { background:#eef3fb; color:#2855a0; }
+    .nz-t.formazione, .nz-t.corsi, .nz-t.corso-gratuito { background:#eaf3de; color:#5d7f18; }
+    .nz-t.cantieri   { background:#fdf3ee; color:var(--orange); }
+    .nz-t.avvisi     { background:#fff3cd; color:#856404; }
+    .nz-titolo { font-size:15.5px; font-weight:700; color:var(--text); line-height:1.32; margin-bottom:6px; }
+    .nz-prev { font-size:13px; color:var(--muted); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .nz-full { display:none; font-size:13px; color:var(--text); line-height:1.72; margin-top:11px; padding-top:11px; border-top:1px solid var(--light); }
+    .nz-card.aperta .nz-full { display:block; }
+    .nz-card.aperta .nz-prev { display:none; }
+    .nz-full p { margin:0 0 10px; }
+    .nz-full a { color:var(--orange); }
+    .nz-full ul, .nz-full ol { margin:0 0 10px; padding-left:20px; }
+    .nz-full img { max-width:100%; border-radius:8px; margin:10px 0; }
+    .nz-full blockquote { margin:0 0 10px; padding:8px 12px; border-left:3px solid var(--green); background:#f7f9f2; }
+    .nz-autore { font-size:11.5px; color:var(--muted); font-style:italic; margin-top:10px; }
+    .nz-act { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .nz-act a { font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:999px; text-decoration:none; background:var(--orange); color:#fff; }
+    .nz-act a.sec { background:var(--white); color:var(--text); border:1px solid var(--border); }
+    .nz-foot { display:flex; align-items:center; gap:10px; margin-top:11px; padding-top:11px; border-top:1px solid var(--light); }
+    .nz-data { font-size:11.5px; color:var(--muted); flex:1; }
+    .nz-nonletta { width:8px; height:8px; border-radius:50%; background:var(--orange); flex:0 0 auto; }
+    .nz-piu { background:none; border:0; font:inherit; font-size:13px; font-weight:700; color:var(--orange); cursor:pointer; padding:0; display:flex; align-items:center; gap:4px; }
+
+    /* carosello: scorrimento con aggancio, nessuna libreria */
+    .nz-caro { position:relative; }
+    .nz-track { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .nz-track::-webkit-scrollbar { display:none; }
+    .nz-track > div { flex:0 0 100%; scroll-snap-align:center; }
+    /* Tutte le schede alte uguale, altrimenti le più corte lasciano un vuoto.
+       «contain» e non «cover»: una slide con del testo, ritagliata, non si
+       legge più — meglio una banda bianca che una parola tagliata. */
+    .nz-track img { width:100%; display:block; cursor:zoom-in; aspect-ratio:1/1; object-fit:contain; background:#fff; }
+    .nz-cnt { position:absolute; top:10px; right:10px; background:rgba(0,0,0,.62); color:#fff; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; pointer-events:none; }
+    .nz-dots { display:flex; gap:5px; justify-content:center; padding:9px 0 0; }
+    .nz-dots i { width:6px; height:6px; border-radius:50%; background:var(--border); transition:.2s; }
+    .nz-dots i.on { background:var(--orange); width:17px; border-radius:3px; }
+
+    /* video: si vede la copertina, il lettore di YouTube nasce solo al tocco */
+    .nz-vid { position:relative; cursor:pointer; background:#000; }
+    .nz-vid img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; opacity:.85; }
+    .nz-play { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .nz-play i { width:74px; height:52px; border-radius:12px; background:#f00; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(0,0,0,.4); transition:transform .18s; }
+    .nz-play i::after { content:''; border-left:18px solid #fff; border-top:11px solid transparent; border-bottom:11px solid transparent; margin-left:4px; }
+    .nz-vid:hover .nz-play i { transform:scale(1.08); }
+    .nz-durata { position:absolute; bottom:9px; right:9px; background:rgba(0,0,0,.78); color:#fff; font-size:11.5px; font-weight:700; padding:2px 7px; border-radius:4px; }
+    .nz-vid-nota { font-size:11px; color:var(--muted); text-align:center; padding:7px 10px 0; }
+    .nz-frame { position:relative; aspect-ratio:16/9; background:#000; }
+    .nz-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
     /* Lightbox */
     #lightbox {
       display:none; position:fixed; inset:0; z-index:9999;
@@ -1101,6 +1174,9 @@
         <button type="button" class="avvisi-btn" id="avvisi-btn" hidden>🔔 Attiva gli avvisi</button>
         <p class="avvisi-privacy">Per mandare gli avvisi conserviamo solo l'indirizzo tecnico che il browser ci fornisce: nessun nome, nessuna e-mail. Si disattivano da qui in ogni momento.</p>
       </div>
+
+      <!-- filtri per categoria: li costruisce renderNews dalle notizie che ci sono -->
+      <div class="nz-chips" id="nz-chips" hidden></div>
 
       <div class="news-loader" id="news-loader">
         <div class="n-spinner"></div> Caricamento notizie…
@@ -4691,7 +4767,115 @@ function fmtNewsDate(iso) {
   return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-// ── Render ───────────────────────────────────────────
+// ── Render (rifatto il 18/09/2026) ───────────────────
+// Card compatta: copertina, carosello o video; anteprima di due righe e
+// apertura sul posto. Prima il corpo era sempre aperto per intero e la
+// categoria, che è un ARRAY, finiva stampata grezza («notizie,avvisi»).
+let _nzItems = [];      // le notizie pubblicate, come arrivano dal database
+let _nzFiltro = null;   // categoria scelta con i filtri, null = tutte
+
+// Codice del video da un link di YouTube, in tutte le forme in cui lo si copia.
+function nzYtId(url) {
+  if (!url) return null;
+  const m = String(url).match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+// Testo senza marcatura, per l'anteprima di due righe.
+function nzTesto(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html || '';
+  return (d.textContent || '').replace(/\s+/g, ' ').trim();
+}
+function nzCategorie(n) {
+  const c = n.categoria;
+  return Array.isArray(c) ? c.filter(Boolean) : (c ? [c] : []);
+}
+// Le immagini del carosello: la colonna «immagini», con la copertina in testa.
+function nzImmagini(n) {
+  let extra = [];
+  try { extra = Array.isArray(n.immagini) ? n.immagini : JSON.parse(n.immagini || '[]'); } catch { extra = []; }
+  extra = extra.map(x => (typeof x === 'string' ? x : (x && x.url))).filter(Boolean);
+  const tutte = n.immagine_url ? [n.immagine_url, ...extra.filter(u => u !== n.immagine_url)] : extra;
+  return tutte;
+}
+
+function nzCard(n, nonLetta) {
+  const cats  = nzCategorie(n);
+  const imgs  = nzImmagini(n);
+  const ytId  = nzYtId(n.video_url) || nzYtId(n.link_esterno);
+  // Il bottone «Leggi di più» non si mostra quando punta al video già in pagina.
+  const linkFuori = n.link_esterno && !(ytId && nzYtId(n.link_esterno) === ytId) ? n.link_esterno : null;
+
+  let media = '';
+  if (ytId) {
+    // Copertina nostra se c'è: così, finché nessuno preme play, il telefono
+    // non manda nulla a Google. Il lettore parte solo al tocco (nzPlay).
+    const poster = imgs[0] || `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
+    media = `<div class="nz-vid" data-yt="${ytId}">
+        <img src="${poster}" alt="" loading="lazy">
+        <div class="nz-play"><i></i></div>
+      </div>
+      <div class="nz-vid-nota">Il video si apre su YouTube solo quando lo avvii</div>`;
+  } else if (imgs.length > 1) {
+    media = `<div class="nz-caro">
+        <div class="nz-track">${imgs.map(u => `<div><img src="${u}" alt="" loading="lazy" data-zoom="${u}"></div>`).join('')}</div>
+        <span class="nz-cnt"><b>1</b>/${imgs.length}</span>
+      </div>
+      <div class="nz-dots">${imgs.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
+  } else if (imgs.length === 1) {
+    media = `<div class="nz-media"><img src="${imgs[0]}" alt="" loading="lazy" data-zoom="${imgs[0]}">
+        ${n.priorita === 'urgente' ? '<div class="nz-flag"><span>🚨 URGENTE</span></div>' : ''}
+      </div>`;
+  }
+
+  return `<div class="nz-card ${n.priorita === 'urgente' ? 'urg' : ''}" data-id="${n.id}">
+    ${media}
+    <div class="nz-in">
+      ${cats.length ? `<div class="nz-tags">${cats.slice(0, 3).map(c => `<span class="nz-t ${escHtml(c)}">${escHtml(c)}</span>`).join('')}</div>` : ''}
+      <div class="nz-titolo">${escHtml(n.titolo)}</div>
+      <div class="nz-prev">${escHtml(nzTesto(n.corpo).slice(0, 220))}</div>
+      <div class="nz-full">
+        ${n.corpo || ''}
+        ${(linkFuori || n.allegato_url) ? `<div class="nz-act">
+          ${linkFuori ? `<a href="${linkFuori}" target="_blank" rel="noopener">→ Leggi di più</a>` : ''}
+          ${n.allegato_url ? `<a class="sec" href="${n.allegato_url}" target="_blank" rel="noopener">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
+        </div>` : ''}
+        ${n.autore ? `<div class="nz-autore">— ${escHtml(n.autore)}</div>` : ''}
+      </div>
+      <div class="nz-foot">
+        ${nonLetta ? '<span class="nz-nonletta"></span>' : ''}
+        <span class="nz-data">${fmtNewsDate(n.data_pubbl)}</span>
+        <button class="nz-piu" type="button">Leggi tutto <span class="nz-chev">▾</span></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function nzDisegna() {
+  const list = document.getElementById('news-list');
+  const readIds = getReadIds();
+  const mostrate = _nzFiltro
+    ? _nzItems.filter(n => nzCategorie(n).includes(_nzFiltro))
+    : _nzItems;
+
+  list.innerHTML = mostrate.length
+    ? mostrate.map(n => nzCard(n, !readIds.includes(n.id))).join('')
+    : `<div class="news-empty"><span class="nei">📭</span>Nessuna notizia in questa categoria.</div>`;
+}
+
+function nzFiltri() {
+  const box = document.getElementById('nz-chips');
+  if (!box) return;
+  const conta = {};
+  _nzItems.forEach(n => nzCategorie(n).forEach(c => { conta[c] = (conta[c] || 0) + 1; }));
+  const voci = Object.keys(conta).sort((a, b) => conta[b] - conta[a]).slice(0, 8);
+  if (voci.length < 2) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML =
+    `<button class="nz-chip ${_nzFiltro ? '' : 'on'}" data-cat="">Tutte<span class="nz-n">${_nzItems.length}</span></button>` +
+    voci.map(c => `<button class="nz-chip ${_nzFiltro === c ? 'on' : ''}" data-cat="${escHtml(c)}">${escHtml(c)}<span class="nz-n">${conta[c]}</span></button>`).join('');
+}
+
 function renderNews(items) {
   const loader = document.getElementById('news-loader');
   const list   = document.getElementById('news-list');
@@ -4699,51 +4883,82 @@ function renderNews(items) {
   loader.style.display = 'none';
   list.style.display   = 'flex';
 
-  const total = items.length;
-  const pub   = items.filter(n => n.pubblicata).length;
-  lbl.textContent = pub > 0 ? `${pub} notizie disponibili` : '';
+  _nzItems = (items || []).filter(n => n.pubblicata);
+  const readIds = getReadIds();
+  const daLeggere = _nzItems.filter(n => !readIds.includes(n.id)).length;
+  lbl.textContent = _nzItems.length
+    ? `${_nzItems.length} pubblicate${daLeggere ? ` · ${daLeggere} da leggere` : ''}`
+    : '';
 
-  const visible = items.filter(n => n.pubblicata);
-  if (!visible.length) {
+  if (!_nzItems.length) {
+    document.getElementById('nz-chips').hidden = true;
     list.innerHTML = `<div class="news-empty"><span class="nei">📭</span>Nessuna notizia al momento.<br>Torna a controllare presto.</div>`;
     return;
   }
 
-  const readIds = getReadIds();
-  list.innerHTML = visible.map(n => {
-    const unread = !readIds.includes(n.id);
-    const tagCls = 'ntag-' + (n.categoria || 'generale');
-    const prioCls = 'nprio-' + (n.priorita || 'normale');
-    return `
-    <div class="news-item ${unread ? 'unread' : ''}" data-id="${n.id}" style="cursor:default">
-      ${n.immagine_url ? `<img class="news-img" src="${n.immagine_url}" alt="" onclick="event.stopPropagation();openLightbox('${n.immagine_url}')">` : ''}
-      <div class="news-item-meta">
-        <span class="ntag ${tagCls}">${n.categoria || 'generale'}</span>
-        <span class="nprio ${prioCls}">${n.priorita === 'urgente' ? '🚨 Urgente' : n.priorita === 'informazione' ? 'ℹ️ Informazione' : ''}</span>
-        <span class="ndate">${fmtNewsDate(n.data_pubbl)}</span>
-      </div>
-      <div class="ntitle">${escHtml(n.titolo)}</div>
-      <div class="nbody">${n.corpo || ''}</div>
-      ${n.autore ? `<div class="nautore">— ${escHtml(n.autore)}</div>` : ''}
-      ${(n.link_esterno || n.allegato_url) ? `
-      <div class="nlinks">
-        ${n.link_esterno ? `<a class="nlink-btn nlink-ext" href="${n.link_esterno}" target="_blank">→ Leggi di più</a>` : ''}
-        ${n.allegato_url ? `<a class="nlink-btn nlink-att" href="${n.allegato_url}" target="_blank">📎 ${escHtml(n.allegato_nome || 'Allegato')}</a>` : ''}
-      </div>` : ''}
-    </div>`;
-  }).join('');
-
-  // Marca come letta al click/touch
-  list.querySelectorAll('.news-item').forEach(el => {
-    el.addEventListener('click', () => {
-      markRead(el.dataset.id);
-      el.classList.remove('unread');
-      updateBadge(visible);
-    });
-  });
-
-  updateBadge(visible);
+  nzFiltri();
+  nzDisegna();
+  updateBadge(_nzItems);
 }
+
+// Un solo ascoltatore per tutta la lista: le card si rifanno a ogni filtro.
+document.addEventListener('click', e => {
+  const chip = e.target.closest('#nz-chips .nz-chip');
+  if (chip) {
+    _nzFiltro = chip.dataset.cat || null;
+    nzFiltri(); nzDisegna();
+    return;
+  }
+
+  const play = e.target.closest('.nz-vid');
+  if (play) {
+    // Da qui in avanti il lettore di YouTube può parlare con Google: l'ha
+    // deciso chi ha premuto play. Prima non era partita nessuna richiesta.
+    const id = play.dataset.yt;
+    const frame = document.createElement('div');
+    frame.className = 'nz-frame';
+    frame.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1"
+      title="Video" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    play.replaceWith(frame);
+    const nota = frame.nextElementSibling;
+    if (nota && nota.classList.contains('nz-vid-nota')) nota.remove();
+  }
+
+  const zoom = e.target.closest('[data-zoom]');
+  if (zoom) { openLightbox(zoom.dataset.zoom); return; }
+
+  const card = e.target.closest('.nz-card');
+  if (!card) return;
+
+  const piu = e.target.closest('.nz-piu');
+  if (piu) {
+    const aperta = card.classList.toggle('aperta');
+    piu.firstChild.textContent = aperta ? 'Chiudi ' : 'Leggi tutto ';
+    piu.querySelector('.nz-chev').textContent = aperta ? '▴' : '▾';
+  }
+  // Toccare la card, comunque, la segna letta.
+  if (card.dataset.id) {
+    markRead(card.dataset.id);
+    const pallino = card.querySelector('.nz-nonletta');
+    if (pallino) pallino.remove();
+    updateBadge(_nzItems);
+    const lbl = document.getElementById('news-count-label');
+    const readIds = getReadIds();
+    const daLeggere = _nzItems.filter(n => !readIds.includes(n.id)).length;
+    if (lbl) lbl.textContent = `${_nzItems.length} pubblicate${daLeggere ? ` · ${daLeggere} da leggere` : ''}`;
+  }
+});
+
+// Il contatore delle schede del carosello segue il dito.
+document.addEventListener('scroll', e => {
+  const tr = e.target.closest ? e.target.closest('.nz-track') : null;
+  if (!tr) return;
+  const i = Math.round(tr.scrollLeft / tr.clientWidth);
+  const cnt = tr.parentElement.querySelector('.nz-cnt b');
+  if (cnt) cnt.textContent = i + 1;
+  const dots = tr.parentElement.parentElement.querySelectorAll('.nz-dots i');
+  dots.forEach((d, k) => d.classList.toggle('on', k === i));
+}, true);
 
 // ── Carica dal DB ────────────────────────────────────
 async function loadNews() {
