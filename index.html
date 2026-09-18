@@ -3844,7 +3844,36 @@ const PAGE_TITLES = {
   notizie: ['Notizie & Aggiornamenti', 'Area Sicurezza e Salute'],
 };
 
+/* ══ QUANTE PERSONE VEDONO IL PORTALE (18/09/2026) ══════════════════════════
+   Si contano AGGREGATI, non visite: una riga per giorno e per pagina, che si
+   incrementa. Niente indirizzo IP, niente identificatori, niente cronologia
+   del singolo — non solo per correttezza: il portale non ha un banner di
+   consenso, e un contatore che traccia le persone ne pretenderebbe uno.
+   Una volta per sessione e per pagina, e se il conteggio non riesce non
+   succede niente: è un numero, non un dato di servizio. */
+function contaVisita(id) {
+  try {
+    const chiave = 'formedil_vista_' + id;
+    if (sessionStorage.getItem(chiave)) return;
+    sessionStorage.setItem(chiave, '1');
+  } catch (e) { /* niente memoria: si conta comunque, una volta sola per caricamento */ }
+  try {
+    if (typeof _sb !== 'undefined' && _sb) _sb.rpc('conta_visita', { p_pagina: id }).then(() => {}, () => {});
+  } catch (e) { /* il contatore non deve mai fermare la navigazione */ }
+}
+
+/* ⚠️ La prima pagina non passa da showPage: il portale si apre già sulla
+   home (o sulla pagina del link), quindi senza questa riga l'apertura non si
+   conterebbe mai — e la home risulterebbe la meno vista di tutte. */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const attiva = document.querySelector('.page.active');
+    if (attiva) contaVisita(attiva.id.replace(/^page-/, ''));
+  }, 1200);
+});
+
 function showPage(id) {
+  contaVisita(id);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const page = document.getElementById('page-' + id);

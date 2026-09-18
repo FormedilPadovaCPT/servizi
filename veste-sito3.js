@@ -207,6 +207,10 @@
     seg.onclick = function () { vai('segnalazione') }
     ev.appendChild(seg)
     ev.appendChild(ultimaNotizia())
+    /* la carta «in evidenza» si aggiunge solo se c'e' qualcosa da mettere in
+       evidenza, e sparisce da sola alla scadenza: la segnalazione resta in
+       testa, che e' quel che l'utente ha chiesto */
+    ev.appendChild(inEvidenza())
     h.appendChild(ev)
 
     // elenco
@@ -374,6 +378,49 @@
         .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(1)
         .then(function (r) { if (r && r.data) mostra(r.data) })
         .catch(function () { /* resta quella in cache */ })
+    }
+    return b
+  }
+
+  /* ── la notizia IN EVIDENZA (18/09/2026) ──────────────────────────────────
+     Serve a spingere una cosa che ha una data: un corso da riempire, un
+     convegno con le iscrizioni aperte. Il campo nuovo e' uno solo,
+     «evidenza_fino_al», e la parte che conta e' proprio quello: passata la
+     data la carta sparisce da se', senza che nessuno debba ricordarsi di
+     toglierla. Finche' non c'e' niente in evidenza, la carta non esiste. */
+  function inEvidenza() {
+    var b = bottone('s3-notizia'); b.hidden = true
+    b.style.borderLeft = '4px solid var(--s3-arancio)'
+    var c = el('span', 's3-cerchio'); c.appendChild(icona('cor')); b.appendChild(c)
+    var tx = el('span')
+    var et = el('em', null, 'In evidenza')
+    var tit = el('strong', null, '')
+    var est = el('small', null, '')
+    tx.appendChild(et); tx.appendChild(tit); tx.appendChild(est); b.appendChild(tx)
+    b.appendChild(el('span', 's3-vai', 'Apri ›'))
+
+    var mostra = function (n) {
+      if (!n || !n.titolo) return
+      tit.textContent = n.titolo
+      var giorno = String(n.evidenza_fino_al || '').slice(0, 10)
+      et.textContent = giorno ? 'In evidenza · fino al ' + giorno.split('-').reverse().join('/') : 'In evidenza'
+      var testo = ''
+      try { testo = new DOMParser().parseFromString(String(n.corpo || ''), 'text/html').body.textContent || '' } catch (e) { testo = '' }
+      testo = testo.replace(/\s+/g, ' ').trim()
+      est.textContent = testo.length > 170 ? testo.slice(0, 167).replace(/\s+\S*$/, '') + '…' : testo
+      b.onclick = function () { vai('notizie') }
+      b.hidden = false
+    }
+
+    var client = null
+    try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
+    if (client) {
+      var oggi = new Date().toISOString().slice(0, 10)
+      client.from('notizie').select('id,titolo,corpo,data_pubbl,created_at,pubblicata,evidenza_fino_al')
+        .eq('pubblicata', true).gte('evidenza_fino_al', oggi)
+        .order('evidenza_fino_al', { ascending: true }).limit(1)
+        .then(function (r) { if (r && r.data && r.data[0]) mostra(r.data[0]) })
+        .catch(function () { /* niente in evidenza: la carta resta nascosta */ })
     }
     return b
   }
