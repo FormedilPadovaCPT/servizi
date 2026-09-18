@@ -943,6 +943,9 @@
       <a class="nav-item" onclick="showPage('iscrizioni')" href="#">
         <span class="ni-icon">&#127891;</span> Corsi e incontri aperti
       </a>
+      <a class="nav-item" onclick="showPage('progetti')" href="#">
+        <span class="ni-icon">&#128204;</span> I nostri progetti
+      </a>
       <a class="nav-item" onclick="showPage('cor')" href="#">
         <span class="ni-icon">📚</span> Avvio Corsi Art.37
       </a>
@@ -1129,6 +1132,15 @@
           <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
           <span class="sc-tag" style="background:#1e2d5e;color:#fff">Riservato imprese CEIV</span>
           <span class="sc-arrow">→</span>
+        </div>
+
+        <!-- I NOSTRI PROGETTI (18/09/2026) -->
+        <div class="service-card" onclick="showPage('progetti')">
+          <span class="sc-icon">&#128204;</span>
+          <div class="sc-title">I nostri progetti</div>
+          <div class="sc-desc">I progetti finanziati dell&rsquo;Area: obiettivi, materiali e strumenti restati a disposizione di imprese, tutor e studenti.</div>
+          <span class="sc-tag free">Materiali liberi</span>
+          <span class="sc-arrow">&#8594;</span>
         </div>
 
         <!-- CORSI E INCONTRI APERTI (18/09/2026) -->
@@ -3178,6 +3190,75 @@
          ⚠️ Questa pagina non diventa un iscritto: manda una RICHIESTA che
          la segreteria guarda, ed e' li' che si fermano i doppioni.
     ═════════════════════════════════════════ -->
+    <!-- ═════════════════════════════════════════
+         I NOSTRI PROGETTI (18/09/2026)
+
+         I progetti finanziati hanno già il loro sito, fatto a suo tempo: qui
+         non si rifanno, si RAGGIUNGONO. Fino a oggi dall'app non si arrivava
+         a quelle pagine in nessun modo, quindi le trovava solo chi ne
+         conosceva l'indirizzo.
+
+         ⚠️ Di ogni progetto si dice se è CONCLUSO, e prima del pulsante: chi
+         arriva qui non deve credere di potersi ancora iscrivere. I materiali
+         però restano validi, ed è la ragione per cui la pagina esiste.
+
+         Per aggiungere un progetto: una scheda come queste. Se un domani un
+         progetto avrà la sua pagina dentro l'app, cambia solo il collegamento.
+    ═════════════════════════════════════════ -->
+    <div class="page" id="page-progetti">
+      <style>
+        .pg-card{background:#fff;border:1px solid var(--border);border-left:4px solid var(--orange);
+          border-radius:0 10px 10px 0;padding:18px 20px;margin-bottom:16px}
+        .pg-card .pg-stato{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.03em;
+          text-transform:uppercase;background:#f2f4f3;color:var(--muted);border-radius:999px;padding:3px 11px;margin-bottom:8px}
+        .pg-card h3{margin:0 0 6px;font-size:19px}
+        .pg-card .pg-ente{font-size:13px;color:var(--muted);margin-bottom:10px}
+        .pg-card p{margin:0 0 14px;line-height:1.55}
+        .pg-vai{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;
+          font-weight:700;font-size:14px;padding:11px 20px;border-radius:8px;text-decoration:none}
+        .pg-nota{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+          color:var(--muted);line-height:1.6;font-size:14px}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">&#8592; Torna alla home</button>
+      <div class="form-header">
+        <h2>I nostri progetti</h2>
+        <p>Progetti finanziati dallo SPISAL dell&rsquo;AULSS 6 Euganea con le sanzioni pagate per le inadempienze
+           sulla sicurezza: una parte di quelle somme torna in prevenzione. Ogni progetto ha il suo sito,
+           con obiettivi, materiali e strumenti.</p>
+      </div>
+
+      <div class="pg-card">
+        <span class="pg-stato">Concluso</span>
+        <h3>Sicuri si diventa</h3>
+        <div class="pg-ente">Alternanza scuola-lavoro &middot; con Regione del Veneto e AULSS 6 Euganea</div>
+        <p>Come si gestisce uno stage in sicurezza: materiali per l&rsquo;<strong>impresa che ospita</strong>,
+           per gli <strong>studenti</strong> e per i <strong>tutor</strong>, con le visite dei tecnici in azienda
+           e la collaborazione dell&rsquo;RLST. Il sito resta a disposizione: i materiali sono ancora validi.</p>
+        <a class="pg-vai" href="https://cptpadova.wixsite.com/sicuri-si-diventa" target="_blank" rel="noopener">Apri il sito del progetto</a>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">Si apre in una scheda nuova &middot; cptpadova.wixsite.com/sicuri-si-diventa</div>
+      </div>
+
+      <div class="pg-card">
+        <span class="pg-stato">Concluso</span>
+        <h3>Soft Skills Sicurezza</h3>
+        <div class="pg-ente">S.O.D. Safety Training &middot; con Regione del Veneto e AULSS 6 Euganea</div>
+        <p>La sicurezza che passa dalle persone prima che dalle procedure: comunicazione efficace,
+           percezione del rischio, il ruolo di chi in cantiere deve farsi ascoltare. Sul sito il percorso,
+           i materiali e le registrazioni.</p>
+        <a class="pg-vai" href="https://cptpadova.wixsite.com/softskillssicurezza" target="_blank" rel="noopener">Apri il sito del progetto</a>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px">Si apre in una scheda nuova &middot; cptpadova.wixsite.com/softskillssicurezza</div>
+      </div>
+
+      <div class="pg-nota">
+        Stiamo lavorando ad altri progetti finanziati. Quando partono, le date compaiono in
+        <a href="#" onclick="showPage('iscrizioni');return false;">Corsi e incontri aperti</a>
+        e le annunciamo nelle <a href="#" onclick="showPage('notizie');return false;">notizie dell&rsquo;Area</a>.
+      </div>
+
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
+    </div>
+
     <div class="page" id="page-iscrizioni">
       <style>
         #page-iscrizioni [hidden]{display:none!important}
@@ -4025,6 +4106,7 @@ const PAGE_TITLES = {
   qevento: ['Questionario dell\'evento', ''],
   test: ['Verifica finale', ''],
   iscrizioni: ['Corsi e incontri aperti', ''],
+  progetti: ['I nostri progetti', ''],
   iscrizione: ['Iscrizione', ''],
   cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
