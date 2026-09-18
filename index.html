@@ -3197,6 +3197,100 @@
     </div>
 
     <!-- ════════════════════════════════
+         TEST DI VERIFICA FINALE (18/09/2026)
+
+         L'opposto del questionario, e non si devono somigliare: il test è
+         NOMINATIVO, perché l'esito vale per l'attestato. Chi risponde dice chi
+         è col proprio CODICE PERSONALE, stampato accanto al nome sul registro
+         — non scegliendo da un elenco di nomi, che si vedrebbero tutti e da
+         cui chiunque potrebbe prendere il posto di un altro.
+
+         ⚠️ Le risposte giuste NON stanno qui e non arrivano al portale: a
+         correggere è il Gestionale quando la prova torna dalla cassetta.
+    ════════════════════════════════ -->
+    <div class="page" id="page-test">
+      <style>
+        #page-test [hidden]{display:none!important}
+        .te-barra{background:var(--text);color:#fff;border-radius:12px;padding:10px 14px;
+          display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:14.5px}
+        .te-barra b{font-weight:600}
+        .te-tempo{margin-left:auto;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.16);
+          padding:5px 9px;border-radius:7px;font-weight:600}
+        .te-avanz{height:6px;border-radius:4px;background:var(--light);overflow:hidden;margin:10px 0 18px}
+        .te-avanz div{height:6px;background:var(--orange);border-radius:4px;transition:width .2s}
+        .te-dom{font-weight:600;font-size:17px;line-height:1.3;margin:0 0 14px}
+        .te-io{border:1.5px solid var(--orange);background:#fdece3;border-radius:12px;padding:14px;margin-bottom:16px}
+        .te-io b{font-size:19px}
+        .te-esito{border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>Verifica finale</h2>
+        <p id="te-sotto">Prima di cominciare, dicci chi sei.</p>
+      </div>
+
+      <div class="qz-rif" id="te-rif" hidden></div>
+      <div class="qe-avviso" id="te-avviso" hidden></div>
+
+      <!-- 1 · chi sei -->
+      <div id="te-chi" hidden>
+        <div class="field">
+          <label for="te-codice">Il tuo codice personale</label>
+          <input id="te-codice" maxlength="12" autocomplete="off" autocapitalize="characters"
+                 placeholder="es. K7PQR" style="text-transform:uppercase;letter-spacing:.12em;font-size:20px">
+          <p class="hint">Te lo dà il docente: è stampato accanto al tuo nome sul registro.</p>
+        </div>
+        <div class="error-banner" id="te-chi-err">Questo codice non risulta fra i partecipanti di questo corso.</div>
+        <button type="button" class="btn-send" id="te-cerca">Avanti</button>
+      </div>
+
+      <!-- 2 · sei tu? -->
+      <div id="te-conferma" hidden>
+        <div class="te-io">
+          <div class="hint" style="margin-bottom:4px">Stai per fare il test come</div>
+          <b id="te-iniziali">—</b>
+          <p class="hint" style="margin:8px 0 0">Mostriamo solo le iniziali: il tuo nome per intero non passa di qui.</p>
+        </div>
+        <div class="info-box" style="margin-bottom:16px"><p id="te-regole">—</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn-reset" id="te-nonsonoio">Non sono io</button>
+          <button type="button" class="btn-send" id="te-inizia">Sì, sono io — inizia</button>
+        </div>
+      </div>
+
+      <!-- 3 · le domande -->
+      <form id="form-test" novalidate hidden data-senza-ricevuta>
+        <div class="te-barra">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round" aria-hidden="true"><circle cx="12" cy="8" r="3.4"></circle><path d="M5 20c1.2-3.6 4-5.2 7-5.2s5.8 1.6 7 5.2"></path></svg>
+          <b id="te-chi-barra">—</b>
+          <span class="te-tempo" id="te-tempo" hidden>--:--</span>
+        </div>
+        <div style="display:flex;align-items:baseline;font-size:13px;color:var(--muted)">
+          <span id="te-passo">Domanda 1</span>
+          <span style="margin-left:auto" id="te-risposte-date"></span>
+        </div>
+        <div class="te-avanz"><div id="te-avanz-barra" style="width:0%"></div></div>
+
+        <div id="te-domanda"></div>
+
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <button type="button" class="btn-reset" id="te-indietro">← Indietro</button>
+          <button type="button" class="btn-send" id="te-avanti" style="flex:1">Avanti →</button>
+          <button type="submit" class="btn-send" id="tst-btnSend" style="flex:1" hidden>Consegna</button>
+        </div>
+
+        <div class="error-banner" id="tst-error">Errore durante l'invio.</div>
+        <div class="success-banner" id="tst-success">
+          <h2>✓ Prova consegnata</h2>
+          <p>L'esito lo convalida il docente: lo trovi sull'attestato.</p>
+          <button class="btn-new" onclick="showPage('home')">Chiudi</button>
+        </div>
+      </form>
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
+    </div>
+
+    <!-- ════════════════════════════════
          10. AVVIO CORSI ART.37
     ════════════════════════════════ -->
     <div class="page" id="page-cor">
@@ -3742,6 +3836,7 @@ const PAGE_TITLES = {
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
   qevento: ['Questionario dell\'evento', ''],
+  test: ['Verifica finale', ''],
   cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
@@ -5720,6 +5815,216 @@ document.getElementById('topbarTitle').style.display = 'none';
       return f;
     });
   });
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     TEST DI VERIFICA FINALE (18/09/2026)
+     Nominativo: chi risponde si riconosce col proprio codice personale, e
+     della persona qui arrivano solo le INIZIALI. Le risposte giuste non
+     passano di qui: corregge il Gestionale.
+══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  var rif = '', codice = '', firma = '', dati = null, personale = '';
+  var risposte = {}, iDom = 0, scadenza = null, orologio = null;
+
+  function el(tag, cls, testo) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (testo != null) n.textContent = testo;
+    return n;
+  }
+  function avviso(t, spento) {
+    var a = document.getElementById('te-avviso');
+    a.textContent = t; a.classList.toggle('spento', !!spento); a.hidden = false;
+  }
+  function mostra(quale) {
+    ['te-chi', 'te-conferma', 'form-test'].forEach(function (id) {
+      document.getElementById(id).hidden = id !== quale;
+    });
+  }
+
+  function disegnaDomanda() {
+    var d = dati.domande[iDom];
+    var cont = document.getElementById('te-domanda');
+    cont.textContent = '';
+    var id = String(d.id);
+
+    cont.appendChild(el('p', 'te-dom', d.testo));
+
+    if (d.tipo === 'testo') {
+      var ta = document.createElement('textarea');
+      ta.rows = 4; ta.maxLength = 2000; ta.placeholder = 'la tua risposta…';
+      ta.value = risposte[id] || '';
+      ta.oninput = function () {
+        var v = ta.value.trim();
+        if (v) risposte[id] = v; else delete risposte[id];
+        aggiorna(true);
+      };
+      cont.appendChild(ta);
+    } else {
+      var multipla = d.tipo === 'multipla';
+      var g = el('div', 'qz-righe');
+      (d.opzioni || []).forEach(function (o) {
+        var b = el('button', 'qz-r'); b.type = 'button';
+        var i = el('i'); if (multipla) i.style.borderRadius = '5px';
+        b.appendChild(i);
+        b.appendChild(document.createTextNode(o));
+        var scelto = multipla ? (risposte[id] || []).indexOf(o) >= 0 : risposte[id] === o;
+        if (scelto) b.classList.add('on');
+        b.onclick = function () {
+          if (multipla) {
+            var v = risposte[id] || [];
+            var k = v.indexOf(o);
+            if (k >= 0) v.splice(k, 1); else v.push(o);
+            if (v.length) risposte[id] = v; else delete risposte[id];
+            b.classList.toggle('on');
+          } else {
+            g.querySelectorAll('.qz-r').forEach(function (x) { x.classList.remove('on'); });
+            b.classList.add('on');
+            risposte[id] = o;
+          }
+          aggiorna(true);
+        };
+        g.appendChild(b);
+      });
+      cont.appendChild(g);
+      if (multipla) cont.appendChild(el('p', 'hint', 'Si può scegliere più di una risposta.'));
+    }
+    aggiorna();
+  }
+
+  function aggiorna(soloConti) {
+    var n = dati.domande.length;
+    var date = Object.keys(risposte).length;
+    document.getElementById('te-passo').textContent = 'Domanda ' + (iDom + 1) + ' di ' + n;
+    document.getElementById('te-risposte-date').textContent = date + ' su ' + n + ' date';
+    document.getElementById('te-avanz-barra').style.width = Math.round((iDom + 1) / n * 100) + '%';
+    if (soloConti) return;
+    document.getElementById('te-indietro').disabled = iDom === 0;
+    var ultima = iDom === n - 1;
+    document.getElementById('te-avanti').hidden = ultima;
+    document.getElementById('tst-btnSend').hidden = !ultima;
+  }
+
+  function tempo() {
+    if (!scadenza) return;
+    var m = Math.max(0, Math.round((scadenza - Date.now()) / 1000));
+    var box = document.getElementById('te-tempo');
+    box.hidden = false;
+    box.textContent = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+    if (m <= 0) {
+      clearInterval(orologio);
+      box.textContent = 'tempo scaduto';
+      /* il tempo è un'indicazione, non una ghigliottina: la prova si consegna
+         lo stesso, e quanto è durata lo sa il Gestionale */
+    }
+  }
+
+  async function apri() {
+    var p = rif.indexOf('.');
+    if (p < 1) { avviso('Il collegamento non è completo. Riprovate a inquadrare il codice.', true); return; }
+    codice = rif.slice(0, p); firma = rif.slice(p + 1);
+    var r;
+    try { r = await _sb.rpc('apri_test', { p_codice: codice, p_firma: firma }); }
+    catch (e) { avviso('Non riusciamo a caricare il test. Controllate la connessione e riprovate.', true); return; }
+    if (r.error || !r.data || r.data.trovato !== true) {
+      avviso('Questo codice non corrisponde a nessun test aperto. Se lo avete digitato a mano, controllate le lettere.', true);
+      return;
+    }
+    dati = r.data;
+
+    var mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+    var quando = '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dati.quando || '')) {
+      var q = dati.quando.split('-'); quando = (+q[2]) + ' ' + mesi[+q[1] - 1] + ' ' + q[0];
+    }
+    var box = document.getElementById('te-rif');
+    box.textContent = '';
+    var t = el('div'); t.appendChild(el('b', null, dati.titolo || 'Corso'));
+    box.appendChild(t);
+    box.appendChild(el('div', null, [quando, dati.sede].filter(Boolean).join(' · ')));
+    box.hidden = false;
+
+    if (dati.aperto !== true) { avviso('Il test di questo corso è chiuso.', true); return; }
+
+    document.getElementById('te-regole').textContent =
+      dati.domande.length + ' domande'
+      + (dati.minuti ? ' · ' + dati.minuti + ' minuti' : '')
+      + (dati.soglia ? ' · si supera con il ' + Math.round(dati.soglia) + '% del punteggio' : '')
+      + '. Le risposte le corregge la segreteria: l\'esito lo convalida il docente.';
+    mostra('te-chi');
+    document.getElementById('te-codice').focus();
+  }
+
+  document.getElementById('te-cerca').addEventListener('click', async function (ev) {
+    var v = document.getElementById('te-codice').value.trim().toUpperCase();
+    var err = document.getElementById('te-chi-err');
+    err.style.display = 'none';
+    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul registro.'; err.style.display = 'block'; return; }
+    ev.target.disabled = true;
+    var r;
+    try { r = await _sb.rpc('chi_sono', { p_codice: codice, p_firma: firma, p_personale: v }); }
+    catch (e) { r = { error: e }; }
+    ev.target.disabled = false;
+    if (r.error || !r.data || r.data.trovato !== true) {
+      err.textContent = 'Questo codice non risulta fra i partecipanti di questo corso — '
+        + 'oppure la prova è già stata consegnata. Chiedi al docente.';
+      err.style.display = 'block';
+      return;
+    }
+    personale = v;
+    document.getElementById('te-iniziali').textContent = r.data.iniziali || '—';
+    document.getElementById('te-chi-barra').textContent = r.data.iniziali || '—';
+    mostra('te-conferma');
+  });
+
+  document.getElementById('te-nonsonoio').addEventListener('click', function () {
+    personale = '';
+    document.getElementById('te-codice').value = '';
+    mostra('te-chi');
+  });
+
+  document.getElementById('te-inizia').addEventListener('click', function () {
+    mostra('form-test');
+    document.getElementById('te-sotto').textContent = 'Rispondi con calma: quello che conta è capire, non la fretta.';
+    if (dati.minuti) {
+      scadenza = Date.now() + dati.minuti * 60000;
+      tempo(); orologio = setInterval(tempo, 1000);
+    }
+    iDom = 0;
+    disegnaDomanda();
+  });
+
+  document.getElementById('te-avanti').addEventListener('click', function () {
+    if (iDom < dati.domande.length - 1) { iDom++; disegnaDomanda(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+  document.getElementById('te-indietro').addEventListener('click', function () {
+    if (iDom > 0) { iDom--; disegnaDomanda(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+
+  document.getElementById('form-test').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = dati.domande.length, date = Object.keys(risposte).length;
+    if (date < n && !confirm('Hai risposto a ' + date + ' domande su ' + n + '.\n\nConsegno lo stesso?')) return;
+    if (orologio) clearInterval(orologio);
+    submitForm('form-test', 'tst', async function (form) {
+      var f = collectFields(form);
+      f.riferimento      = rif;
+      f.codice           = codice;
+      f.codice_personale = personale;
+      f.risposte         = JSON.stringify(risposte);
+      return f;
+    });
+  });
+
+  var q = new URLSearchParams(location.search);
+  var v = (q.get('test') || '').trim();
+  if (!v) return;
+  rif = v.slice(0, 120);
+  showPage('test');
+  apri();
 })();
 </script>
 </body>
