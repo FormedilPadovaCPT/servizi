@@ -3138,6 +3138,65 @@
     </div>
 
     <!-- ════════════════════════════════
+         QUESTIONARIO DI UN EVENTO — corsi, convegni, conferenze di cantiere
+         (18/09/2026)
+
+         In home NON c'è la tessera, ed è voluto: qui ci si arriva solo dal QR
+         del foglio in coda al registro o dal codice letto in aula. Un modulo
+         aperto a tutti raccoglierebbe giudizi di chi non c'era.
+
+         Le domande NON stanno in questa pagina: le chiede al progetto Servizi
+         con apri_questionario(codice, firma), che risponde solo se codice e
+         firma tornano insieme. Il portale non conosce il segreto e non lo deve
+         conoscere (regola del 13/09/2026).
+    ════════════════════════════════ -->
+    <div class="page" id="page-qevento">
+      <style>
+        #page-qevento [hidden]{display:none!important}
+        .qe-avviso{background:#fff;border:1px solid var(--border);border-left:4px solid var(--orange);
+          border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:20px;font-size:15px;line-height:1.5}
+        .qe-avviso.spento{border-left-color:#9aa1a7;color:var(--muted)}
+        .qe-dom{display:block;font-weight:600;font-size:16px;margin:0 0 12px;color:var(--text)}
+        .qe-dom .qe-obb{color:var(--orange);font-weight:700}
+        .qe-passo{margin-bottom:26px}
+        .qe-scala-note{display:flex;justify-content:space-between;margin-top:7px;font-size:12px;color:var(--muted)}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>Com'è andata?</h2>
+        <p id="qe-sotto">Poche domande, un minuto. Le risposte sono anonime.</p>
+      </div>
+
+      <div class="qz-rif" id="qe-rif" hidden></div>
+      <div class="qe-avviso" id="qe-avviso" hidden></div>
+
+      <form id="form-qevento" novalidate hidden data-senza-ricevuta>
+        <div id="qe-domande"></div>
+
+        <div class="privacy-box" style="margin-top:22px">
+          <input type="checkbox" id="qe-privacy" name="privacy" required>
+          <p><strong>Privacy (Reg. UE 2016/679)</strong><br>
+          Le risposte sono <strong>anonime</strong>: non chiediamo il nome e non c'è modo di risalire a chi
+          ha risposto. Servono a Formedil Padova per migliorare gli incontri e non vengono comunicate
+          all'impresa. <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.</p>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-send" id="qev-btnSend">Invia</button>
+        </div>
+
+        <div class="error-banner" id="qev-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
+        <div class="success-banner" id="qev-success">
+          <h2>✓ Grazie, ricevuto</h2>
+          <p>Bastava questo. Buon lavoro.</p>
+          <button class="btn-new" onclick="showPage('home')">Chiudi</button>
+        </div>
+      </form>
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
+    </div>
+
+    <!-- ════════════════════════════════
          10. AVVIO CORSI ART.37
     ════════════════════════════════ -->
     <div class="page" id="page-cor">
@@ -3682,6 +3741,7 @@ const PAGE_TITLES = {
   notifica: ['Notifica Cantiere', ''],
   segnalazione: ['Segnala un Cantiere', ''],
   questionario: ['Valutazione Sopralluogo', ''],
+  qevento: ['Questionario dell\'evento', ''],
   cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
@@ -4521,6 +4581,15 @@ async function submitForm(formId, prefix, buildPayload) {
       await codaTogli(payload.submission_id);
       chiudiCompilazione(prefix);              // da qui in poi è una richiesta nuova
       const dove = payload.email || payload.pec || '';
+      /* un questionario anonimo non ha una pratica e non si segue: dargli un
+         numero direbbe a chi ha risposto che da qualche parte c'è una riga
+         con sopra il suo nome (18/09/2026) */
+      if (form.hasAttribute('data-senza-ricevuta')) {
+        okBox.style.display = 'block';
+        btn.textContent = '✓ Inviata';
+        okBox.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
       const p = okBox.querySelector('.ricevuta') || okBox.insertBefore(
         Object.assign(document.createElement('p'), { className: 'ricevuta' }),
         okBox.querySelector('button'));
@@ -5449,6 +5518,208 @@ document.getElementById('topbarTitle').style.display = 'none';
   }
 
   aggiorna().catch(function () { box.hidden = true; });
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     QUESTIONARIO DI UN EVENTO (18/09/2026)
+     Sta in fondo perché gli servono _sb, showPage e submitForm, definiti
+     prima. Le domande arrivano dal progetto Servizi: qui si disegnano e
+     basta, e a controllare la firma è il Gestionale quando ritira la
+     risposta dalla cassetta.
+══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  var rifCompleto = '', dati = null;
+  var risposte = {};   // { "<id domanda>": valore }
+
+  var FACCE = [
+    ['M7.6 16.8 Q12 12.2 16.4 16.8', 'per niente'],
+    ['M7.8 16.2 Q12 13.6 16.2 16.2', 'poco'],
+    ['M8 15.3 H16',                  'così così'],
+    ['M7.8 13.9 Q12 17 16.2 13.9',   'utile'],
+    ['M7.4 13.4 Q12 18.4 16.6 13.4', 'molto']
+  ];
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function el(tag, cls, testo) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (testo != null) n.textContent = testo;   // mai innerHTML: il testo viene dal database
+    return n;
+  }
+  function faccia(i) {
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+    [['circle', { cx: 12, cy: 12, r: 10 }],
+     ['circle', { cx: 8.6, cy: 9.6, r: 1.15, class: 'occhio' }],
+     ['circle', { cx: 15.4, cy: 9.6, r: 1.15, class: 'occhio' }],
+     ['path',   { d: FACCE[i][0] }]].forEach(function (f) {
+      var e = document.createElementNS(NS, f[0]);
+      for (var k in f[1]) e.setAttribute(k, f[1][k]);
+      svg.appendChild(e);
+    });
+    return svg;
+  }
+
+  /* una domanda, del tipo che dice il database */
+  function disegnaDomanda(d) {
+    var box = el('div', 'field qe-passo');
+    var lab = el('label', 'qe-dom');
+    lab.appendChild(document.createTextNode(d.testo));
+    if (d.obbligatoria) { var st = el('span', 'qe-obb', ' *'); lab.appendChild(st); }
+    box.appendChild(lab);
+    var id = String(d.id);
+
+    if (d.tipo === 'scala') {
+      var riga = el('div', 'qz-faccine');
+      for (var v = 1; v <= 5; v++) (function (v) {
+        var b = el('button', 'qz-fac'); b.type = 'button';
+        b.setAttribute('aria-label', FACCE[v - 1][1]);
+        b.appendChild(faccia(v - 1));
+        b.appendChild(el('small', null, FACCE[v - 1][1]));
+        b.onclick = function () {
+          risposte[id] = v;
+          riga.querySelectorAll('.qz-fac').forEach(function (x, i) { x.classList.toggle('on', i === v - 1); });
+        };
+        riga.appendChild(b);
+      })(v);
+      box.appendChild(riga);
+
+    } else if (d.tipo === 'multipla') {
+      var g = el('div', 'qz-past');
+      (d.opzioni || []).forEach(function (o) {
+        var b = el('button', 'qz-p', o); b.type = 'button';
+        b.onclick = function () {
+          b.classList.toggle('on');
+          var scelte = [];
+          g.querySelectorAll('.qz-p.on').forEach(function (x) { scelte.push(x.textContent.trim()); });
+          if (scelte.length) risposte[id] = scelte; else delete risposte[id];
+        };
+        g.appendChild(b);
+      });
+      box.appendChild(g);
+
+    } else if (d.tipo === 'scelta') {
+      var gr = el('div', 'qz-righe');
+      (d.opzioni || []).forEach(function (o) {
+        var b = el('button', 'qz-r'); b.type = 'button';
+        b.appendChild(el('i'));
+        b.appendChild(document.createTextNode(o));
+        b.onclick = function () {
+          gr.querySelectorAll('.qz-r').forEach(function (x) { x.classList.remove('on'); });
+          b.classList.add('on');
+          risposte[id] = o;
+        };
+        gr.appendChild(b);
+      });
+      box.appendChild(gr);
+
+    } else {   // testo
+      var ta = document.createElement('textarea');
+      ta.rows = 3; ta.maxLength = 1000; ta.placeholder = 'scrivete pure…';
+      ta.oninput = function () {
+        var t = ta.value.trim();
+        if (t) risposte[id] = t; else delete risposte[id];
+      };
+      box.appendChild(ta);
+    }
+    return box;
+  }
+
+  function avviso(testo, spento) {
+    var a = document.getElementById('qe-avviso');
+    a.textContent = testo;
+    a.classList.toggle('spento', !!spento);
+    a.hidden = false;
+  }
+
+  function intesta() {
+    var mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+    var quando = '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dati.quando || '')) {
+      var p = dati.quando.split('-');
+      quando = (+p[2]) + ' ' + mesi[+p[1] - 1] + ' ' + p[0];
+    }
+    var genere = dati.genere === 'conferenza' ? 'Conferenza di cantiere'
+               : dati.genere === 'convegno'   ? 'Convegno' : 'Corso';
+    var box = document.getElementById('qe-rif');
+    box.textContent = '';
+    var t = el('div'); t.appendChild(el('b', null, dati.titolo || genere));
+    box.appendChild(t);
+    var sotto = genere + (quando ? ' · ' + quando : '') + (dati.sede ? ' · ' + dati.sede : '');
+    box.appendChild(el('div', null, sotto));
+    box.hidden = false;
+    document.getElementById('qe-sotto').textContent =
+      (dati.domande || []).length <= 2 ? 'Due domande, un minuto. Le risposte sono anonime.'
+                                       : 'Poche domande, un minuto. Le risposte sono anonime.';
+  }
+
+  async function apri() {
+    var p = rifCompleto.indexOf('.');
+    if (p < 1) { avviso('Il collegamento non è completo. Riprovate a inquadrare il codice.', true); return; }
+    var codice = rifCompleto.slice(0, p), firma = rifCompleto.slice(p + 1);
+
+    var r;
+    try {
+      r = await _sb.rpc('apri_questionario', { p_codice: codice, p_firma: firma });
+    } catch (e) {
+      avviso('Non riusciamo a caricare le domande. Controllate la connessione e riprovate.', true);
+      return;
+    }
+    if (r.error || !r.data || r.data.trovato !== true) {
+      avviso('Questo codice non corrisponde a nessun questionario aperto. Se lo avete digitato a mano, '
+           + 'controllate le lettere; altrimenti inquadrate di nuovo il QR.', true);
+      return;
+    }
+    dati = r.data;
+    intesta();
+
+    if (dati.aperto !== true) {
+      avviso('Il questionario di questo incontro è chiuso: si poteva rispondere nelle 48 ore successive. '
+           + 'Se avete qualcosa da dirci, scriveteci a cpt@formedilpadova.it.', true);
+      return;
+    }
+
+    var cont = document.getElementById('qe-domande');
+    cont.textContent = '';
+    (dati.domande || []).forEach(function (d) { cont.appendChild(disegnaDomanda(d)); });
+    document.getElementById('form-qevento').hidden = false;
+  }
+
+  /* si entra solo dal link: ?evento=<codice>.<firma> */
+  var q = new URLSearchParams(location.search);
+  var rif = (q.get('evento') || '').trim();
+  if (!rif) return;
+  rifCompleto = rif.slice(0, 120);
+  showPage('qevento');
+  apri();
+
+  document.getElementById('form-qevento').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('qev-error');
+    var mancanti = (dati.domande || []).filter(function (d) {
+      return d.obbligatoria && (risposte[String(d.id)] === undefined);
+    });
+    if (mancanti.length) {
+      err.textContent = 'Manca la risposta a: ' + mancanti[0].testo;
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+
+    submitForm('form-qevento', 'qev', async function (form) {
+      var f = collectFields(form);
+      f.riferimento = rifCompleto;
+      f.codice      = dati.codice;
+      f.risposte    = JSON.stringify(risposte);
+      /* l'utilità è la prima domanda del tronco, la scala: si manda a parte
+         perché è quella su cui si fanno le medie */
+      var scala = (dati.domande || []).filter(function (d) { return d.tipo === 'scala'; })[0];
+      f.utilita = scala && risposte[String(scala.id)] ? String(risposte[String(scala.id)]) : '';
+      return f;
+    });
+  });
 })();
 </script>
 </body>
