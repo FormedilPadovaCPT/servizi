@@ -22,7 +22,7 @@
   var SITUAZIONI = [
     { id: 'cantiere', nome: 'Ho un cantiere', frase: 'Visite, notifiche, segnalazioni e valutazioni', pagine: ['visita', 'conferenza', 'notifica', 'segnalazione', 'questionario'] },
     { id: 'impresa', nome: 'Per la mia impresa', frase: 'Rappresentanti per la sicurezza, consulenza e attestazioni', pagine: ['rlst', 'rls', 'consulenza', 'attestazione', 'asseverazione'] },
-    { id: 'formazione', nome: 'Formazione e strumenti', frase: 'Corsi per i lavoratori e applicativi online', pagine: ['cor', 'cds', 'myapp'] },
+    { id: 'formazione', nome: 'Formazione e strumenti', frase: 'Corsi per i lavoratori e applicativi online', pagine: ['iscrizioni', 'cor', 'cds', 'myapp'] },
     { id: 'informato', nome: 'Resta informato', frase: 'Notizie dell\'Area e canale Telegram', pagine: ['notizie', 'telegram'] }
   ]
   /* parole con cui la gente cerca, oltre al titolo e alla descrizione della scheda */
@@ -37,6 +37,7 @@
     consulenza: 'consulenza consiglio aiuto dubbio sicurezza ambiente certificazioni',
     attestazione: 'patente a crediti crediti dm 132 monitoraggio',
     asseverazione: 'mog modello organizzativo 231 uni 11751 attestato',
+    iscrizioni: 'iscrizione iscriversi corso corsi lezione lezioni incontro convegno seminario progetto calendario posti',
     cor: 'corso corsi formazione lavoratori art 37 docenti aula',
     cds: 'gestione sicurezza piattaforma documenti online',
     myapp: 'app formazione telefono percorso formativo',
@@ -56,6 +57,7 @@
     consulenza: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
     attestazione: '<circle cx="12" cy="9" r="5"/><path d="m9 13.5-1.5 7L12 18l4.5 2.5-1.5-7"/>',
     asseverazione: '<circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.2 2.6 2.6 5-5"/>',
+    iscrizioni: '<path d="M12 4.5 2.5 9 12 13.5 21.5 9z"/><path d="M6 11v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/>',
     cor: '<path d="M3.5 5.5c3-1.3 5.8-1.3 8.5 0v14c-2.7-1.3-5.5-1.3-8.5 0z"/><path d="M12 5.5c2.7-1.3 5.5-1.3 8.5 0v14c-3-1.3-5.8-1.3-8.5 0"/>',
     cds: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
     myapp: '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',

@@ -940,6 +940,9 @@
       </a>
 
       <div class="nav-section-label">Formazione</div>
+      <a class="nav-item" onclick="showPage('iscrizioni')" href="#">
+        <span class="ni-icon">&#127891;</span> Corsi e incontri aperti
+      </a>
       <a class="nav-item" onclick="showPage('cor')" href="#">
         <span class="ni-icon">📚</span> Avvio Corsi Art.37
       </a>
@@ -1126,6 +1129,15 @@
           <div class="sc-desc">Attestazione volontaria dell'adozione di un modello di organizzazione e gestione della salute e sicurezza (art. 51 D.Lgs. 81/08).</div>
           <span class="sc-tag" style="background:#1e2d5e;color:#fff">Riservato imprese CEIV</span>
           <span class="sc-arrow">→</span>
+        </div>
+
+        <!-- CORSI E INCONTRI APERTI (18/09/2026) -->
+        <div class="service-card" onclick="showPage('iscrizioni')">
+          <span class="sc-icon">🎓</span>
+          <div class="sc-title">Corsi e incontri aperti</div>
+          <div class="sc-desc">Le lezioni dei progetti finanziati e gli incontri a cui ci si puo&#768; iscrivere adesso. Per le imprese sono gratuiti.</div>
+          <span class="sc-tag free">Iscrizione online</span>
+          <span class="sc-arrow">&#8594;</span>
         </div>
 
         <!-- AVVIO CORSI ART.37 -->
@@ -3150,6 +3162,181 @@
          firma tornano insieme. Il portale non conosce il segreto e non lo deve
          conoscere (regola del 13/09/2026).
     ════════════════════════════════ -->
+    <!-- ══════════════════════════════════════════
+         ISCRIZIONE A UN CORSO O A UN INCONTRO (18/09/2026)
+
+         Un motore solo, due porte: l'elenco qui sotto (quello che la
+         segreteria ha messo in vetrina) e il link targato che si manda
+         all'impresa dopo una conferenza di cantiere. Cambia come ci si
+         arriva, non quello che si chiede.
+
+         ⚠️ I dati si chiedono TUTTI SUBITO (regola dell'utente): sono quelli
+         che finiranno sull'attestato, e rincorrerli dopo costa una mail a
+         testa. Chi si iscrive puo' essere un'impresa per i suoi lavoratori
+         oppure una persona per se'.
+
+         ⚠️ Questa pagina non diventa un iscritto: manda una RICHIESTA che
+         la segreteria guarda, ed e' li' che si fermano i doppioni.
+    ═════════════════════════════════════════ -->
+    <div class="page" id="page-iscrizioni">
+      <style>
+        #page-iscrizioni [hidden]{display:none!important}
+        .is-card{background:#fff;border:1px solid var(--border);border-left:4px solid var(--orange);
+          border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:14px;cursor:pointer;
+          display:block;width:100%;text-align:left;font:inherit;color:inherit}
+        .is-card:hover{box-shadow:0 2px 10px rgba(0,0,0,.07)}
+        .is-card .is-t{font-weight:700;font-size:16px;margin-bottom:4px}
+        .is-card .is-p{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--orange);font-weight:700;margin-bottom:6px}
+        .is-card .is-q{font-size:14px;color:var(--muted);line-height:1.5}
+        .is-card .is-d{font-size:14px;margin-top:8px;line-height:1.5}
+        .is-posti{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;
+          background:#f2f4f3;border-radius:999px;padding:3px 10px;color:var(--text)}
+        .is-vuoto{background:#fff;border:1px solid var(--border);border-radius:10px;padding:22px;
+          text-align:center;color:var(--muted);line-height:1.6}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">&#8592; Torna alla home</button>
+      <div class="form-header">
+        <h2>Corsi e incontri aperti</h2>
+        <p>Quello a cui ci si pu&ograve; iscrivere adesso. Per le imprese iscritte alla Cassa Edile la partecipazione &egrave; gratuita.</p>
+      </div>
+
+      <div id="is-elenco"></div>
+      <div class="is-vuoto" id="is-vuoto" hidden>
+        In questo momento non ci sono iscrizioni aperte.<br>
+        Le lezioni dei progetti e gli incontri vengono pubblicati qui appena il calendario &egrave; fissato:
+        per saperlo prima, seguite le <a href="#" onclick="showPage('notizie');return false;">notizie dell&rsquo;Area</a>.
+      </div>
+
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
+    </div>
+
+    <div class="page" id="page-iscrizione">
+      <style>
+        #page-iscrizione [hidden]{display:none!important}
+        .iz-avviso{background:#fff;border:1px solid var(--border);border-left:4px solid var(--orange);
+          border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:20px;font-size:15px;line-height:1.5}
+        .iz-avviso.spento{border-left-color:#9aa1a7;color:var(--muted)}
+        .iz-scelta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+        .iz-scelta button{flex:1 1 200px;background:#fff;border:1px solid var(--border);border-radius:10px;
+          padding:14px 16px;text-align:left;font:inherit;color:inherit;cursor:pointer;line-height:1.4}
+        .iz-scelta button.on{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange)}
+        .iz-scelta b{display:block;margin-bottom:3px}
+        .iz-scelta small{color:var(--muted)}
+        .iz-persona{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+        .iz-persona h4{margin:0 0 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+        .iz-togli{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+        .iz-aggiungi{background:#fff;border:1px dashed var(--border);border-radius:10px;padding:12px;
+          width:100%;font:inherit;color:var(--orange);font-weight:700;cursor:pointer;margin-bottom:20px}
+        .iz-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        @media(max-width:560px){.iz-2{grid-template-columns:1fr}}
+      </style>
+
+      <button class="btn-back" id="iz-indietro">&#8592; Torna all&rsquo;elenco</button>
+      <div class="form-header">
+        <h2 id="iz-titolo">Iscrizione</h2>
+        <p id="iz-sotto">Compilate i dati di chi partecipa: sono quelli che finiranno sull&rsquo;attestato.</p>
+      </div>
+
+      <div class="qz-rif" id="iz-rif" hidden></div>
+      <div class="iz-avviso" id="iz-avviso" hidden></div>
+
+      <form id="form-iscrizione" novalidate hidden>
+        <div class="iz-scelta">
+          <button type="button" id="iz-b-impresa" class="on">
+            <b>Iscrivo i miei lavoratori</b><small>Compila un&rsquo;impresa per i propri dipendenti</small>
+          </button>
+          <button type="button" id="iz-b-persona">
+            <b>Mi iscrivo io</b><small>Partecipo a titolo personale o come professionista</small>
+          </button>
+        </div>
+        <input type="hidden" name="per_conto" id="iz-per-conto" value="impresa">
+
+        <div id="iz-impresa">
+          <div class="form-group">
+            <label for="iz-rs">Ragione sociale <span class="req">*</span></label>
+            <input type="text" id="iz-rs" name="ragione_sociale" maxlength="200">
+          </div>
+          <div class="iz-2">
+            <div class="form-group">
+              <label for="iz-piva">Partita IVA <span class="req">*</span></label>
+              <input type="text" id="iz-piva" name="piva" inputmode="numeric" maxlength="16">
+            </div>
+            <div class="form-group">
+              <label for="iz-cfi">Codice fiscale dell&rsquo;impresa</label>
+              <input type="text" id="iz-cfi" name="cf_impresa" maxlength="16" style="text-transform:uppercase">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="iz-ind">Indirizzo</label>
+            <input type="text" id="iz-ind" name="ind_impresa" maxlength="200">
+          </div>
+          <div class="iz-2">
+            <div class="form-group">
+              <label for="iz-com">Comune</label>
+              <input type="text" id="iz-com" name="comune_impresa" maxlength="120">
+            </div>
+            <div class="iz-2">
+              <div class="form-group">
+                <label for="iz-cap">CAP</label>
+                <input type="text" id="iz-cap" name="cap_impresa" inputmode="numeric" maxlength="5">
+              </div>
+              <div class="form-group">
+                <label for="iz-prov">Prov.</label>
+                <input type="text" id="iz-prov" name="prov_impresa" maxlength="2" style="text-transform:uppercase">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="iz-ref">Referente che compila</label>
+            <input type="text" id="iz-ref" name="referente" maxlength="120">
+          </div>
+        </div>
+
+        <div class="iz-2">
+          <div class="form-group">
+            <label for="iz-email">E-mail per la conferma <span class="req">*</span></label>
+            <input type="email" id="iz-email" name="email" maxlength="160">
+          </div>
+          <div class="form-group">
+            <label for="iz-tel">Telefono</label>
+            <input type="tel" id="iz-tel" name="telefono" maxlength="40">
+          </div>
+        </div>
+
+        <h3 id="iz-h-persone" style="margin:26px 0 12px;font-size:17px">Chi partecipa</h3>
+        <div id="iz-persone"></div>
+        <button type="button" class="iz-aggiungi" id="iz-piu">&#43; Aggiungi un&rsquo;altra persona</button>
+
+        <div class="form-group">
+          <label for="iz-note">Note per la segreteria</label>
+          <textarea id="iz-note" name="note" rows="3" maxlength="1500"></textarea>
+        </div>
+
+        <div class="privacy-box">
+          <input type="checkbox" id="iz-privacy" name="privacy" required>
+          <p><strong>Privacy (Reg. UE 2016/679)</strong><br>
+          I dati delle persone iscritte servono a tenere il registro delle presenze e a emettere gli attestati,
+          e restano a Formedil Padova. Dichiarate di aver informato le persone indicate.
+          <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.</p>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-send" id="iz-btnSend">Invia l&rsquo;iscrizione</button>
+        </div>
+
+        <div class="error-banner" id="iz-error">Errore durante l&rsquo;invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
+        <div class="success-banner" id="iz-success">
+          <h2>&#10003; Iscrizione ricevuta</h2>
+          <p>La segreteria controlla i dati e vi conferma il posto per e-mail.
+             Se qualcosa non torna &mdash; un nome gi&agrave; in elenco, un dato mancante &mdash; vi scriviamo noi.</p>
+          <button class="btn-new" onclick="showPage('iscrizioni')">Chiudi</button>
+        </div>
+      </form>
+
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
+    </div>
+
     <div class="page" id="page-qevento">
       <style>
         #page-qevento [hidden]{display:none!important}
@@ -3837,6 +4024,8 @@ const PAGE_TITLES = {
   questionario: ['Valutazione Sopralluogo', ''],
   qevento: ['Questionario dell\'evento', ''],
   test: ['Verifica finale', ''],
+  iscrizioni: ['Corsi e incontri aperti', ''],
+  iscrizione: ['Iscrizione', ''],
   cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
@@ -3903,6 +4092,8 @@ function showPage(id) {
   if (id === 'not') document.getElementById('not-data_com').valueAsDate = new Date();
   // Notizie
   if (id === 'notizie') { newsPageOpen(); }
+  /* l'elenco dei corsi aperti si legge quando si apre la pagina */
+  if (id === 'iscrizioni' && window.caricaIscrizioniAperte) window.caricaIscrizioniAperte();
 }
 
 function toggleSidebar() {
@@ -5844,6 +6035,290 @@ document.getElementById('topbarTitle').style.display = 'none';
       return f;
     });
   });
+})();
+</script>
+
+<!-- ═════════════════════════════════════════════════
+     ISCRIZIONE A UN CORSO O A UN INCONTRO (18/09/2026)
+     L'elenco e il modulo. Le domande non ci sono: qui si chiede
+     l'anagrafica, e si chiede tutta subito perche' e' quella che
+     finira' sull'attestato.
+═════════════════════════════════════════════════ -->
+<script>
+(function () {
+  var MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  var dati = null, rifCompleto = '', daElenco = false, nPersone = 0;
+
+  function el(tag, cls, testo) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (testo != null) n.textContent = testo;
+    return n;
+  }
+  function giorno(d) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return '';
+    var p = d.split('-');
+    return (+p[2]) + ' ' + MESI[+p[1] - 1] + ' ' + p[0];
+  }
+  function quando(ev) {
+    if (ev.dal && ev.al && ev.dal !== ev.al) return 'dal ' + giorno(ev.dal) + ' al ' + giorno(ev.al);
+    return giorno(ev.dal || ev.al);
+  }
+  function avviso(t, spento) {
+    var a = document.getElementById('iz-avviso');
+    a.textContent = t; a.classList.toggle('spento', !!spento); a.hidden = false;
+  }
+
+  /* ── l'elenco: solo quello che la segreteria ha messo in vetrina ────── */
+  var elencoCaricato = false;
+  async function elenco() {
+    if (elencoCaricato) return;
+    elencoCaricato = true;
+    var cont = document.getElementById('is-elenco');
+    var r;
+    try { r = await _sb.rpc('iscrizioni_aperte'); } catch (e) { r = { error: e }; }
+    var righe = (r && !r.error && Array.isArray(r.data)) ? r.data : [];
+    if (!righe.length) { document.getElementById('is-vuoto').hidden = false; return; }
+    righe.forEach(function (ev) {
+      var b = el('button', 'is-card'); b.type = 'button';
+      if (ev.progetto) b.appendChild(el('div', 'is-p', ev.progetto));
+      b.appendChild(el('div', 'is-t', ev.titolo));
+      var righe2 = [];
+      var q = quando(ev); if (q) righe2.push(q);
+      if (ev.sede) righe2.push(ev.sede);
+      if (ev.ore) righe2.push(ev.ore + (Number(ev.ore) === 1 ? ' ora' : ' ore'));
+      if (righe2.length) b.appendChild(el('div', 'is-q', righe2.join(' · ')));
+      if (ev.descrizione) b.appendChild(el('div', 'is-d', ev.descrizione));
+      /* i posti liberi si dicono solo quando ce n'e' un numero: «posti
+         illimitati» non e' un'informazione, e' rumore */
+      if (ev.liberi != null) {
+        b.appendChild(el('span', 'is-posti',
+          ev.liberi === 1 ? 'ancora 1 posto' : 'ancora ' + ev.liberi + ' posti'));
+      }
+      b.onclick = function () { apriEvento(ev.codice, '', true); };
+      cont.appendChild(b);
+    });
+  }
+
+  /* ── una persona da iscrivere ──────────────────────────────
+     ⚠️ Tutti i campi dell'anagrafica, subito. Nascita e cittadinanza
+     servono all'attestato, e chiederli dopo vuol dire una mail a testa. */
+  function persona(i) {
+    var box = el('div', 'iz-persona'); box.dataset.i = String(i);
+    var h = el('h4'); h.appendChild(el('span', null, 'Persona ' + (i + 1)));
+    if (i > 0) {
+      var x = el('button', 'iz-togli', 'togli'); x.type = 'button';
+      x.onclick = function () { box.remove(); rinumera(); };
+      h.appendChild(x);
+    }
+    box.appendChild(h);
+
+    function campo(nome, etichetta, opz) {
+      opz = opz || {};
+      var g = el('div', 'form-group');
+      var l = el('label', null, etichetta);
+      if (opz.obbligatorio) { var r = el('span', 'req', ' *'); l.appendChild(r); }
+      g.appendChild(l);
+      var inp = document.createElement(opz.tag || 'input');
+      if (!opz.tag) inp.type = opz.type || 'text';
+      inp.className = 'p-' + nome;
+      inp.maxLength = opz.max || 120;
+      if (opz.style) inp.setAttribute('style', opz.style);
+      if (opz.inputmode) inp.setAttribute('inputmode', opz.inputmode);
+      if (opz.opzioni) {
+        opz.opzioni.forEach(function (o) {
+          var op = document.createElement('option');
+          op.value = (o === '—' ? '' : o); op.textContent = o;
+          inp.appendChild(op);
+        });
+      }
+      l.setAttribute('for', ''); g.appendChild(inp);
+      return g;
+    }
+    var due = function (a, b) { var d = el('div', 'iz-2'); d.appendChild(a); d.appendChild(b); return d; };
+
+    box.appendChild(due(
+      campo('titolo', 'Titolo', { tag: 'select', opzioni: ['—', 'Sig.', 'Sig.ra', 'Geom.', 'Ing.', 'Arch.', 'Dott.', 'Dott.ssa', 'P.I.'] }),
+      campo('cf', 'Codice fiscale', { obbligatorio: true, max: 16, style: 'text-transform:uppercase' })));
+    box.appendChild(due(
+      campo('cognome', 'Cognome', { obbligatorio: true }),
+      campo('nome', 'Nome', { obbligatorio: true })));
+    box.appendChild(due(
+      campo('nato_il', 'Data di nascita', { type: 'date' }),
+      campo('comune_nascita', 'Comune di nascita')));
+    box.appendChild(due(
+      campo('cittadinanza', 'Cittadinanza'),
+      campo('mansione', 'Mansione in azienda')));
+    box.appendChild(due(
+      campo('email', 'E-mail', { type: 'email', max: 160 }),
+      campo('telefono', 'Telefono', { type: 'tel', max: 40 })));
+    return box;
+  }
+  function rinumera() {
+    var box = document.querySelectorAll('#iz-persone .iz-persona');
+    for (var i = 0; i < box.length; i++) {
+      box[i].dataset.i = String(i);
+      box[i].querySelector('h4 span').textContent = 'Persona ' + (i + 1);
+    }
+    nPersone = box.length;
+  }
+  function leggiPersone() {
+    var out = [];
+    document.querySelectorAll('#iz-persone .iz-persona').forEach(function (b) {
+      var p = {};
+      ['titolo','cf','cognome','nome','nato_il','comune_nascita','cittadinanza','mansione','email','telefono']
+        .forEach(function (k) {
+          var n = b.querySelector('.p-' + k);
+          var v = n ? String(n.value || '').trim() : '';
+          if (v) p[k] = (k === 'cf') ? v.toUpperCase() : v;
+        });
+      if (p.cognome || p.nome || p.cf) out.push(p);
+    });
+    return out;
+  }
+
+  /* ── chi si iscrive: un'impresa, oppure una persona per se' ──────── */
+  function modo(m) {
+    document.getElementById('iz-per-conto').value = m;
+    document.getElementById('iz-b-impresa').classList.toggle('on', m === 'impresa');
+    document.getElementById('iz-b-persona').classList.toggle('on', m === 'persona');
+    document.getElementById('iz-impresa').hidden = (m === 'persona');
+    document.getElementById('iz-piu').hidden = (m === 'persona');
+    document.getElementById('iz-h-persone').textContent = (m === 'persona') ? 'I tuoi dati' : 'Chi partecipa';
+    /* «mi iscrivo io» vuol dire una persona sola: le altre schede si tolgono,
+       cosi' non restano righe mezze compilate che nessuno vede piu' */
+    if (m === 'persona') {
+      var box = document.querySelectorAll('#iz-persone .iz-persona');
+      for (var i = 1; i < box.length; i++) box[i].remove();
+      rinumera();
+    }
+  }
+
+  async function apriEvento(codice, firma, dallElenco) {
+    daElenco = !!dallElenco;
+    document.getElementById('iz-avviso').hidden = true;
+    document.getElementById('form-iscrizione').hidden = true;
+    document.getElementById('iz-indietro').textContent = daElenco ? '← Torna all’elenco' : '← Torna alla home';
+    showPage('iscrizione');
+
+    var r;
+    try { r = await _sb.rpc('apri_iscrizione', { p_codice: codice, p_firma: firma || null }); }
+    catch (e) {
+      avviso('Non riusciamo a caricare l’iscrizione. Controllate la connessione e riprovate.', true);
+      return;
+    }
+    if (r.error || !r.data || r.data.trovato !== true) {
+      avviso('Questo collegamento non corrisponde a nessuna iscrizione aperta. Se lo avete digitato a mano, '
+           + 'controllate le lettere; altrimenti chiedete alla segreteria di rimandarvelo.', true);
+      return;
+    }
+    dati = r.data;
+    rifCompleto = dati.codice + (firma ? '.' + firma : '');
+
+    var box = document.getElementById('iz-rif');
+    box.textContent = '';
+    var t = el('div'); t.appendChild(el('b', null, dati.titolo || 'Iscrizione'));
+    box.appendChild(t);
+    var sotto = [];
+    if (dati.progetto) sotto.push(dati.progetto);
+    var q = quando(dati); if (q) sotto.push(q);
+    if (dati.sede) sotto.push(dati.sede);
+    if (dati.ore) sotto.push(dati.ore + (Number(dati.ore) === 1 ? ' ora' : ' ore'));
+    if (sotto.length) box.appendChild(el('div', null, sotto.join(' · ')));
+    /* le giornate si scrivono tutte: un corso su piu' giorni non consecutivi
+       e' la regola, non l'eccezione, e chi si iscrive deve sapere quando */
+    (dati.giornate || []).forEach(function (g) {
+      var righe = giorno(g.data);
+      if (g.dalle) righe += ' · ' + g.dalle + (g.alle ? '–' + g.alle : '');
+      if (g.dalle2) righe += ' e ' + g.dalle2 + (g.alle2 ? '–' + g.alle2 : '');
+      if (g.sede && g.sede !== dati.sede) righe += ' · ' + g.sede;
+      box.appendChild(el('div', null, righe));
+    });
+    box.hidden = false;
+    document.getElementById('iz-titolo').textContent = dati.titolo || 'Iscrizione';
+    if (dati.descrizione) document.getElementById('iz-sotto').textContent = dati.descrizione;
+
+    if (dati.aperto !== true) {
+      avviso('Le iscrizioni a questo incontro sono chiuse'
+           + (dati.liberi === 0 ? ' perché i posti sono esauriti' : '')
+           + '. Se vi interessa lo stesso scriveteci a cpt@formedilpadova.it: '
+           + 'quando ripetiamo l’incontro vi avvisiamo.', true);
+      return;
+    }
+
+    var cont = document.getElementById('iz-persone');
+    if (!cont.children.length) { cont.appendChild(persona(0)); nPersone = 1; }
+    document.getElementById('form-iscrizione').hidden = false;
+  }
+  window.apriIscrizione = apriEvento;
+
+  document.getElementById('iz-b-impresa').onclick = function () { modo('impresa'); };
+  document.getElementById('iz-b-persona').onclick = function () { modo('persona'); };
+  document.getElementById('iz-piu').onclick = function () {
+    if (nPersone >= 30) {
+      /* trenta e' quanto ne tiene un invio: oltre, si manda due volte. Meglio
+         dirlo che far sparire le ultime righe senza spiegazione. */
+      alert('Per ogni invio si possono iscrivere fino a 30 persone. Mandate questo elenco e poi compilatene un altro.');
+      return;
+    }
+    document.getElementById('iz-persone').appendChild(persona(nPersone));
+    nPersone++;
+  };
+  document.getElementById('iz-indietro').onclick = function () {
+    showPage(daElenco ? 'iscrizioni' : 'home');
+  };
+
+  document.getElementById('form-iscrizione').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('iz-error');
+    var perConto = document.getElementById('iz-per-conto').value;
+    var persone = leggiPersone();
+
+    function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+    if (perConto === 'impresa') {
+      if (!document.getElementById('iz-rs').value.trim()) return ferma('Manca la ragione sociale dell’impresa.');
+      if (!document.getElementById('iz-piva').value.trim()) return ferma('Manca la partita IVA.');
+    }
+    if (!document.getElementById('iz-email').value.trim()) return ferma('Manca l’e-mail per la conferma.');
+    if (!persone.length) return ferma('Non c’è nessuna persona da iscrivere.');
+    for (var i = 0; i < persone.length; i++) {
+      var p = persone[i];
+      if (!p.cognome || !p.nome) return ferma('Persona ' + (i + 1) + ': manca il cognome o il nome.');
+      /* il codice fiscale e' il campo su cui la segreteria riconosce i
+         doppioni: senza, ogni omonimo diventa una persona nuova */
+      if (!p.cf || !/^[A-Z0-9]{16}$/.test(p.cf)) return ferma('Persona ' + (i + 1) + ': il codice fiscale non è di 16 caratteri.');
+    }
+    if (!document.getElementById('iz-privacy').checked) return ferma('Per proseguire serve la spunta sulla privacy.');
+    err.style.display = 'none';
+
+    submitForm('form-iscrizione', 'isc', async function (form) {
+      var f = collectFields(form);
+      f.riferimento = rifCompleto;
+      f.per_conto = perConto;
+      f.persone = JSON.stringify(persone);
+      if (perConto === 'persona') {
+        /* chi si iscrive per se' non ha un'impresa da dichiarare: i campi
+           restano vuoti invece di portarsi dietro quel che era scritto prima */
+        ['ragione_sociale','piva','cf_impresa','ind_impresa','comune_impresa','cap_impresa','prov_impresa','referente']
+          .forEach(function (k) { f[k] = ''; });
+      }
+      return f;
+    });
+  });
+
+  /* due porte: il link targato, oppure l'elenco pubblico */
+  var qs = new URLSearchParams(location.search);
+  var rif = (qs.get('iscrizione') || '').trim().slice(0, 120);
+  if (rif) {
+    var p = rif.indexOf('.');
+    apriEvento(p > 0 ? rif.slice(0, p) : rif, p > 0 ? rif.slice(p + 1) : '', false);
+  }
+  /* l'elenco si carica quando si apre la pagina, non prima: chi entra per un
+     altro servizio non deve pagarne la lettura. Lo chiama showPage, come fa
+     gia' per le notizie. */
+  window.caricaIscrizioniAperte = elenco;
+  if (document.querySelector('#page-iscrizioni.active')) elenco();
 })();
 </script>
 
