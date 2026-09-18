@@ -3323,69 +3323,38 @@
       <div class="iz-avviso" id="iz-avviso" hidden></div>
 
       <form id="form-iscrizione" novalidate hidden>
-        <div class="iz-scelta">
-          <button type="button" id="iz-b-impresa" class="on">
-            <b>Iscrivo i miei lavoratori</b><small>Compila un&rsquo;impresa per i propri dipendenti</small>
-          </button>
-          <button type="button" id="iz-b-persona">
-            <b>Mi iscrivo io</b><small>Partecipo a titolo personale o come professionista</small>
-          </button>
-        </div>
-        <input type="hidden" name="per_conto" id="iz-per-conto" value="impresa">
-
-        <div id="iz-impresa">
-          <div class="form-group">
-            <label for="iz-rs">Ragione sociale <span class="req">*</span></label>
-            <input type="text" id="iz-rs" name="ragione_sociale" maxlength="200">
+        <!-- ⚠️ Qui NON si chiede l'impresa dei partecipanti: ognuno ha la sua,
+             dentro la propria scheda. Qui c'è solo chi manda la richiesta, che
+             serve per rispondere e per sapere con chi parlare. -->
+        <div id="iz-chi-compila">
+          <h3 style="margin:0 0 4px;font-size:17px">Chi compila</h3>
+          <p class="hint" style="margin:0 0 14px">Serve per mandarvi la conferma. Se vi iscrivete
+             per voi stessi, rimettete gli stessi dati qui sotto come primo partecipante.</p>
+          <div class="iz-2">
+            <div class="form-group">
+              <label for="iz-ref">Nome e cognome <span class="req">*</span></label>
+              <input type="text" id="iz-ref" name="referente" maxlength="120">
+            </div>
+            <div class="form-group">
+              <label for="iz-rs">Impresa o studio <span class="hint">(se c&rsquo;&egrave;)</span></label>
+              <input type="text" id="iz-rs" name="ragione_sociale" maxlength="200">
+            </div>
           </div>
           <div class="iz-2">
             <div class="form-group">
-              <label for="iz-piva">Partita IVA <span class="req">*</span></label>
-              <input type="text" id="iz-piva" name="piva" inputmode="numeric" maxlength="16">
+              <label for="iz-email">E-mail per la conferma <span class="req">*</span></label>
+              <input type="email" id="iz-email" name="email" maxlength="160">
             </div>
             <div class="form-group">
-              <label for="iz-cfi">Codice fiscale dell&rsquo;impresa</label>
-              <input type="text" id="iz-cfi" name="cf_impresa" maxlength="16" style="text-transform:uppercase">
+              <label for="iz-tel">Telefono</label>
+              <input type="tel" id="iz-tel" name="telefono" maxlength="40">
             </div>
-          </div>
-          <div class="form-group">
-            <label for="iz-ind">Indirizzo</label>
-            <input type="text" id="iz-ind" name="ind_impresa" maxlength="200">
-          </div>
-          <div class="iz-2">
-            <div class="form-group">
-              <label for="iz-com">Comune</label>
-              <input type="text" id="iz-com" name="comune_impresa" maxlength="120">
-            </div>
-            <div class="iz-2">
-              <div class="form-group">
-                <label for="iz-cap">CAP</label>
-                <input type="text" id="iz-cap" name="cap_impresa" inputmode="numeric" maxlength="5">
-              </div>
-              <div class="form-group">
-                <label for="iz-prov">Prov.</label>
-                <input type="text" id="iz-prov" name="prov_impresa" maxlength="2" style="text-transform:uppercase">
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="iz-ref">Referente che compila</label>
-            <input type="text" id="iz-ref" name="referente" maxlength="120">
           </div>
         </div>
 
-        <div class="iz-2">
-          <div class="form-group">
-            <label for="iz-email">E-mail per la conferma <span class="req">*</span></label>
-            <input type="email" id="iz-email" name="email" maxlength="160">
-          </div>
-          <div class="form-group">
-            <label for="iz-tel">Telefono</label>
-            <input type="tel" id="iz-tel" name="telefono" maxlength="40">
-          </div>
-        </div>
-
-        <h3 id="iz-h-persone" style="margin:26px 0 12px;font-size:17px">Chi partecipa</h3>
+        <h3 id="iz-h-persone" style="margin:26px 0 6px;font-size:17px">Chi partecipa</h3>
+        <p class="hint" style="margin:0 0 14px"><strong>Ogni partecipante pu&ograve; appartenere a un&rsquo;impresa diversa.</strong>
+           Se sono della stessa, il pulsante «copia impresa» risparmia di riscriverla.</p>
         <div id="iz-persone"></div>
         <button type="button" class="iz-aggiungi" id="iz-piu">&#43; Aggiungi un&rsquo;altra persona</button>
 
@@ -6185,9 +6154,50 @@ document.getElementById('topbarTitle').style.display = 'none';
   /* ── una persona da iscrivere ──────────────────────────────
      ⚠️ Tutti i campi dell'anagrafica, subito. Nascita e cittadinanza
      servono all'attestato, e chiederli dopo vuol dire una mail a testa. */
+  /* i ruoli del modulo storico, che sono quelli dell'anagrafica dell'ente:
+     si copiano tali e quali, non si accorciano a gusto (la tendina del
+     vecchio modulo li ha tutti, e la segreteria li riconosce) */
+  var RUOLI_ISCR = ['ADD. EMERGENZA INCENDI','ADD. PRIMO SOCCORSO','APPRENDISTA','ASPP','ASSISTENTE',
+    'CAPOCANTIERE','CAPOSQUADRA','COLLABORATORE','CONSULENTE','COORDINATORE','COORDINATORE ESECUZIONE',
+    'COORDINATORE PER LA SICUREZZA','COORDINATORE PROGETTO','COORDINATORE TECNICO','CPS','DIPENDENTE',
+    'DIRETTORE LAVORI','DIRETTORE TECNICO','DIRIGENTE','IMPRENDITORE','LAVORATORE AUTONOMO',
+    'LEGALE RAPPRESENTANTE','LIBERO PROFESSIONISTA','MEDICO','PREPOSTO','RESP. LAVORI','RLS','RLST',
+    'RSPP','RSPP/COORDINATORE PER LA SICUREZZA','SOCIO','TECNICO','TIROCINANTE','ALTRO'];
+  var TITOLI_ISCR = ['Sig.','Sig.ra','Geom.','Ing.','Arch.','Dott.','Dott.ssa','P.I.','Rag.','Prof.'];
+  var PROVINCE_ISCR = ['PD','VE','VI','TV','VR','RO','BL','altra'];
+
+  /* i campi di una scheda: nome del campo, etichetta, opzioni */
+  function campo(nome, etichetta, opz) {
+    opz = opz || {};
+    var g = el('div', 'form-group');
+    var l = el('label', null, etichetta);
+    if (opz.obbligatorio) l.appendChild(el('span', 'req', ' *'));
+    g.appendChild(l);
+    var inp = document.createElement(opz.tag || 'input');
+    if (!opz.tag) inp.type = opz.type || 'text';
+    inp.className = 'p-' + nome;
+    if (!opz.tag) inp.maxLength = opz.max || 120;
+    if (opz.style) inp.setAttribute('style', opz.style);
+    if (opz.opzioni) {
+      opz.opzioni.forEach(function (o) {
+        var op = document.createElement('option');
+        op.value = (o === '\u2014' ? '' : o); op.textContent = o;
+        inp.appendChild(op);
+      });
+    }
+    g.appendChild(inp);
+    return g;
+  }
+  function due(a, b) { var d = el('div', 'iz-2'); d.appendChild(a); d.appendChild(b); return d; }
+
+  /* \u2500\u2500 una persona da iscrivere, con la SUA impresa \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+     \u26a0\ufe0f L'impresa sta QUI, non in testa: a un corso come a una conferenza si
+     iscrivono persone di imprese diverse (regola dell'utente, 19/09/2026).
+     \u26a0\ufe0f L'anagrafica si chiede tutta subito: \u00e8 quella che finir\u00e0
+     sull'attestato, e rincorrerla dopo costa una mail a testa. */
   function persona(i) {
     var box = el('div', 'iz-persona'); box.dataset.i = String(i);
-    var h = el('h4'); h.appendChild(el('span', null, 'Persona ' + (i + 1)));
+    var h = el('h4'); h.appendChild(el('span', null, 'Partecipante ' + (i + 1)));
     if (i > 0) {
       var x = el('button', 'iz-togli', 'togli'); x.type = 'button';
       x.onclick = function () { box.remove(); rinumera(); };
@@ -6195,85 +6205,89 @@ document.getElementById('topbarTitle').style.display = 'none';
     }
     box.appendChild(h);
 
-    function campo(nome, etichetta, opz) {
-      opz = opz || {};
-      var g = el('div', 'form-group');
-      var l = el('label', null, etichetta);
-      if (opz.obbligatorio) { var r = el('span', 'req', ' *'); l.appendChild(r); }
-      g.appendChild(l);
-      var inp = document.createElement(opz.tag || 'input');
-      if (!opz.tag) inp.type = opz.type || 'text';
-      inp.className = 'p-' + nome;
-      inp.maxLength = opz.max || 120;
-      if (opz.style) inp.setAttribute('style', opz.style);
-      if (opz.inputmode) inp.setAttribute('inputmode', opz.inputmode);
-      if (opz.opzioni) {
-        opz.opzioni.forEach(function (o) {
-          var op = document.createElement('option');
-          op.value = (o === '—' ? '' : o); op.textContent = o;
-          inp.appendChild(op);
-        });
-      }
-      l.setAttribute('for', ''); g.appendChild(inp);
-      return g;
-    }
-    var due = function (a, b) { var d = el('div', 'iz-2'); d.appendChild(a); d.appendChild(b); return d; };
-
     box.appendChild(due(
-      campo('titolo', 'Titolo', { tag: 'select', opzioni: ['—', 'Sig.', 'Sig.ra', 'Geom.', 'Ing.', 'Arch.', 'Dott.', 'Dott.ssa', 'P.I.'] }),
+      campo('titolo', 'Titolo', { tag: 'select', opzioni: ['\u2014'].concat(TITOLI_ISCR) }),
       campo('cf', 'Codice fiscale', { obbligatorio: true, max: 16, style: 'text-transform:uppercase' })));
     box.appendChild(due(
       campo('cognome', 'Cognome', { obbligatorio: true }),
       campo('nome', 'Nome', { obbligatorio: true })));
     box.appendChild(due(
-      campo('nato_il', 'Data di nascita', { type: 'date' }),
-      campo('comune_nascita', 'Comune di nascita')));
+      campo('sesso', 'Sesso', { tag: 'select', opzioni: ['\u2014', 'M', 'F'] }),
+      campo('nato_il', 'Data di nascita', { type: 'date' })));
+    box.appendChild(due(
+      campo('comune_nascita', 'Comune di nascita'),
+      campo('stato_nascita', 'Se nato all\u2019estero, lo Stato')));
     box.appendChild(due(
       campo('cittadinanza', 'Cittadinanza'),
-      campo('mansione', 'Mansione in azienda')));
+      campo('ruolo', 'Ruolo', { tag: 'select', opzioni: ['\u2014'].concat(RUOLI_ISCR) })));
     box.appendChild(due(
-      campo('email', 'E-mail', { type: 'email', max: 160 }),
-      campo('telefono', 'Telefono', { type: 'tel', max: 40 })));
+      campo('mansione', 'Mansione'),
+      campo('email', 'E-mail', { type: 'email', max: 160 })));
+
+    /* \u2500\u2500 l'impresa di questo partecipante \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+    var tit = el('div', null, null);
+    tit.setAttribute('style', 'display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:16px 0 8px');
+    tit.appendChild(el('strong', null, 'La sua impresa'));
+    if (i > 0) {
+      var copia = el('button', 'iz-togli', 'copia dal precedente'); copia.type = 'button';
+      copia.onclick = function () { copiaImpresa(i); };
+      tit.appendChild(copia);
+    }
+    box.appendChild(tit);
+
+    box.appendChild(due(
+      campo('imp_rs', 'Ragione sociale', { obbligatorio: true, max: 200 }),
+      campo('imp_piva', 'Partita IVA', { max: 16 })));
+    box.appendChild(due(
+      campo('imp_indirizzo', 'Indirizzo', { max: 200 }),
+      campo('imp_comune', 'Comune')));
+    box.appendChild(due(
+      campo('imp_cap', 'CAP', { max: 5 }),
+      campo('imp_prov', 'Provincia', { tag: 'select', opzioni: ['\u2014'].concat(PROVINCE_ISCR) })));
     return box;
   }
+
+  /* copia i dati d'impresa dalla scheda precedente: quando i partecipanti
+     sono della stessa ditta \u00e8 il gesto che evita di riscriverla ogni volta
+     (il modulo storico aveva lo stesso pulsante, e serviva) */
+  function copiaImpresa(i) {
+    var box = document.querySelectorAll('#iz-persone .iz-persona');
+    if (i < 1 || !box[i] || !box[i - 1]) return;
+    ['imp_rs','imp_piva','imp_indirizzo','imp_comune','imp_cap','imp_prov'].forEach(function (k) {
+      var da = box[i - 1].querySelector('.p-' + k), a = box[i].querySelector('.p-' + k);
+      if (da && a) a.value = da.value;
+    });
+  }
+
   function rinumera() {
     var box = document.querySelectorAll('#iz-persone .iz-persona');
     for (var i = 0; i < box.length; i++) {
       box[i].dataset.i = String(i);
-      box[i].querySelector('h4 span').textContent = 'Persona ' + (i + 1);
+      box[i].querySelector('h4 span').textContent = 'Partecipante ' + (i + 1);
     }
     nPersone = box.length;
   }
   function leggiPersone() {
     var out = [];
     document.querySelectorAll('#iz-persone .iz-persona').forEach(function (b) {
-      var p = {};
-      ['titolo','cf','cognome','nome','nato_il','comune_nascita','cittadinanza','mansione','email','telefono']
-        .forEach(function (k) {
-          var n = b.querySelector('.p-' + k);
-          var v = n ? String(n.value || '').trim() : '';
-          if (v) p[k] = (k === 'cf') ? v.toUpperCase() : v;
-        });
+      var p = {}, imp = {};
+      ['titolo','cf','cognome','nome','sesso','nato_il','comune_nascita','stato_nascita',
+       'cittadinanza','ruolo','mansione','email'].forEach(function (k) {
+        var n = b.querySelector('.p-' + k);
+        var v = n ? String(n.value || '').trim() : '';
+        if (v) p[k] = (k === 'cf') ? v.toUpperCase() : v;
+      });
+      [['imp_rs','ragione_sociale'],['imp_piva','piva'],['imp_indirizzo','indirizzo'],
+       ['imp_comune','comune'],['imp_cap','cap'],['imp_prov','prov']].forEach(function (c) {
+        var n = b.querySelector('.p-' + c[0]);
+        var v = n ? String(n.value || '').trim() : '';
+        if (v) imp[c[1]] = v;
+      });
+      /* l'impresa viaggia dentro la persona: \u00e8 la SUA, non quella di chi compila */
+      if (Object.keys(imp).length) p.impresa = imp;
       if (p.cognome || p.nome || p.cf) out.push(p);
     });
     return out;
-  }
-
-  /* ── chi si iscrive: un'impresa, oppure una persona per se' ──────── */
-  function modo(m) {
-    document.getElementById('iz-per-conto').value = m;
-    document.getElementById('iz-b-impresa').classList.toggle('on', m === 'impresa');
-    document.getElementById('iz-b-persona').classList.toggle('on', m === 'persona');
-    document.getElementById('iz-impresa').hidden = (m === 'persona');
-    document.getElementById('iz-piu').hidden = (m === 'persona');
-    document.getElementById('iz-h-persone').textContent = (m === 'persona') ? 'I tuoi dati' : 'Chi partecipa';
-    /* «mi iscrivo io» vuol dire una persona sola: le altre schede si tolgono,
-       cosi' non restano righe mezze compilate che nessuno vede piu' */
-    if (m === 'persona') {
-      var box = document.querySelectorAll('#iz-persone .iz-persona');
-      for (var i = 1; i < box.length; i++) box[i].remove();
-      rinumera();
-    }
   }
 
   async function apriEvento(codice, firma, dallElenco) {
@@ -6334,8 +6348,6 @@ document.getElementById('topbarTitle').style.display = 'none';
   }
   window.apriIscrizione = apriEvento;
 
-  document.getElementById('iz-b-impresa').onclick = function () { modo('impresa'); };
-  document.getElementById('iz-b-persona').onclick = function () { modo('persona'); };
   document.getElementById('iz-piu').onclick = function () {
     if (nPersone >= 30) {
       /* trenta e' quanto ne tiene un invio: oltre, si manda due volte. Meglio
@@ -6353,23 +6365,22 @@ document.getElementById('topbarTitle').style.display = 'none';
   document.getElementById('form-iscrizione').addEventListener('submit', function (e) {
     e.preventDefault();
     var err = document.getElementById('iz-error');
-    var perConto = document.getElementById('iz-per-conto').value;
     var persone = leggiPersone();
 
     function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 
-    if (perConto === 'impresa') {
-      if (!document.getElementById('iz-rs').value.trim()) return ferma('Manca la ragione sociale dell’impresa.');
-      if (!document.getElementById('iz-piva').value.trim()) return ferma('Manca la partita IVA.');
-    }
+    if (!document.getElementById('iz-ref').value.trim()) return ferma('Manca il nome di chi compila.');
     if (!document.getElementById('iz-email').value.trim()) return ferma('Manca l’e-mail per la conferma.');
-    if (!persone.length) return ferma('Non c’è nessuna persona da iscrivere.');
+    if (!persone.length) return ferma('Non c’è nessun partecipante da iscrivere.');
     for (var i = 0; i < persone.length; i++) {
       var p = persone[i];
-      if (!p.cognome || !p.nome) return ferma('Persona ' + (i + 1) + ': manca il cognome o il nome.');
+      if (!p.cognome || !p.nome) return ferma('Partecipante ' + (i + 1) + ': manca il cognome o il nome.');
       /* il codice fiscale e' il campo su cui la segreteria riconosce i
          doppioni: senza, ogni omonimo diventa una persona nuova */
-      if (!p.cf || !/^[A-Z0-9]{16}$/.test(p.cf)) return ferma('Persona ' + (i + 1) + ': il codice fiscale non è di 16 caratteri.');
+      if (!p.cf || !/^[A-Z0-9]{16}$/.test(p.cf)) return ferma('Partecipante ' + (i + 1) + ': il codice fiscale non è di 16 caratteri.');
+      /* ⚠️ l'impresa si chiede per OGNI partecipante: a un corso come a una
+         conferenza si iscrivono persone di imprese diverse */
+      if (!p.impresa || !p.impresa.ragione_sociale) return ferma('Partecipante ' + (i + 1) + ': manca la ragione sociale della sua impresa.');
     }
     if (!document.getElementById('iz-privacy').checked) return ferma('Per proseguire serve la spunta sulla privacy.');
     err.style.display = 'none';
@@ -6377,14 +6388,10 @@ document.getElementById('topbarTitle').style.display = 'none';
     submitForm('form-iscrizione', 'isc', async function (form) {
       var f = collectFields(form);
       f.riferimento = rifCompleto;
-      f.per_conto = perConto;
+      /* chi compila ha un'impresa dietro, o si iscrive per se': lo si vede da
+         quello che ha scritto, non da un bottone da premere */
+      f.per_conto = document.getElementById('iz-rs').value.trim() ? 'impresa' : 'persona';
       f.persone = JSON.stringify(persone);
-      if (perConto === 'persona') {
-        /* chi si iscrive per se' non ha un'impresa da dichiarare: i campi
-           restano vuoti invece di portarsi dietro quel che era scritto prima */
-        ['ragione_sociale','piva','cf_impresa','ind_impresa','comune_impresa','cap_impresa','prov_impresa','referente']
-          .forEach(function (k) { f[k] = ''; });
-      }
       return f;
     });
   });
