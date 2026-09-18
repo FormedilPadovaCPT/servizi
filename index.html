@@ -1094,8 +1094,8 @@
         <div class="service-card" onclick="showPage('questionario')">
           <span class="sc-icon">⭐</span>
           <div class="sc-title">Valutazione Sopralluogo</div>
-          <div class="sc-desc">Questionario di valutazione per i sopralluoghi in cantiere effettuati dai tecnici.</div>
-          <span class="sc-tag anon">Anonimo</span>
+          <div class="sc-desc">Com'è andata la visita del nostro tecnico in cantiere. Poche domande, e ci aiutano a fare meglio la prossima.</div>
+          <span class="sc-tag anon">1 minuto</span>
           <span class="sc-arrow">→</span>
         </div>
 
@@ -2963,199 +2963,174 @@
          9. QUESTIONARIO SOPRALLUOGO
     ════════════════════════════════ -->
     <div class="page" id="page-questionario">
+      <style>
+        /* Questionario del sopralluogo — «una domanda, poi dipende» (18/09/2026).
+           Classi proprie con prefisso qz- per non toccare il resto del portale. */
+        .qz-rif{background:#fff;border:1px solid var(--border);border-left:4px solid var(--orange);
+          border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:20px;font-size:14px;line-height:1.5}
+        .qz-rif b{color:var(--text)}
+        .qz-dom{display:block;font-weight:600;font-size:16px;margin:0 0 12px;color:var(--text)}
+        .qz-faccine{display:flex;gap:7px;justify-content:space-between}
+        .qz-fac{flex:1;border:1.5px solid var(--border);background:#fff;border-radius:14px;
+          padding:11px 2px 8px;cursor:pointer;text-align:center;transition:.15s;font-family:inherit;min-width:0}
+        .qz-fac svg{display:block;width:34px;height:34px;margin:0 auto;fill:none;stroke:currentColor;
+          stroke-width:1.7;stroke-linecap:round;transition:.15s}
+        .qz-fac svg .occhio{fill:currentColor;stroke:none}
+        .qz-fac{color:#9c9a93}
+        .qz-fac small{font-size:11px;color:var(--muted);display:block;margin-top:3px;white-space:nowrap;
+          overflow:hidden;text-overflow:ellipsis}
+        .qz-fac:hover{border-color:#b9b6ad}
+        .qz-fac.on{border-color:var(--orange);background:#fdece3;box-shadow:0 0 0 3px rgba(231,80,15,.13)}
+        .qz-fac.on{color:var(--orange2)}
+        .qz-fac.on svg{transform:scale(1.1);stroke-width:2}
+        .qz-fac.on small{color:var(--orange2);font-weight:600}
+        .qz-past{display:flex;flex-wrap:wrap;gap:8px}
+        .qz-p{border:1.5px solid var(--border);background:#fff;border-radius:999px;padding:9px 14px;
+          font:500 14px/1.2 inherit;cursor:pointer;color:var(--text);transition:.15s}
+        .qz-p:hover{border-color:#b9b6ad}
+        .qz-p.on{border-color:var(--orange);background:#fdece3;color:var(--orange2);font-weight:600}
+        .qz-p.on::before{content:"\2713 ";font-weight:700}
+        .qz-righe{display:grid;gap:8px}
+        .qz-r{border:1.5px solid var(--border);background:#fff;border-radius:12px;padding:13px 15px;
+          font:500 15px/1.25 inherit;cursor:pointer;display:flex;align-items:center;gap:11px;
+          transition:.15s;text-align:left;width:100%;color:var(--text)}
+        .qz-r:hover{border-color:#b9b6ad}
+        .qz-r i{flex:none;width:19px;height:19px;border-radius:50%;border:2px solid #c3c0b8}
+        .qz-r.on{border-color:var(--orange);background:#fdece3;color:var(--orange2);font-weight:600}
+        .qz-r.on i{border-color:var(--orange);background:var(--orange);box-shadow:inset 0 0 0 3px #fff}
+        .qz-richiamo{background:var(--light);border-radius:12px;padding:13px 15px;margin-top:6px}
+        .qz-richiamo.urge{background:#fdeceb;border:1px solid #f0c2be}
+        .qz-richiamo label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer;margin:0}
+        /* la veste toglie l'aspetto di serie a tutti i checkbox: qui va ridisegnato,
+           altrimenti resta un quadrato invisibile e nessuno lo spunta */
+        .qz-richiamo input[type=checkbox]{appearance:none;-webkit-appearance:none;margin:2px 0 0;flex:none;
+          width:20px;height:20px;border:2px solid var(--orange);border-radius:5px;background:#fff;
+          cursor:pointer;position:relative}
+        .qz-richiamo input[type=checkbox]:checked{background:var(--orange)}
+        .qz-richiamo input[type=checkbox]:checked::after{content:"";position:absolute;left:5.5px;top:1.5px;
+          width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+        .qz-passo{margin-top:26px}
+        /* le regole .field del portale impongono un display e vincono
+           sull'attributo: senza questa riga i rami resterebbero tutti aperti */
+        #page-questionario [hidden]{display:none!important}
+        @media(max-width:420px){.qz-fac span{font-size:25px}.qz-fac small{font-size:10px}}
+      </style>
+
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
-        <h2>⭐ Valutazione sopralluogo in cantiere</h2>
-        <p>Questionario anonimo · circa 5 minuti · grazie per la collaborazione!</p>
+        <h2>⭐ Com'è andata la visita?</h2>
+        <p>Poche domande, meno di un minuto. Serve a noi per fare meglio il prossimo sopralluogo.</p>
       </div>
-      <div class="prog-wrap">
-        <div class="prog-label" id="qst-progLabel">Compilazione: 0%</div>
-        <div class="prog-bar"><div class="prog-fill" id="qst-progFill"></div></div>
-      </div>
+
+      <div class="qz-rif" id="qst-rif" hidden></div>
+
       <form id="form-questionario" novalidate>
 
-        <div class="section-title">Informazioni generali</div>
-        <div class="grid-2">
-          <div class="field">
-            <label for="qst-tecnico">Tecnico Formedil Padova</label>
-            <select id="qst-tecnico" name="tecnico" required>
-              <option value="">— seleziona tecnico —</option>
-              <option>Bordina Geom. Amedeo</option>
-              <option>De Marco Arch. Nicola</option>
-              <option>Caon P.I. Franco</option>
-              <option>Camuffo Arch. Marco</option>
-              <option>Miani Ing. Elena</option>
-              <option>Parasiliti Collazzo Ing. Matilde</option>
-              <option>Visentini Arch. Tommaso</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="qst-data">Data della visita <span class="req">*</span></label>
-            <input type="date" id="qst-data" name="data_visita" required>
-          </div>
-        </div>
-
-        <div class="section-title">Obiettivo del sopralluogo</div>
-        <div class="field">
-          <label>Scopo principale della visita</label>
-          <div class="check-group">
-            <label class="check-opt"><input type="checkbox" name="qst_scopo" value="Verifica conformità sicurezza" onchange="updateCheckSel(this)"><span>Verifica conformità sicurezza</span></label>
-            <label class="check-opt"><input type="checkbox" name="qst_scopo" value="Formazione lavoratori" onchange="updateCheckSel(this)"><span>Informazione lavoratori</span></label>
-            <label class="check-opt"><input type="checkbox" name="qst_scopo" value="Consulenza tecnica" onchange="updateCheckSel(this)"><span>Consulenza tecnica</span></label>
-            <label class="check-opt"><input type="checkbox" name="qst_scopo" value="Monitoraggio periodico" onchange="updateCheckSel(this)"><span>Monitoraggio periodico</span></label>
-            <label class="check-opt"><input type="checkbox" name="qst_scopo" value="Altro" onchange="updateCheckSel(this)"><span>Altro</span></label>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>Le aspettative sul sopralluogo sono state soddisfatte? (1 = per niente · 5 = pienamente)</label>
-          <div class="scale-wrap" id="qst-scale-aspettative">
-            <span class="scale-label-lo">1</span>
-            <button type="button" class="scale-btn" onclick="setScale('aspettative',1,this)">1</button>
-            <button type="button" class="scale-btn" onclick="setScale('aspettative',2,this)">2</button>
-            <button type="button" class="scale-btn" onclick="setScale('aspettative',3,this)">3</button>
-            <button type="button" class="scale-btn" onclick="setScale('aspettative',4,this)">4</button>
-            <button type="button" class="scale-btn" onclick="setScale('aspettative',5,this)">5</button>
-            <span class="scale-label-hi">5</span>
-          </div>
-          <input type="hidden" id="qst-aspettative" name="scala_aspettative">
-        </div>
-
-        <div class="section-title">Valutazione del tecnico</div>
-        <div class="field">
-          <label>Il tecnico ha spiegato in modo chiaro ruolo e obiettivi della visita?</label>
-          <div class="radio-group">
-            <label class="radio-opt"><input type="radio" name="qst_ruolo_chiaro" value="Sì"><span>Sì</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_ruolo_chiaro" value="No"><span>No</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_ruolo_chiaro" value="Parzialmente"><span>Parzialmente</span></label>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>Il tecnico si è relazionato in modo professionale e disponibile? (1-5)</label>
-          <div class="scale-wrap">
-            <button type="button" class="scale-btn" onclick="setScale('professionale',1,this)">1</button>
-            <button type="button" class="scale-btn" onclick="setScale('professionale',2,this)">2</button>
-            <button type="button" class="scale-btn" onclick="setScale('professionale',3,this)">3</button>
-            <button type="button" class="scale-btn" onclick="setScale('professionale',4,this)">4</button>
-            <button type="button" class="scale-btn" onclick="setScale('professionale',5,this)">5</button>
-          </div>
-          <input type="hidden" id="qst-professionale" name="scala_professionale">
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>Ha fornito suggerimenti pratici per migliorare la sicurezza?</label>
-          <div class="radio-group">
-            <label class="radio-opt"><input type="radio" name="qst_suggerimenti" value="Sì"><span>Sì</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_suggerimenti" value="No"><span>No</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_suggerimenti" value="Parzialmente"><span>Parzialmente</span></label>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>I suggerimenti erano facili da applicare? (1-5)</label>
-          <div class="scale-wrap">
-            <button type="button" class="scale-btn" onclick="setScale('facilita',1,this)">1</button>
-            <button type="button" class="scale-btn" onclick="setScale('facilita',2,this)">2</button>
-            <button type="button" class="scale-btn" onclick="setScale('facilita',3,this)">3</button>
-            <button type="button" class="scale-btn" onclick="setScale('facilita',4,this)">4</button>
-            <button type="button" class="scale-btn" onclick="setScale('facilita',5,this)">5</button>
-          </div>
-          <input type="hidden" id="qst-facilita" name="scala_facilita">
-        </div>
-
-        <div class="section-title">Utilità del sopralluogo</div>
-        <div class="field">
-          <label>La visita ha aiutato a identificare nuovi rischi?</label>
-          <div class="radio-group">
-            <label class="radio-opt"><input type="radio" name="qst_nuovi_rischi" value="Sì"><span>Sì</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_nuovi_rischi" value="No"><span>No</span></label>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label>Dopo il sopralluogo, sono state adottate misure per migliorare la sicurezza?</label>
-          <div class="radio-group">
-            <label class="radio-opt"><input type="radio" name="qst_misure" value="Sì, modifiche immediate"><span>Sì, sono state fatte subito modifiche</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_misure" value="Sì, interventi programmati"><span>Sì, abbiamo programmato interventi</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_misure" value="No, non necessari"><span>No, non erano necessari interventi</span></label>
-            <label class="radio-opt"><input type="radio" name="qst_misure" value="No, non sappiamo come attuarli"><span>No, non sappiamo come attuarli</span></label>
-          </div>
-        </div>
-
-        <div class="section-title">Aree monitorate</div>
-        <div class="check-group">
-          <label class="check-opt"><input type="checkbox" name="qst_aree" value="Ponteggi e protezioni" onchange="updateCheckSel(this)"><span>Ponteggi e protezioni</span></label>
-          <label class="check-opt"><input type="checkbox" name="qst_aree" value="Documentazione" onchange="updateCheckSel(this)"><span>Documentazione</span></label>
-          <label class="check-opt"><input type="checkbox" name="qst_aree" value="Macchine e impianti elettrici" onchange="updateCheckSel(this)"><span>Macchine e impianti elettrici</span></label>
-          <label class="check-opt"><input type="checkbox" name="qst_aree" value="DPI" onchange="updateCheckSel(this)"><span>DPI – Dispositivi di Protezione Individuale</span></label>
-          <label class="check-opt"><input type="checkbox" name="qst_aree" value="Igiene" onchange="updateCheckSel(this)"><span>Igiene</span></label>
-        </div>
-
-        <div class="section-title">Servizi Formedil Padova</div>
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Quanto conosce i seguenti servizi di Formedil Padova – Area Sicurezza e Salute? (1 = non conosco · 5 = conosco bene)</p>
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="field">
-            <label>Formedil Padova – Area Sicurezza e Salute</label>
-            <div class="scale-wrap"><button type="button" class="scale-btn" onclick="setScale('serv1',1,this)">1</button><button type="button" class="scale-btn" onclick="setScale('serv1',2,this)">2</button><button type="button" class="scale-btn" onclick="setScale('serv1',3,this)">3</button><button type="button" class="scale-btn" onclick="setScale('serv1',4,this)">4</button><button type="button" class="scale-btn" onclick="setScale('serv1',5,this)">5</button></div>
-            <input type="hidden" id="qst-serv1" name="serv_area_sicurezza">
-          </div>
-          <div class="field">
-            <label>Servizio "Visite in cantiere"</label>
-            <div class="scale-wrap"><button type="button" class="scale-btn" onclick="setScale('serv2',1,this)">1</button><button type="button" class="scale-btn" onclick="setScale('serv2',2,this)">2</button><button type="button" class="scale-btn" onclick="setScale('serv2',3,this)">3</button><button type="button" class="scale-btn" onclick="setScale('serv2',4,this)">4</button><button type="button" class="scale-btn" onclick="setScale('serv2',5,this)">5</button></div>
-            <input type="hidden" id="qst-serv2" name="serv_visite_cantiere">
-          </div>
-          <div class="field">
-            <label>Consulenza per problemi di sicurezza</label>
-            <div class="scale-wrap"><button type="button" class="scale-btn" onclick="setScale('serv3',1,this)">1</button><button type="button" class="scale-btn" onclick="setScale('serv3',2,this)">2</button><button type="button" class="scale-btn" onclick="setScale('serv3',3,this)">3</button><button type="button" class="scale-btn" onclick="setScale('serv3',4,this)">4</button><button type="button" class="scale-btn" onclick="setScale('serv3',5,this)">5</button></div>
-            <input type="hidden" id="qst-serv3" name="serv_consulenza">
-          </div>
-          <div class="field">
-            <label>Formazione sulla sicurezza</label>
-            <div class="scale-wrap"><button type="button" class="scale-btn" onclick="setScale('serv4',1,this)">1</button><button type="button" class="scale-btn" onclick="setScale('serv4',2,this)">2</button><button type="button" class="scale-btn" onclick="setScale('serv4',3,this)">3</button><button type="button" class="scale-btn" onclick="setScale('serv4',4,this)">4</button><button type="button" class="scale-btn" onclick="setScale('serv4',5,this)">5</button></div>
-            <input type="hidden" id="qst-serv4" name="serv_formazione">
-          </div>
-          <div class="field">
-            <label>Corsi e seminari di aggiornamento</label>
-            <div class="scale-wrap"><button type="button" class="scale-btn" onclick="setScale('serv5',1,this)">1</button><button type="button" class="scale-btn" onclick="setScale('serv5',2,this)">2</button><button type="button" class="scale-btn" onclick="setScale('serv5',3,this)">3</button><button type="button" class="scale-btn" onclick="setScale('serv5',4,this)">4</button><button type="button" class="scale-btn" onclick="setScale('serv5',5,this)">5</button></div>
-            <input type="hidden" id="qst-serv5" name="serv_corsi">
-          </div>
-        </div>
-
-        <div class="section-title">Miglioramenti e contatti</div>
-        <div class="field" style="margin-bottom:14px">
-          <label for="qst-suggerimenti">Proposte per migliorare il servizio</label>
-          <textarea id="qst-suggerimenti" name="suggerimenti_testo" placeholder="C'è qualcosa che potremmo migliorare?"></textarea>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Vorrebbe ricevere aggiornamenti su formazione, sicurezza e normative?</label>
-            <div class="radio-group">
-              <label class="radio-opt"><input type="radio" name="qst_aggiornamenti" value="Sì"><span>Sì</span></label>
-              <label class="radio-opt"><input type="radio" name="qst_aggiornamenti" value="No"><span>No</span></label>
+        <!-- Chi non arriva dal link della mail dice almeno di quale visita parla.
+             Chi ci arriva non vede niente di tutto questo: lo sappiamo già. -->
+        <div id="qst-manuale">
+          <div class="grid-2">
+            <div class="field">
+              <label for="qst-tecnico">Con quale nostro tecnico?</label>
+              <select id="qst-tecnico" name="tecnico">
+                <option value="">— non ricordo —</option>
+                <option>Arch. Nicola De Marco</option>
+                <option>Arch. Tommaso Visentini</option>
+                <option>Marco Camuffo</option>
+                <option>Franco Caon</option>
+                <option>Amedeo Bordina</option>
+              </select>
             </div>
-          </div>
-          <div class="field">
-            <label>Gradirebbe essere contattato per discutere il sopralluogo?</label>
-            <div class="radio-group">
-              <label class="radio-opt"><input type="radio" name="qst_contatto" value="Sì"><span>Sì</span></label>
-              <label class="radio-opt"><input type="radio" name="qst_contatto" value="No"><span>No</span></label>
+            <div class="field">
+              <label for="qst-data">Quando, più o meno?</label>
+              <input type="date" id="qst-data" name="data_visita">
             </div>
           </div>
         </div>
-        <div class="field" style="margin-top:14px">
-          <label for="qst-recapito">Se desidera essere contattato lasci un recapito (telefono o e-mail)</label>
-          <input type="text" id="qst-recapito" name="recapito_contatto" placeholder="es. 333 0000000 o nome@email.it">
+
+        <!-- ── la domanda, l'unica obbligatoria ── -->
+        <div class="field qz-passo">
+          <label class="qz-dom">Quanto vi è stata utile?</label>
+          <div class="qz-faccine" id="qst-faccine">
+            <button type="button" class="qz-fac" data-v="1" aria-label="per niente"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="occhio" cx="8.6" cy="9.6" r="1.15"/><circle class="occhio" cx="15.4" cy="9.6" r="1.15"/><path d="M7.6 16.8 Q12 12.2 16.4 16.8"/></svg><small>per niente</small></button>
+            <button type="button" class="qz-fac" data-v="2" aria-label="poco"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="occhio" cx="8.6" cy="9.6" r="1.15"/><circle class="occhio" cx="15.4" cy="9.6" r="1.15"/><path d="M7.8 16.2 Q12 13.6 16.2 16.2"/></svg><small>poco</small></button>
+            <button type="button" class="qz-fac" data-v="3" aria-label="così così"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="occhio" cx="8.6" cy="9.6" r="1.15"/><circle class="occhio" cx="15.4" cy="9.6" r="1.15"/><path d="M8 15.3 H16"/></svg><small>così così</small></button>
+            <button type="button" class="qz-fac" data-v="4" aria-label="utile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="occhio" cx="8.6" cy="9.6" r="1.15"/><circle class="occhio" cx="15.4" cy="9.6" r="1.15"/><path d="M7.8 13.9 Q12 17 16.2 13.9"/></svg><small>utile</small></button>
+            <button type="button" class="qz-fac" data-v="5" aria-label="molto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle class="occhio" cx="8.6" cy="9.6" r="1.15"/><circle class="occhio" cx="15.4" cy="9.6" r="1.15"/><path d="M7.4 13.4 Q12 18.4 16.6 13.4"/></svg><small>molto</small></button>
+          </div>
+          <input type="hidden" id="qst-utilita" name="utilita">
         </div>
 
-        <div class="privacy-box">
-          <input type="checkbox" id="qst-privacy" name="privacy" required>
-          <p><strong>Informativa privacy – D.Lgs. 196/2003 e GDPR (Reg. UE 2016/679)</strong><br>
-          Con l'invio acconsento al trattamento dei dati da parte di <strong>Formedil Padova</strong> per le finalità connesse al questionario. <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa sulla privacy</a>.</p>
+        <!-- ── il ramo: si apre solo quello che serve ── -->
+        <div class="field qz-passo" id="qst-ramo-basso" hidden>
+          <label class="qz-dom">Che cosa non ha funzionato?</label>
+          <div class="qz-past" data-gruppo="motivi">
+            <button type="button" class="qz-p">Non era chiaro perché eravate lì</button>
+            <button type="button" class="qz-p">Consigli non applicabili da noi</button>
+            <button type="button" class="qz-p">Troppo poco tempo</button>
+            <button type="button" class="qz-p">Solo adempimenti, niente di utile</button>
+            <button type="button" class="qz-p">Avevamo altro da fare</button>
+          </div>
         </div>
-        <div class="btn-row">
-          <button type="button" class="btn-reset" onclick="resetForm('form-questionario','qst')">Cancella</button>
-          <button type="submit" class="btn-send" id="qst-btnSend" disabled>Invia questionario</button>
+
+        <div class="field qz-passo" id="qst-ramo-alto" hidden>
+          <label class="qz-dom">Che cosa è servito di più?</label>
+          <div class="qz-past" data-gruppo="motivi">
+            <button type="button" class="qz-p">Ci ha mostrato un rischio</button>
+            <button type="button" class="qz-p">Consigli pratici</button>
+            <button type="button" class="qz-p">Chiarezza sulle norme</button>
+            <button type="button" class="qz-p">Il confronto con il tecnico</button>
+            <button type="button" class="qz-p">La conferma che siamo a posto</button>
+          </div>
         </div>
+        <input type="hidden" id="qst-motivi" name="motivi">
+
+        <!-- ── da qui in poi si vede solo dopo aver risposto ── -->
+        <div id="qst-fine" hidden>
+
+          <div class="field qz-passo">
+            <label class="qz-dom">Dopo la visita avete fatto qualcosa?</label>
+            <div class="qz-righe" id="qst-azione">
+              <button type="button" class="qz-r"><i></i>Sì, subito</button>
+              <button type="button" class="qz-r"><i></i>Lo abbiamo messo in programma</button>
+              <button type="button" class="qz-r"><i></i>No, non serviva: eravamo a posto</button>
+              <button type="button" class="qz-r"><i></i>No, non sappiamo come farlo</button>
+            </div>
+            <input type="hidden" id="qst-azione-val" name="azione_dopo">
+          </div>
+
+          <div class="field qz-passo">
+            <label class="qz-dom" id="qst-commento-label">Volete aggiungere qualcosa? <span style="font-weight:400;color:var(--muted);font-size:13.5px">(facoltativo)</span></label>
+            <textarea id="qst-commento" name="commento" placeholder="Anche mezza riga."></textarea>
+          </div>
+
+          <div class="qz-richiamo qz-passo" id="qst-richiamo">
+            <label>
+              <input type="checkbox" id="qst-contatto" name="qst_contatto_cb">
+              <span id="qst-contatto-testo">Richiamateci: preferiamo parlarne con qualcuno</span>
+            </label>
+            <input type="text" id="qst-recapito" name="recapito_contatto" hidden
+                   style="margin-top:10px;width:100%" placeholder="telefono o e-mail">
+          </div>
+
+          <div class="privacy-box" style="margin-top:22px">
+            <input type="checkbox" id="qst-privacy" name="privacy" required>
+            <p><strong>Privacy (Reg. UE 2016/679)</strong><br>
+            Le risposte servono solo a migliorare il servizio di Formedil Padova e non vengono comunicate
+            all'impresa visitata né allegate ad alcun verbale. Lasciate un recapito solo se volete essere
+            richiamati. <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.</p>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-reset" onclick="resetForm('form-questionario','qst')">Cancella</button>
+            <button type="submit" class="btn-send" id="qst-btnSend" disabled>Invia</button>
+          </div>
+        </div>
+
         <div class="error-banner" id="qst-error">Errore durante l'invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
         <div class="success-banner" id="qst-success">
-          <h2>✓ Questionario inviato</h2>
-          <p>Grazie per il tempo dedicato. Il vostro feedback ci aiuta a migliorare il servizio.</p>
+          <h2>✓ Grazie, ricevuto</h2>
+          <p>Bastava questo. Se avete chiesto di essere richiamati, lo facciamo nei prossimi giorni.</p>
           <button class="btn-new" onclick="showPage('home')">Torna alla home</button>
         </div>
       </form>
@@ -4710,19 +4685,119 @@ document.getElementById('form-segnalazione').addEventListener('submit', e => {
   submitForm('form-segnalazione', 'seg', async form => collectFields(form));
 });
 
-// 9. QUESTIONARIO
+// 9. QUESTIONARIO — «una domanda, poi dipende» (18/09/2026)
+//
+// Il questionario arriva quasi sempre dal pulsante «Valuta la visita» della mail
+// che trasmette il verbale. Il link porta un riferimento FIRMATO alla visita
+// (?valuta=V2526-0874.<firma>): qui non si verifica niente — non abbiamo il
+// segreto e non lo dobbiamo avere — si riporta indietro tal quale, e a
+// controllarlo è il Gestionale quando ritira la risposta dalla cassetta.
+// Data, tecnico e comune che seguono nel link servono SOLO a scrivere
+// l'intestazione: chi li cambiasse mentirebbe soltanto a sé stesso, perché nel
+// database finisce quello che dice la visita vera.
+let qstRiferimento = '';
+let qstVoto        = 0;
+
+function qstSetVoto(v) {
+  qstVoto = v;
+  document.querySelectorAll('#qst-faccine .qz-fac').forEach(b => b.classList.toggle('on', +b.dataset.v === v));
+  document.getElementById('qst-utilita').value = v;
+
+  // il ramo: sotto il 3 si chiede che cosa non ha funzionato, sopra che cosa è servito.
+  // Al 3 non si aprono pastiglie: si chiede a parole, ed è la domanda del testo libero.
+  const basso = document.getElementById('qst-ramo-basso');
+  const alto  = document.getElementById('qst-ramo-alto');
+  basso.hidden = !(v <= 2);
+  alto.hidden  = !(v >= 4);
+  if (basso.hidden) qstPulisci(basso);
+  if (alto.hidden)  qstPulisci(alto);
+
+  document.getElementById('qst-commento-label').innerHTML = (v === 3)
+    ? 'Che cosa ci manca per esservi davvero utili?'
+    : 'Volete aggiungere qualcosa? <span style="font-weight:400;color:var(--muted);font-size:13.5px">(facoltativo)</span>';
+
+  const rich = document.getElementById('qst-richiamo');
+  rich.classList.toggle('urge', v <= 2);
+  document.getElementById('qst-contatto-testo').innerHTML = (v <= 2)
+    ? '<strong>Vogliamo capire.</strong> Possiamo richiamarvi?'
+    : 'Richiamateci: preferiamo parlarne con qualcuno';
+
+  document.getElementById('qst-fine').hidden = false;
+  calcProgressForm('qst');
+}
+
+function qstPulisci(box) {
+  box.querySelectorAll('.qz-p.on').forEach(p => p.classList.remove('on'));
+}
+
+function qstMotivi() {
+  return [...document.querySelectorAll('#qst-ramo-basso .qz-p.on, #qst-ramo-alto .qz-p.on')]
+    .map(p => p.textContent.trim()).join(' · ');
+}
+
+document.getElementById('qst-faccine').addEventListener('click', e => {
+  const b = e.target.closest('.qz-fac');
+  if (b) qstSetVoto(+b.dataset.v);
+});
+document.querySelectorAll('#form-questionario .qz-past').forEach(g => {
+  g.addEventListener('click', e => {
+    const p = e.target.closest('.qz-p');
+    if (p) p.classList.toggle('on');
+  });
+});
+document.getElementById('qst-azione').addEventListener('click', e => {
+  const r = e.target.closest('.qz-r');
+  if (!r) return;
+  document.querySelectorAll('#qst-azione .qz-r').forEach(x => x.classList.remove('on'));
+  r.classList.add('on');
+  document.getElementById('qst-azione-val').value = r.textContent.trim();
+});
+document.getElementById('qst-contatto').addEventListener('change', e => {
+  document.getElementById('qst-recapito').hidden = !e.target.checked;
+});
+
+/* il link della mail: si apre il questionario già intestato alla visita */
+(function qstDaLink() {
+  const q = new URLSearchParams(location.search);
+  const rif = (q.get('valuta') || '').trim();
+  if (!rif) return;
+  qstRiferimento = rif.slice(0, 120);
+  const capit = t => t.replace(/\S+/g, w => w.length > 2 ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w);
+  const d = (q.get('d') || '').trim(), t = (q.get('t') || '').trim(), c = (q.get('c') || '').trim();
+  let quando = '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    const [a, m, g] = d.split('-');
+    const mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+    quando = `${+g} ${mesi[+m - 1]} ${a}`;
+  }
+  const rifBox = document.getElementById('qst-rif');
+  rifBox.innerHTML = 'Parliamo della visita' +
+    (quando ? ' del <b>' + quando + '</b>' : '') +
+    (c ? ' a <b>' + capit(c.slice(0, 60)).replace(/[<>]/g, '') + '</b>' : '') +
+    (t ? ', con <b>' + t.slice(0, 60).replace(/[<>]/g, '') + '</b>' : '') + '.';
+  rifBox.hidden = false;
+  document.getElementById('qst-manuale').hidden = true;   // non lo chiediamo: lo sappiamo
+  showPage('questionario');
+})();
+
 document.getElementById('form-questionario').addEventListener('submit', e => {
   e.preventDefault();
+  if (!qstVoto) {
+    const err = document.getElementById('qst-error');
+    err.innerHTML = 'Manca la prima risposta: quanto vi è stata utile la visita?';
+    err.style.display = 'block';
+    document.getElementById('qst-faccine').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   submitForm('form-questionario', 'qst', async form => {
     const f = collectFields(form);
-    f.scopi_visita  = [...form.querySelectorAll('input[name=qst_scopo]:checked')].map(c=>c.value).join(', ');
-    f.aree_monitorate = [...form.querySelectorAll('input[name=qst_aree]:checked')].map(c=>c.value).join(', ');
-    ['qst_ruolo_chiaro','qst_suggerimenti','qst_nuovi_rischi','qst_misure','qst_aggiornamenti','qst_contatto'].forEach(n => {
-      const r = form.querySelector(`input[name="${n}"]:checked`);
-      f[n] = r ? r.value : '';
-    });
-    // Scale values
-    Object.keys(scaleValues).forEach(k => { f['scala_' + k] = scaleValues[k]; });
+    f.riferimento    = qstRiferimento;
+    f.utilita        = String(qstVoto);
+    f.motivi         = qstMotivi();
+    f.azione_dopo    = document.getElementById('qst-azione-val').value;
+    f.commento       = document.getElementById('qst-commento').value.trim();
+    f.qst_contatto   = document.getElementById('qst-contatto').checked ? 'Sì' : 'No';
+    if (!document.getElementById('qst-contatto').checked) f.recapito_contatto = '';
     return f;
   });
 });
