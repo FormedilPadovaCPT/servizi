@@ -5208,6 +5208,7 @@ document.getElementById('topbarTitle').style.display = 'none';
 (function () {
   var URL_AVVISI = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/functions/v1/push-notizie';
   var RINNOVO = 'servizi.avvisi.rinnovatoIl';
+  var ATTIVATO = 'servizi.avvisi.attivatiUnaVolta';
   var box = document.getElementById('avvisi-box');
   if (!box) return;
   var tit = document.getElementById('avvisi-titolo');
@@ -5255,6 +5256,11 @@ document.getElementById('topbarTitle').style.display = 'none';
     return j;
   }
   function segnaRinnovo() { try { localStorage.setItem(RINNOVO, String(Date.now())); } catch (e) {} }
+  // Distingue «non li ha mai attivati» da «li aveva attivi e il telefono ha fatto
+  // pulizia»: senza, non si potrebbe spiegare perché si sono spenti.
+  function segnaAttivo() { try { localStorage.setItem(ATTIVATO, '1'); } catch (e) {} }
+  function scordaAttivo() { try { localStorage.removeItem(ATTIVATO); } catch (e) {} }
+  function eraAttivo() { try { return localStorage.getItem(ATTIVATO) === '1'; } catch (e) { return false; } }
   function daRinnovare() {
     try { return Date.now() - Number(localStorage.getItem(RINNOVO) || 0) > 7 * 864e5; } catch (e) { return false; }
   }
@@ -5275,14 +5281,55 @@ document.getElementById('topbarTitle').style.display = 'none';
     var reg = await registrazione();
     if (!reg) { box.hidden = true; return; }
     var iscr = await reg.pushManager.getSubscription();
+
+    // ⚠️ 18/09/2026 — La sottoscrizione sparisce, il permesso no.
+    // Sul telefono dell'utente il riquadro tornava a chiedere «Attiva gli
+    // avvisi» a ogni apertura, e nel database sono nate quattro iscrizioni
+    // con endpoint diversi in cinque giorni: il browser perde la
+    // sottoscrizione (dati del sito ripuliti, service worker reinstallato),
+    // mentre il PERMESSO resta concesso. Se il permesso c'è, non si chiede
+    // niente a nessuno: ci si riscrive in silenzio e gli avvisi riprendono.
+    if (!iscr && Notification.permission === 'granted') {
+      try { iscr = await sottoscrivi(reg); } catch (e) { /* si ricade sul pulsante, sotto */ }
+    }
+
     if (iscr) {
       mostra('🔔 Avvisi attivi', 'Ti avvisiamo su questo dispositivo quando pubblichiamo una notizia.', 'Disattiva', disattiva);
       if (Notification.permission === 'granted' && daRinnovare()) {
         manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() }).then(segnaRinnovo).catch(function () {});
       }
+    } else if (Notification.permission === 'default' && eraAttivo()) {
+      // Il permesso è tornato daccapo: non l'abbiamo perso noi, l'ha
+      // cancellato il telefono insieme ai dati del sito. Dirlo, invece di
+      // riproporre il pulsante come se fosse la prima volta.
+      mostra('Gli avvisi si sono spenti',
+        'Il telefono ha cancellato i dati di questo sito, e con loro il permesso. Succede quando il browser è impostato per cancellare i dati alla chiusura' +
+        (installata ? '.' : ', oppure quando il portale si apre dal browser invece che dall\'app aggiunta alla schermata Home.'),
+        '🔔 Riattiva gli avvisi', attiva);
     } else {
       mostra('Avvisi sul telefono', 'Ricevi una notifica quando pubblichiamo una notizia.', '🔔 Attiva gli avvisi', attiva);
     }
+  }
+
+  // Si iscrive e lo dice al server. Usata sia dal pulsante sia dalla
+  // riscrizione in silenzio: un solo posto in cui la cosa è scritta.
+  async function sottoscrivi(reg) {
+    var iscr = await reg.pushManager.getSubscription();
+    if (!iscr) {
+      var r = await fetch(URL_AVVISI, { cache: 'no-store' });
+      var j = await r.json().catch(function () { return {}; });
+      if (!r.ok || !j.chiave) throw new Error('servizio degli avvisi non raggiungibile');
+      iscr = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: daB64u(j.chiave) });
+    }
+    try {
+      await manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() });
+    } catch (e) {
+      // se il server non l'ha salvata, il browser non deve credersi iscritto
+      await iscr.unsubscribe().catch(function () {});
+      throw e;
+    }
+    segnaRinnovo(); segnaAttivo();
+    return iscr;
   }
 
   async function attiva() {
@@ -5294,21 +5341,7 @@ document.getElementById('topbarTitle').style.display = 'none';
       btn.textContent = 'Attivazione…';
       var reg = await registrazione();
       if (!reg) throw new Error('l\'app non è ancora pronta, riprova fra qualche secondo');
-      var iscr = await reg.pushManager.getSubscription();
-      if (!iscr) {
-        var r = await fetch(URL_AVVISI, { cache: 'no-store' });
-        var j = await r.json().catch(function () { return {}; });
-        if (!r.ok || !j.chiave) throw new Error('servizio degli avvisi non raggiungibile');
-        iscr = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: daB64u(j.chiave) });
-      }
-      try {
-        await manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() });
-      } catch (e) {
-        // se il server non l'ha salvata, il browser non deve credersi iscritto
-        await iscr.unsubscribe().catch(function () {});
-        throw e;
-      }
-      segnaRinnovo();
+      await sottoscrivi(reg);   // la stessa strada della riscrizione in silenzio
       await aggiorna();
     } catch (e) {
       mostra('Avvisi non attivati', 'Non è stato possibile: ' + (e && e.message ? e.message : e) + '.', 'Riprova', attiva);
@@ -5325,6 +5358,7 @@ document.getElementById('topbarTitle').style.display = 'none';
         await iscr.unsubscribe();
         manda({ azione: 'cancella', endpoint: endpoint }).catch(function () {});
       }
+      scordaAttivo();   // spento di proposito: non è il telefono che ha fatto pulizia
     } catch (e) {}
     await aggiorna();
   }
