@@ -242,6 +242,16 @@
       gInf.appendChild(ins)
       new MutationObserver(function () { applica() }).observe(voce, { attributes: true, attributeFilter: ['hidden'] })
     }
+    /* Stessa idea per «Corsi e incontri aperti» (19/09/2026): la riga esiste
+       gia' (viene dalla scheda), ma si vede SOLO se ci sono eventi aperti.
+       A dirlo e' la voce #nav-iscrizioni, che index.html mostra o nasconde
+       dopo aver letto l'elenco dal portale; il numero sta nel suo contatore.
+       Cosi' la decisione sta in un posto solo e la veste la segue. */
+    var vIscr = document.getElementById('nav-iscrizioni')
+    if (vIscr) {
+      new MutationObserver(function () { applica() })
+        .observe(vIscr, { attributes: true, attributeFilter: ['hidden'], childList: true, subtree: true, characterData: true })
+    }
     var vuoto = el('p', 's3-vuoto'); vuoto.hidden = true; vuoto.id = 's3-vuoto'
     h.appendChild(vuoto)
 
@@ -335,6 +345,25 @@
     var inst = document.querySelector('.s3-installa'), voce = document.getElementById('nav-installa')
     if (inst) inst.hidden = !(voce && !voce.hidden) || !(stato.sit === 'tutti' || stato.sit === 'informato') ||
       !parole.every(function (p) { return 'installa installare app applicazione telefono icona home'.indexOf(p) >= 0 })
+    /* la riga dei corsi aperti: nascosta quando la voce di menu lo e',
+       evidenziata con la fascia quando ci sono eventi (il numero lo porta
+       il contatore della voce) */
+    var rIscr = document.querySelector('.s3-riga[data-pag="iscrizioni"]')
+    var vocIscr = document.getElementById('nav-iscrizioni')
+    if (rIscr && vocIscr) {
+      if (vocIscr.hidden) rIscr.hidden = true
+      var cn = document.getElementById('nav-iscrizioni-conta')
+      var n = cn && !cn.hidden ? parseInt(cn.textContent, 10) || 0 : 0
+      var f = rIscr.querySelector('.s3-fascia')
+      if (n > 0) {
+        if (!f) { f = el('span', 's3-fascia'); rIscr.insertBefore(f, rIscr.firstChild) }
+        f.textContent = 'Iscrizioni aperte \u00b7 ' + n + (n === 1 ? ' evento' : ' eventi')
+        rIscr.classList.add('s3-aperte')
+      } else {
+        if (f) f.remove()
+        rIscr.classList.remove('s3-aperte')
+      }
+    }
     var visibili = 0
     document.querySelectorAll('.s3-gruppo').forEach(function (g) {
       var n = g.querySelectorAll('.s3-riga:not([hidden])').length

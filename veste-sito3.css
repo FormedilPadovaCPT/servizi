@@ -100,6 +100,8 @@ html[data-veste="sito3"] .s3-righe{display:grid;grid-template-columns:repeat(2,m
 html[data-veste="sito3"] .s3-riga{display:grid;grid-template-columns:48px minmax(0,1fr) 22px;gap:15px;align-items:center;min-height:84px;background:var(--s3-bianco);border:1px solid var(--s3-linea);border-radius:16px;padding:14px 16px;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:border-color .15s,box-shadow .15s}
 html[data-veste="sito3"] .s3-riga[hidden]{display:none}
 html[data-veste="sito3"] .s3-riga:hover{border-color:var(--s3-arancio);box-shadow:0 8px 20px -14px rgba(46,52,57,.45)}
+html[data-veste="sito3"] .s3-riga.s3-aperte{position:relative;padding-top:40px;border-color:var(--s3-arancio);box-shadow:0 8px 20px -14px rgba(231,80,15,.55)}
+html[data-veste="sito3"] .s3-fascia{position:absolute;top:0;left:0;right:0;background:var(--s3-arancio);color:#fff;font:700 10.5px/1 Barlow,sans-serif;letter-spacing:.05em;text-transform:uppercase;padding:8px 16px;border-radius:15px 15px 0 0}
 html[data-veste="sito3"] .s3-ico{width:48px;height:48px;border-radius:13px;display:grid;place-items:center}
 html[data-veste="sito3"] .s3-ico svg{width:25px;height:25px}
 html[data-veste="sito3"] [data-sit="cantiere"] .s3-ico{background:var(--s3-arancio-chiaro);color:var(--s3-arancio-scuro)}

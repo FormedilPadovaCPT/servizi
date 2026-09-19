@@ -271,6 +271,29 @@
     }
     .service-card:hover .sc-arrow { color: var(--orange); transform: translateX(3px); }
 
+    /* ── CORSI E INCONTRI APERTI (19/09/2026) ──
+       La tessera si vede SOLO se c'e' almeno un evento aperto: l'elenco lo
+       dice il portale all'avvio. Con eventi aperti prende il bordo arancione
+       e la fascia col numero — tutte le altre tessere hanno il bordo verde,
+       quindi e' l'arancione a distinguerla. */
+    .service-card.iscr-aperte {
+      border-color: var(--orange);
+      box-shadow: 0 2px 10px rgba(231,80,15,.22);
+      padding-top: 44px;
+      overflow: hidden;
+    }
+    .iscr-fascia {
+      position: absolute; top: 0; left: 0; right: 0;
+      background: var(--orange); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: .05em;
+      padding: 6px 20px;
+    }
+    .nav-item .ni-conta {
+      display: inline-block; margin-left: 6px;
+      background: var(--orange); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 9px;
+    }
+
     /* ── CARD NOTIZIE ── */
     .service-card { position: relative; }
     .service-card.news-card {
@@ -940,8 +963,8 @@
       </a>
 
       <div class="nav-section-label">Formazione</div>
-      <a class="nav-item" onclick="showPage('iscrizioni')" href="#">
-        <span class="ni-icon">&#127891;</span> Corsi e incontri aperti
+      <a class="nav-item" id="nav-iscrizioni" onclick="showPage('iscrizioni')" href="#" hidden>
+        <span class="ni-icon">&#127891;</span> Corsi e incontri aperti<span class="ni-conta" id="nav-iscrizioni-conta" hidden></span>
       </a>
       <a class="nav-item" onclick="showPage('progetti')" href="#">
         <span class="ni-icon">&#128204;</span> I nostri progetti
@@ -1144,7 +1167,8 @@
         </div>
 
         <!-- CORSI E INCONTRI APERTI (18/09/2026) -->
-        <div class="service-card" onclick="showPage('iscrizioni')">
+        <div class="service-card" id="card-iscrizioni" onclick="showPage('iscrizioni')" hidden>
+          <div class="iscr-fascia" id="card-iscrizioni-fascia" hidden></div>
           <span class="sc-icon">🎓</span>
           <div class="sc-title">Corsi e incontri aperti</div>
           <div class="sc-desc">Le lezioni dei progetti finanziati e gli incontri a cui ci si puo&#768; iscrivere adesso. Per le imprese sono gratuiti.</div>
@@ -6614,6 +6638,44 @@ document.getElementById('topbarTitle').style.display = 'none';
   /* l'elenco si carica quando si apre la pagina, non prima: chi entra per un
      altro servizio non deve pagarne la lettura. Lo chiama showPage, come fa
      gia' per le notizie. */
+  /* ── la tessera in home e la voce di menu ─────────────────────────
+     ⚠️ Tre esiti, non due (19/09/2026):
+       - eventi aperti  -> tessera e voce visibili, fascia arancione col numero;
+       - nessun evento  -> spariscono tutte e due, come chiesto dall'utente;
+       - lettura fallita -> la tessera si vede SENZA fascia. Non sappiamo se
+         c'e' qualcosa, e nascondere un servizio che esiste sarebbe peggio
+         che mostrarlo senza numero: chi apre la pagina legge com'e' andata. */
+  async function aggiornaTessera() {
+    var card = document.getElementById('card-iscrizioni');
+    var fascia = document.getElementById('card-iscrizioni-fascia');
+    var voce = document.getElementById('nav-iscrizioni');
+    var conta = document.getElementById('nav-iscrizioni-conta');
+    if (!card || !voce) return;
+    var r;
+    try { r = await _sb.rpc('iscrizioni_aperte'); } catch (e) { r = { error: e }; }
+    if (!r || r.error || !Array.isArray(r.data)) {
+      card.hidden = false; voce.hidden = false;
+      card.classList.remove('iscr-aperte'); fascia.hidden = true; conta.hidden = true;
+      return;
+    }
+    var n = r.data.length;
+    card.hidden = n === 0;
+    voce.hidden = n === 0;
+    card.classList.toggle('iscr-aperte', n > 0);
+    fascia.hidden = n === 0;
+    conta.hidden = n === 0;
+    if (n > 0) {
+      fascia.textContent = 'ISCRIZIONI APERTE \u00b7 ' + n + (n === 1 ? ' EVENTO' : ' EVENTI');
+      conta.textContent = n;
+    }
+    /* la home che si vede e' quella della veste «Sito 3», che costruisce le
+       proprie righe dalle schede: legge lo stato dalla voce di menu (hidden
+       e contatore) e si aggiorna da se' con un osservatore. Se un domani la
+       veste non c'e', la scheda qui sopra resta quella buona. */
+  }
+  window.aggiornaTesseraIscrizioni = aggiornaTessera;
+  aggiornaTessera();
+
   window.caricaIscrizioniAperte = elenco;
   if (document.querySelector('#page-iscrizioni.active')) elenco();
 })();
