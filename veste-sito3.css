@@ -28,6 +28,9 @@ html[data-veste="sito3"] body{background:var(--s3-fondo);color:var(--s3-testo)}
 html[data-veste="sito3"] .sidebar,html[data-veste="sito3"] .sidebar-overlay,html[data-veste="sito3"] .topbar{display:none!important}
 html[data-veste="sito3"] .main{background:var(--s3-fondo)}
 html[data-veste="sito3"] #page-home{padding:0;background:var(--s3-fondo)}
+/* ⚠️ Qui sotto la home vecchia (intestazione + griglia a tessere) viene nascosta:
+   è materiale sorgente, non interfaccia. La home che si vede la costruisce
+   veste-sito3.js. Vedi 9_APPLICATIVI/SERVIZI/CLAUDE.md, prima sezione. */
 html[data-veste="sito3"] #page-home .home-hero,html[data-veste="sito3"] #page-home .services-grid-wrap,
 html[data-veste="sito3"] .page-footer,html[data-veste="sito3"] .page-hero,html[data-veste="sito3"] .btn-back{display:none!important}
 html[data-veste="sito3"] :focus-visible{outline:3px solid var(--s3-arancio);outline-offset:2px}

@@ -12,9 +12,13 @@
    - Pagine dei servizi con un'intestazione semplice e «Tutti i servizi».
    - Sul telefono una barra in basso: Servizi, Notizie, Segnala, Contatti.
 
-   Titoli, descrizioni ed etichette si leggono dalle schede della home
-   (.service-card); ogni riga apre la stessa pagina di prima (showPage).
-   Niente viene tolto dalla pagina: la veste attuale e' solo nascosta.
+   ⚠️ E' L'UNICA VESTE DEL PORTALE dal 14/09/2026: la home a tessere
+   (.service-card in #services-grid-wrap) e la vecchia intestazione sono
+   NASCOSTE e non si vedono piu'. Restano nell'HTML come SORGENTE DEI DATI:
+   titolo, descrizione ed etichetta di ogni servizio si leggono da li', e
+   ogni riga apre la stessa pagina di prima (showPage). Chi vuole cambiare
+   l'aspetto di un servizio lavora QUI, non sulla scheda: toccare la scheda
+   cambia solo le parole.
    ============================================================ */
 (function () {
   'use strict'
