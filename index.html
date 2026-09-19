@@ -3576,6 +3576,84 @@
     </div>
 
     <!-- ════════════════════════════════
+         9-ter. IL TEST SCRITTO DAL DOCENTE      (19/09/2026)
+         Ci si arriva SOLO dal link targato che manda la segreteria: nessuna
+         tessera in home, nessuna voce di menu. Quello che il docente scrive
+         NON diventa il test: diventa una proposta che la segreteria porta
+         dentro. ⚠️ Questa pagina non mostra mai le domande gia' attive del
+         corso — il link e' «chi ce l'ha entra», e mostrarle regalerebbe le
+         soluzioni a un corsista che se lo facesse girare.
+    ════════════════════════════════ -->
+    <div class="page" id="page-testdocente">
+      <style>
+        #page-testdocente .td-dom{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;background:#fff}
+        #page-testdocente .td-cap{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+        #page-testdocente .td-num{background:var(--orange);color:#fff;font-weight:700;font-size:13px;
+          width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+        #page-testdocente .td-via{margin-left:auto;background:none;border:0;color:#a33;font-size:13px;cursor:pointer;padding:4px 6px}
+        #page-testdocente .td-opz{display:flex;align-items:center;gap:9px;margin:7px 0}
+        #page-testdocente .td-opz input[type=text]{flex:1}
+        #page-testdocente .td-opz label{display:flex;align-items:center;gap:5px;font-size:13px;color:#555;white-space:nowrap}
+        #page-testdocente .td-piccolo{font-size:13px;color:#666;margin:2px 0 0}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">&#8592; Torna alla home</button>
+      <div class="form-header">
+        <h2>&#128221; Il test di fine corso</h2>
+        <p id="td-sotto">Scrivi qui le domande della verifica finale.</p>
+      </div>
+
+      <div class="info-box">
+        Le domande che scrivi qui <strong>non vanno subito online</strong>: le riceve la segreteria, che le
+        controlla e le pubblica. Per ogni domanda a risposta chiusa <strong>segna qual &egrave; la risposta
+        giusta</strong>: &egrave; cos&igrave; che il punteggio si calcola da s&eacute;, e il vecchio foglio
+        &laquo;correttore&raquo; non serve pi&ugrave;.
+      </div>
+
+      <form id="form-testdocente" novalidate>
+        <div class="section-title">Chi scrive il test</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="td-nome">Nome del docente <span class="req">*</span></label>
+            <input type="text" id="td-nome" name="nominativo" required>
+          </div>
+          <div class="field">
+            <label for="td-email">E-mail <small>(per risponderti, se serve)</small></label>
+            <input type="email" id="td-email" name="email" placeholder="nome@esempio.it">
+          </div>
+        </div>
+
+        <div class="section-title">Le domande</div>
+        <div id="td-domande"></div>
+        <button type="button" class="btn-new" id="td-piu" style="margin-bottom:18px">&#43; Aggiungi una domanda</button>
+
+        <div class="section-title">Note per la segreteria</div>
+        <div class="field col-full">
+          <label for="td-note">Qualcosa da dire su questo test <small>(facoltativo)</small></label>
+          <textarea id="td-note" name="note" rows="3" placeholder="Es.: il punteggio minimo per passare dovrebbe essere 18 su 25."></textarea>
+        </div>
+
+        <div class="privacy-box">
+          <input type="checkbox" id="td-privacy" name="privacy" required>
+          <p><strong>Informativa privacy &ndash; D.Lgs. 196/2003 e GDPR (Reg. UE 2016/679)</strong><br>
+          Con l&rsquo;invio autorizzo il trattamento dei dati personali da parte di <strong>Formedil Padova</strong>
+          esclusivamente per la gestione del corso e della sua verifica finale.
+          <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa sulla privacy</a>.</p>
+        </div>
+
+        <div class="form-error" id="dtst-error" style="display:none"></div>
+        <button type="submit" class="btn-submit" id="dtst-btnSend">Invia il test alla segreteria</button>
+
+        <div class="success-banner" id="dtst-success" style="display:none">
+          <h2>&#10003; Test inviato</h2>
+          <p>Grazie. La segreteria lo controlla e lo pubblica: se manca qualcosa ti scriver&agrave;.</p>
+          <button type="button" class="btn-new" onclick="showPage('home')">Chiudi</button>
+        </div>
+      </form>
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
+    </div>
+
+    <!-- ════════════════════════════════
          10. AVVIO CORSI ART.37
     ════════════════════════════════ -->
     <div class="page" id="page-cor">
@@ -6895,6 +6973,224 @@ document.getElementById('topbarTitle').style.display = 'none';
   rif = v.slice(0, 120);
   showPage('test');
   apri();
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   IL TEST SCRITTO DAL DOCENTE                                  (19/09/2026)
+
+   Chiesto dall'utente: «se c'e' un test finale bisogna che il docente del
+   corso, anche tramite la segreteria, possa caricare il test di quello
+   specifico corso o lezione o evento». Fino a oggi le domande le poteva
+   scrivere solo la segreteria dalla sua applicazione, dove un docente —
+   tecnico o esterno che sia — non entra.
+
+   Si arriva qui SOLO col link targato: ?testdocente=<codice>.<firma>
+   Titolo del corso (&c=) e nome del docente (&d=) servono soltanto a
+   intestare la pagina: a dire di quale corso si tratta e' il codice firmato,
+   e chi li cambiasse mentirebbe solo a se' stesso (stessa scelta del
+   questionario della visita).
+   ══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var rif = '', nDom = 0;
+  var TIPI = [
+    ['scelta', 'Una sola risposta giusta'],
+    ['multipla', 'Pi\u00f9 risposte giuste'],
+    ['testo', 'Risposta scritta (la valuta una persona)'],
+  ];
+
+  function el(tag, cls, testo) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (testo != null) e.textContent = testo;
+    return e;
+  }
+
+  /* una riga di risposta proposta: il testo, e il segno di quella giusta.
+     Radio quando la risposta giusta e' una sola, casella quando sono piu'
+     d'una: e' la stessa differenza che vedra' il corsista. */
+  function opzione(box, tipo, valore, giusta) {
+    var r = el('div', 'td-opz');
+    var t = el('input');
+    t.type = 'text'; t.placeholder = 'Risposta proposta'; t.maxLength = 160;
+    t.value = valore || '';
+    t.className = 'td-opz-testo';
+    var lab = el('label');
+    var seg = el('input');
+    seg.type = tipo === 'multipla' ? 'checkbox' : 'radio';
+    seg.name = 'td-giusta-' + box.dataset.n;
+    seg.className = 'td-opz-giusta';
+    seg.checked = !!giusta;
+    lab.appendChild(seg);
+    lab.appendChild(document.createTextNode('giusta'));
+    var via = el('button', 'td-via', '\u2715');
+    via.type = 'button';
+    via.onclick = function () { r.remove(); };
+    r.appendChild(t); r.appendChild(lab); r.appendChild(via);
+    box.querySelector('.td-opzioni').appendChild(r);
+    return r;
+  }
+
+  function domanda(n) {
+    var box = el('div', 'td-dom');
+    box.dataset.n = n;
+
+    var cap = el('div', 'td-cap');
+    cap.appendChild(el('span', 'td-num', String(n)));
+    var sel = el('select', 'td-tipo');
+    TIPI.forEach(function (t) {
+      var o = el('option', null, t[1]); o.value = t[0]; sel.appendChild(o);
+    });
+    var punti = el('input', 'td-punti');
+    punti.type = 'number'; punti.min = '0.5'; punti.step = '0.5'; punti.value = '1';
+    punti.style.width = '82px'; punti.title = 'Punti';
+    var lp = el('label', null, 'punti');
+    lp.style.cssText = 'font-size:13px;color:#555;display:flex;align-items:center;gap:6px';
+    lp.insertBefore(punti, lp.firstChild);
+    var via = el('button', 'td-via', '\u2715 Rimuovi');
+    via.type = 'button';
+    via.onclick = function () { box.remove(); rinumera(); };
+    cap.appendChild(sel); cap.appendChild(lp); cap.appendChild(via);
+    box.appendChild(cap);
+
+    var testo = el('textarea', 'td-testo');
+    testo.rows = 2; testo.maxLength = 500; testo.placeholder = 'Scrivi qui la domanda';
+    box.appendChild(testo);
+
+    var opz = el('div', 'td-opzioni');
+    box.appendChild(opz);
+    var piu = el('button', 'btn-reset', '+ Aggiungi una risposta');
+    piu.type = 'button';
+    piu.style.cssText = 'font-size:13px;padding:6px 10px';
+    piu.onclick = function () { opzione(box, sel.value, '', false); };
+    box.appendChild(piu);
+    var nota = el('p', 'td-piccolo', 'Segna la risposta giusta: senza, il test non si pu\u00f2 correggere da solo.');
+    box.appendChild(nota);
+
+    /* cambiando tipo cambia il modo di segnare la risposta giusta, e per la
+       risposta scritta le opzioni spariscono del tutto */
+    sel.onchange = function () {
+      var scritte = [].map.call(box.querySelectorAll('.td-opz-testo'), function (i) { return i.value; });
+      var segnate = [].map.call(box.querySelectorAll('.td-opz-giusta'), function (i) { return i.checked; });
+      opz.innerHTML = '';
+      if (sel.value === 'testo') {
+        piu.hidden = true; nota.textContent = 'La risposta scritta la valuta una persona: non si segna niente qui.';
+        return;
+      }
+      piu.hidden = false;
+      nota.textContent = 'Segna la risposta giusta: senza, il test non si pu\u00f2 correggere da solo.';
+      if (!scritte.length) { scritte = ['', '']; segnate = [false, false]; }
+      scritte.forEach(function (t, i) { opzione(box, sel.value, t, segnate[i]); });
+    };
+    opzione(box, 'scelta', '', false);
+    opzione(box, 'scelta', '', false);
+    return box;
+  }
+
+  function rinumera() {
+    [].forEach.call(document.querySelectorAll('#td-domande .td-dom'), function (b, i) {
+      b.querySelector('.td-num').textContent = String(i + 1);
+      b.dataset.n = i + 1;
+      [].forEach.call(b.querySelectorAll('.td-opz-giusta'), function (g) { g.name = 'td-giusta-' + (i + 1); });
+    });
+    nDom = document.querySelectorAll('#td-domande .td-dom').length;
+  }
+
+  function leggiDomande() {
+    var out = [];
+    [].forEach.call(document.querySelectorAll('#td-domande .td-dom'), function (b) {
+      var tipo = b.querySelector('.td-tipo').value;
+      var d = {
+        testo: b.querySelector('.td-testo').value.trim(),
+        tipo: tipo,
+        punti: Number(b.querySelector('.td-punti').value) || 1,
+        opzioni: [], corrette: [],
+      };
+      if (tipo !== 'testo') {
+        [].forEach.call(b.querySelectorAll('.td-opz'), function (r) {
+          var t = r.querySelector('.td-opz-testo').value.trim();
+          if (!t) return;
+          /* ⚠️ la risposta giusta si scrive col suo TESTO, non col numero di
+             riga: è così che il corsista la manda quando fa il test, ed è
+             così che il gestionale la confronta. Con gli indici il test
+             sarebbe corretto sempre a zero (visto il 19/09/2026). */
+          if (r.querySelector('.td-opz-giusta').checked) d.corrette.push(t);
+          d.opzioni.push(t);
+        });
+      }
+      out.push(d);
+    });
+    return out;
+  }
+
+  /* gli stessi controlli del database (dtest_domande_esito), detti a chi
+     scrive prima che prema Invia: un messaggio qui vale dieci mail dopo */
+  function controlla(dom) {
+    if (!dom.length) return 'Non c\u2019\u00e8 nessuna domanda.';
+    if (dom.length > 40) return 'Le domande sono ' + dom.length + ': il massimo \u00e8 40.';
+    for (var i = 0; i < dom.length; i++) {
+      var d = dom[i], n = 'Domanda ' + (i + 1) + ': ';
+      if (!d.testo) return n + 'manca il testo.';
+      if (!(d.punti > 0 && d.punti <= 100)) return n + 'i punti non sono validi.';
+      if (d.tipo === 'testo') continue;
+      if (d.opzioni.length < 2) return n + 'servono almeno due risposte fra cui scegliere.';
+      if (d.opzioni.length > 8) return n + 'le risposte proposte sono troppe (massimo 8).';
+      if (!d.corrette.length) return n + 'non \u00e8 segnata la risposta giusta.';
+      if (d.tipo === 'scelta' && d.corrette.length !== 1) return n + '\u00e8 a risposta unica, ma ne hai segnate ' + d.corrette.length + '.';
+    }
+    return null;
+  }
+
+  document.getElementById('td-piu').onclick = function () {
+    if (nDom >= 40) { alert('Il massimo \u00e8 40 domande.'); return; }
+    document.getElementById('td-domande').appendChild(domanda(nDom + 1));
+    rinumera();
+  };
+
+  document.getElementById('form-testdocente').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('dtst-error');
+    function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+
+    if (!document.getElementById('td-nome').value.trim()) return ferma('Manca il nome del docente.');
+    var dom = leggiDomande();
+    var guaio = controlla(dom);
+    if (guaio) return ferma(guaio);
+    if (!document.getElementById('td-privacy').checked) return ferma('Per proseguire serve la spunta sulla privacy.');
+    err.style.display = 'none';
+
+    submitForm('form-testdocente', 'dtst', async function (form) {
+      var f = collectFields(form);
+      f.riferimento = rif;
+      f.domande = JSON.stringify(dom);
+      return f;
+    });
+  });
+
+  var qs = new URLSearchParams(location.search);
+  var r = (qs.get('testdocente') || '').trim();
+  if (!r) return;
+  rif = r.slice(0, 120);
+  /* titolo e docente: SOLO intestazione, e passano da testContent — quello
+     che arriva da un indirizzo non si scrive mai come HTML */
+  var corso = (qs.get('c') || '').trim().slice(0, 160);
+  var doc = (qs.get('d') || '').trim().slice(0, 100);
+  /* &m = il MODULO, quando il corso ha una verifica per ciascun modulo
+     (19/09/2026): il docente deve vedere subito di quale parte sta scrivendo
+     il test, altrimenti in un corso con piu' docenti non si capisce */
+  var modulo = (qs.get('m') || '').trim().slice(0, 100);
+  if (corso || modulo) {
+    document.getElementById('td-sotto').textContent = modulo
+      ? 'Verifica del modulo: ' + modulo + (corso ? ' — corso: ' + corso : '')
+      : 'Verifica finale del corso: ' + corso;
+  }
+  if (modulo) {
+    var tit = document.querySelector('#page-testdocente .form-header h2');
+    if (tit) tit.textContent = 'Il test del modulo';
+  }
+  if (doc) document.getElementById('td-nome').value = doc;
+  document.getElementById('td-domande').appendChild(domanda(1));
+  nDom = 1;
+  showPage('testdocente');
 })();
 </script>
 </body>
