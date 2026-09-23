@@ -140,6 +140,40 @@ self.addEventListener('push', (e) => {
   }));
 });
 
+// 23/09/2026 — Quando è il BROWSER a cambiare la sottoscrizione (scadenza, rotazione
+// del servizio di notifica, reinstallazione del service worker) manda questo evento,
+// che finora nessuno ascoltava: la sottoscrizione nuova restava sconosciuta al server
+// finché il portale non veniva riaperto, e intanto gli avvisi andavano a un indirizzo
+// morto. Qui ci si riscrive con la stessa chiave e si dice al server «cambio» con
+// l'indirizzo vecchio: la riga vecchia viene sostituita, non aggiunta.
+const URL_AVVISI = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/functions/v1/push-notizie';
+self.addEventListener('pushsubscriptionchange', (e) => {
+  e.waitUntil((async () => {
+    const vecchia = e.oldSubscription;
+    let chiave = vecchia && vecchia.options && vecchia.options.applicationServerKey;
+    if (!chiave) {
+      const j = await fetch(URL_AVVISI, { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}));
+      if (!j.chiave) return;
+      let s = String(j.chiave).replace(/-/g, '+').replace(/_/g, '/');
+      while (s.length % 4) s += '=';
+      chiave = Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+    }
+    const nuova = e.newSubscription || await self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chiave });
+    const agente = String(self.navigator.userAgent || '');
+    await fetch(URL_AVVISI, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body: JSON.stringify({
+        azione: 'iscrivi', motivo: 'cambio',
+        precedente: vecchia ? vecchia.endpoint : undefined,
+        iscrizione: nuova.toJSON(),
+        dispositivo: /Android/.test(agente) ? 'android' : /iPhone|iPad/.test(agente) ? 'iphone' : 'computer',
+        origine: self.registration.scope,
+        user_agent: agente.slice(0, 300),
+      }),
+    }).catch(() => {});
+  })());
+});
+
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   const scope = self.registration.scope;

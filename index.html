@@ -5926,13 +5926,20 @@ document.getElementById('topbarTitle').style.display = 'none';
     // mentre il PERMESSO resta concesso. Se il permesso c'è, non si chiede
     // niente a nessuno: ci si riscrive in silenzio e gli avvisi riprendono.
     if (!iscr && Notification.permission === 'granted') {
-      try { iscr = await sottoscrivi(reg); } catch (e) { /* si ricade sul pulsante, sotto */ }
+      // 23/09: si dice al server QUALE caso è. localStorage vuoto = il telefono ha
+      // cancellato i dati del sito; pieno = è sparita solo la sottoscrizione.
+      var motivo = eraAttivo() ? 'ripresa-iscrizione-persa' : 'ripresa-dati-persi';
+      try { iscr = await sottoscrivi(reg, motivo); } catch (e) { /* si ricade sul pulsante, sotto */ }
     }
 
     if (iscr) {
       mostra('🔔 Avvisi attivi', 'Ti avvisiamo su questo dispositivo quando pubblichiamo una notizia.', 'Disattiva', disattiva);
-      if (Notification.permission === 'granted' && daRinnovare()) {
-        manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() }).then(segnaRinnovo).catch(function () {});
+      if (Notification.permission === 'granted' && (daRinnovare() || endpointRicordato() !== iscr.endpoint)) {
+        diagnostica('rinnovo', iscr.endpoint).then(function (diag) {
+          var corpo = { azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() };
+          for (var k in diag) if (diag[k] !== undefined) corpo[k] = diag[k];
+          return manda(corpo);
+        }).then(function () { segnaRinnovo(); ricordaEndpoint(iscr.endpoint); }).catch(function () {});
       }
     } else if (Notification.permission === 'default' && eraAttivo()) {
       // Il permesso è tornato daccapo: non l'abbiamo perso noi, l'ha
@@ -5949,7 +5956,30 @@ document.getElementById('topbarTitle').style.display = 'none';
 
   // Si iscrive e lo dice al server. Usata sia dal pulsante sia dalla
   // riscrizione in silenzio: un solo posto in cui la cosa è scritta.
-  async function sottoscrivi(reg) {
+  // ⚠️ 23/09/2026 — Le iscrizioni RINASCONO (20 righe, 14 dopo la correzione
+  // del 18/09) e nessuno sapeva perché. Da oggi ogni iscrizione porta al server
+  // il MOTIVO e da dove nasce (pagina, app installata o browser, storage
+  // persistente, browser) e l'indirizzo precedente di questo browser, così la
+  // riga vecchia viene sostituita invece di accumularsi. Si chiede anche lo
+  // storage persistente: senza, Android può cancellare i dati del sito quando
+  // lo spazio scarseggia, e con i dati se ne va la sottoscrizione.
+  var ENDPOINT = 'servizi.avvisi.endpoint';
+  function endpointRicordato() { try { return localStorage.getItem(ENDPOINT) || ''; } catch (e) { return ''; } }
+  function ricordaEndpoint(v) { try { if (v) localStorage.setItem(ENDPOINT, v); else localStorage.removeItem(ENDPOINT); } catch (e) {} }
+  async function diagnostica(motivo, endpoint) {
+    var persistente = null;
+    try { if (navigator.storage && navigator.storage.persist) persistente = await navigator.storage.persist(); } catch (e) { persistente = null; }
+    var prec = endpointRicordato();
+    return {
+      motivo: motivo,
+      origine: location.origin + location.pathname,
+      installata: installata,
+      persistente: persistente,
+      user_agent: String(ua).slice(0, 300),
+      precedente: prec && prec !== endpoint ? prec : undefined,
+    };
+  }
+  async function sottoscrivi(reg, motivo) {
     var iscr = await reg.pushManager.getSubscription();
     if (!iscr) {
       var r = await fetch(URL_AVVISI, { cache: 'no-store' });
@@ -5958,13 +5988,16 @@ document.getElementById('topbarTitle').style.display = 'none';
       iscr = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: daB64u(j.chiave) });
     }
     try {
-      await manda({ azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() });
+      var corpo = { azione: 'iscrivi', iscrizione: iscr.toJSON(), dispositivo: dispositivo() };
+      var diag = await diagnostica(motivo || 'attiva', iscr.endpoint);
+      for (var k in diag) if (diag[k] !== undefined) corpo[k] = diag[k];
+      await manda(corpo);
     } catch (e) {
       // se il server non l'ha salvata, il browser non deve credersi iscritto
       await iscr.unsubscribe().catch(function () {});
       throw e;
     }
-    segnaRinnovo(); segnaAttivo();
+    segnaRinnovo(); segnaAttivo(); ricordaEndpoint(iscr.endpoint);
     return iscr;
   }
 
@@ -5977,7 +6010,7 @@ document.getElementById('topbarTitle').style.display = 'none';
       btn.textContent = 'Attivazione…';
       var reg = await registrazione();
       if (!reg) throw new Error('l\'app non è ancora pronta, riprova fra qualche secondo');
-      await sottoscrivi(reg);   // la stessa strada della riscrizione in silenzio
+      await sottoscrivi(reg, 'attiva');   // la stessa strada della riscrizione in silenzio
       await aggiorna();
     } catch (e) {
       mostra('Avvisi non attivati', 'Non è stato possibile: ' + (e && e.message ? e.message : e) + '.', 'Riprova', attiva);
@@ -5994,7 +6027,7 @@ document.getElementById('topbarTitle').style.display = 'none';
         await iscr.unsubscribe();
         manda({ azione: 'cancella', endpoint: endpoint }).catch(function () {});
       }
-      scordaAttivo();   // spento di proposito: non è il telefono che ha fatto pulizia
+      scordaAttivo(); ricordaEndpoint('');   // spento di proposito: non è il telefono che ha fatto pulizia
     } catch (e) {}
     await aggiorna();
   }
