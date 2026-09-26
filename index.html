@@ -5036,7 +5036,7 @@ async function submitForm(formId, prefix, buildPayload) {
 
   if (!ok) {
     if (troppoGrande) {
-      errBox.innerHTML = 'L\'allegato <strong>' + troppoGrande + '</strong> supera il limite di '
+      errBox.innerHTML = 'L\'allegato <strong>' + escHtml(troppoGrande) + '</strong> supera il limite di '
         + MAX_ALLEGATO_MB + ' MB. Riduci il file (scansione in bianco e nero o a risoluzione minore) '
         + 'oppure invialo per email a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
       errBox.style.display = 'block';
@@ -5659,7 +5659,7 @@ async function bgNewsRefresh() {
 }
 
 function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function openLightbox(src) {
