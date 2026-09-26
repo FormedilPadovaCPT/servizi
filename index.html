@@ -4520,7 +4520,6 @@ async function comprimiFoto(file) {
     const data = c.toDataURL('image/jpeg', FOTO_QUALITA);
     const byte = Math.round((data.length - data.indexOf(',') - 1) * 3 / 4);
     if (byte >= file.size) return await intatta();   // comprimerla non ha giovato
-    console.log('foto ridotta: ' + (file.size / 1048576).toFixed(2) + ' MB → ' + (byte / 1024).toFixed(0) + ' KB');
     return { name: file.name.replace(/\.[^.]+$/, '') + '.jpg', data, byte, ridotta: true };
   } catch (err) {
     console.warn('foto non ridimensionata, si manda com\'è:', err);
@@ -5629,7 +5628,6 @@ function startRealtime() {
     .on('postgres_changes',
       { event: '*', schema: 'public', table: SB_TABLE },
       payload => {
-        console.log('Realtime news update:', payload.eventType);
         loadNews();
         // Se la pagina notizie è aperta, aggiorna anche il loader visivo
         if (document.getElementById('page-notizie').classList.contains('active')) {
@@ -6195,7 +6193,13 @@ document.getElementById('topbarTitle').style.display = 'none';
       avviso('Non riusciamo a caricare le domande. Controllate la connessione e riprovate.', true);
       return;
     }
-    if (r.error || !r.data || r.data.trovato !== true) {
+    /* un errore del server o della rete non e' «codice sbagliato»: la funzione,
+       quando il codice non c'e', risponde normalmente con { trovato: false } */
+    if (r.error) {
+      avviso('Non riesco a raggiungere il servizio, riprova fra poco.', true);
+      return;
+    }
+    if (!r.data || r.data.trovato !== true) {
       avviso('Questo codice non corrisponde a nessun questionario aperto. Se lo avete digitato a mano, '
            + 'controllate le lettere; altrimenti inquadrate di nuovo il QR.', true);
       return;
@@ -6290,7 +6294,20 @@ document.getElementById('topbarTitle').style.display = 'none';
     var cont = document.getElementById('is-elenco');
     var r;
     try { r = await _sb.rpc('iscrizioni_aperte'); } catch (e) { r = { error: e }; }
-    var righe = (r && !r.error && Array.isArray(r.data)) ? r.data : [];
+    /* lettura fallita ≠ nessuna iscrizione aperta: si dice com'e' andata e
+       si lascia riprovare alla prossima apertura della pagina */
+    if (!r || r.error || !Array.isArray(r.data)) {
+      elencoCaricato = false;
+      var ko = el('div', 'is-vuoto',
+        'Non riesco a raggiungere il servizio, riprova fra poco. '
+        + 'Non sappiamo quindi se ci sono iscrizioni aperte.');
+      cont.textContent = '';
+      cont.appendChild(ko);
+      document.getElementById('is-vuoto').hidden = true;
+      return;
+    }
+    var righe = r.data;
+    cont.textContent = '';   // toglie l'eventuale avviso di un tentativo precedente
     if (!righe.length) { document.getElementById('is-vuoto').hidden = false; return; }
     righe.forEach(function (ev) {
       var b = el('button', 'is-card'); b.type = 'button';
@@ -6650,7 +6667,12 @@ document.getElementById('topbarTitle').style.display = 'none';
       avviso('Non riusciamo a caricare l’iscrizione. Controllate la connessione e riprovate.', true);
       return;
     }
-    if (r.error || !r.data || r.data.trovato !== true) {
+    /* errore del server o della rete ≠ collegamento che non esiste */
+    if (r.error) {
+      avviso('Non riesco a raggiungere il servizio, riprova fra poco.', true);
+      return;
+    }
+    if (!r.data || r.data.trovato !== true) {
       avviso('Questo collegamento non corrisponde a nessuna iscrizione aperta. Se lo avete digitato a mano, '
            + 'controllate le lettere; altrimenti chiedete alla segreteria di rimandarvelo.', true);
       return;
@@ -6913,7 +6935,9 @@ document.getElementById('topbarTitle').style.display = 'none';
     var r;
     try { r = await _sb.rpc('apri_test', { p_codice: codice, p_firma: firma }); }
     catch (e) { avviso('Non riusciamo a caricare il test. Controllate la connessione e riprovate.', true); return; }
-    if (r.error || !r.data || r.data.trovato !== true) {
+    /* errore del server o della rete ≠ codice che non esiste */
+    if (r.error) { avviso('Non riesco a raggiungere il servizio, riprova fra poco.', true); return; }
+    if (!r.data || r.data.trovato !== true) {
       avviso('Questo codice non corrisponde a nessun test aperto. Se lo avete digitato a mano, controllate le lettere.', true);
       return;
     }
@@ -6952,7 +6976,14 @@ document.getElementById('topbarTitle').style.display = 'none';
     try { r = await _sb.rpc('chi_sono', { p_codice: codice, p_firma: firma, p_personale: v }); }
     catch (e) { r = { error: e }; }
     ev.target.disabled = false;
-    if (r.error || !r.data || r.data.trovato !== true) {
+    /* l'eccezione di rete arriva qui come { error }: va detta per quello che
+       e', non come «non sei fra i partecipanti» */
+    if (r.error) {
+      err.textContent = 'Non riesco a raggiungere il servizio, riprova fra poco.';
+      err.style.display = 'block';
+      return;
+    }
+    if (!r.data || r.data.trovato !== true) {
       err.textContent = 'Questo codice non risulta fra i partecipanti di questo corso — '
         + 'oppure la prova è già stata consegnata. Chiedi al docente.';
       err.style.display = 'block';

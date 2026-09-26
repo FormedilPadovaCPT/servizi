@@ -561,14 +561,20 @@ async function save(pub){
     allegato_url:upAtt?.url||null, allegato_path:upAtt?.path||null, allegato_nome:upAtt?.name||null,
     updated_at:new Date().toISOString()
   };
-  console.log('Saving payload:', JSON.stringify(payload));
-  const {error} = editId
-    ? await sb.from(TABLE).update(payload).eq('id',editId)
+  /* sulla modifica si chiede indietro la riga: un UPDATE che le policy
+     scartano non dà errore, torna vuoto — e «salvata ✓» su zero righe
+     sarebbe una conferma falsa */
+  const {data, error} = editId
+    ? await sb.from(TABLE).update(payload).eq('id',editId).select('id')
     : await sb.from(TABLE).insert(payload);
   btn.disabled=false; btn.innerHTML=pub?'✓ Pubblica notizia':'Salva come bozza';
   if(error){
     console.error('Save error:', error);
     toast('Errore: '+error.message,'error');
+    return;
+  }
+  if(editId && !(Array.isArray(data) && data.length)){
+    toast('Non salvata: nessuna riga modificata (permessi?)','error');
     return;
   }
   toast(pub?'Notizia pubblicata ✓':'Bozza salvata ✓','success');
@@ -587,8 +593,11 @@ function confirmDel(id,titolo){
 function closeModal(){ document.getElementById('cmodal').classList.remove('open'); }
 async function delN(id){
   closeModal();
-  const {error}=await sb.from(TABLE).delete().eq('id',id);
-  if(error){toast('Errore eliminazione','error');return;}
+  /* stessa trappola della modifica: un DELETE rifiutato dalle policy torna
+     vuoto senza errore, quindi si conta quello che è stato tolto davvero */
+  const {data, error}=await sb.from(TABLE).delete().eq('id',id).select('id');
+  if(error){toast('Errore eliminazione: '+error.message,'error');return;}
+  if(!(Array.isArray(data) && data.length)){toast('Non eliminata: nessuna riga tolta (permessi?)','error');return;}
   toast('Notizia eliminata','success'); loadList();
 }
 
