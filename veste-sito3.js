@@ -82,6 +82,11 @@
   var TEL = '049 761168', TEL_INT = '(int. 4)', TEL_HREF = 'tel:049761168'
   var SEDE = 'Via Basilicata 10, 35127 Padova'
   // informativa privacy: la stessa del piede di www.formedilpadova.it (14/09/2026, indicata dall'utente)
+  // QR del portale (26/09/2026): lo stesso SVG del gestionale dei tecnici (modal-qr-servizi),
+  // generato una volta per sempre da https://formedilpadovacpt.github.io/servizi/ —
+  // niente rete, niente libreria. Se l'indirizzo del portale cambia, va rigenerato in tutti e due.
+  var QR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 37 37" shape-rendering="crispEdges"><rect x="-2" y="-2" width="37" height="37" fill="#fff"/><path d="M0 0h7v1h-7zM8 0h2v1h-2zM12 0h1v1h-1zM14 0h5v1h-5zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM17 1h1v1h-1zM19 1h4v1h-4zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM19 2h2v1h-2zM22 2h3v1h-3zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h5v1h-5zM14 3h2v1h-2zM17 3h2v1h-2zM20 3h2v1h-2zM23 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h3v1h-3zM14 4h1v1h-1zM18 4h3v1h-3zM24 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM13 5h2v1h-2zM16 5h1v1h-1zM18 5h2v1h-2zM22 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h2v1h-2zM11 7h2v1h-2zM15 7h4v1h-4zM21 7h2v1h-2zM24 7h1v1h-1zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h4v1h-4zM12 8h1v1h-1zM16 8h2v1h-2zM19 8h1v1h-1zM21 8h9v1h-9zM32 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM5 9h1v1h-1zM9 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM15 9h2v1h-2zM18 9h1v1h-1zM23 9h1v1h-1zM25 9h1v1h-1zM29 9h3v1h-3zM0 10h1v1h-1zM2 10h2v1h-2zM6 10h3v1h-3zM11 10h2v1h-2zM15 10h1v1h-1zM17 10h1v1h-1zM20 10h5v1h-5zM29 10h1v1h-1zM31 10h1v1h-1zM1 11h1v1h-1zM3 11h1v1h-1zM7 11h1v1h-1zM9 11h4v1h-4zM14 11h8v1h-8zM23 11h2v1h-2zM26 11h1v1h-1zM32 11h1v1h-1zM0 12h2v1h-2zM4 12h3v1h-3zM9 12h1v1h-1zM13 12h3v1h-3zM18 12h1v1h-1zM20 12h1v1h-1zM23 12h2v1h-2zM26 12h4v1h-4zM0 13h1v1h-1zM2 13h2v1h-2zM5 13h1v1h-1zM7 13h1v1h-1zM9 13h3v1h-3zM13 13h1v1h-1zM16 13h1v1h-1zM19 13h1v1h-1zM21 13h4v1h-4zM27 13h1v1h-1zM0 14h3v1h-3zM4 14h1v1h-1zM6 14h2v1h-2zM10 14h1v1h-1zM16 14h1v1h-1zM19 14h1v1h-1zM21 14h6v1h-6zM28 14h1v1h-1zM31 14h1v1h-1zM0 15h2v1h-2zM3 15h1v1h-1zM8 15h2v1h-2zM11 15h1v1h-1zM14 15h1v1h-1zM17 15h5v1h-5zM23 15h1v1h-1zM25 15h2v1h-2zM28 15h1v1h-1zM2 16h1v1h-1zM4 16h1v1h-1zM6 16h2v1h-2zM10 16h3v1h-3zM14 16h2v1h-2zM17 16h1v1h-1zM20 16h5v1h-5zM26 16h1v1h-1zM28 16h1v1h-1zM31 16h1v1h-1zM2 17h4v1h-4zM7 17h1v1h-1zM9 17h2v1h-2zM12 17h1v1h-1zM14 17h4v1h-4zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM29 17h3v1h-3zM0 18h3v1h-3zM6 18h1v1h-1zM9 18h1v1h-1zM11 18h2v1h-2zM15 18h1v1h-1zM18 18h1v1h-1zM23 18h1v1h-1zM25 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM8 19h2v1h-2zM11 19h1v1h-1zM13 19h1v1h-1zM20 19h1v1h-1zM22 19h1v1h-1zM26 19h2v1h-2zM32 19h1v1h-1zM1 20h2v1h-2zM4 20h7v1h-7zM13 20h1v1h-1zM16 20h1v1h-1zM19 20h1v1h-1zM22 20h1v1h-1zM24 20h1v1h-1zM26 20h1v1h-1zM28 20h2v1h-2zM31 20h2v1h-2zM0 21h1v1h-1zM2 21h4v1h-4zM7 21h1v1h-1zM9 21h3v1h-3zM13 21h2v1h-2zM18 21h4v1h-4zM23 21h1v1h-1zM25 21h1v1h-1zM27 21h1v1h-1zM29 21h1v1h-1zM31 21h1v1h-1zM2 22h2v1h-2zM5 22h4v1h-4zM11 22h2v1h-2zM15 22h1v1h-1zM17 22h1v1h-1zM20 22h2v1h-2zM23 22h1v1h-1zM25 22h1v1h-1zM30 22h2v1h-2zM2 23h1v1h-1zM5 23h1v1h-1zM8 23h1v1h-1zM13 23h5v1h-5zM21 23h2v1h-2zM26 23h4v1h-4zM0 24h2v1h-2zM4 24h6v1h-6zM11 24h2v1h-2zM14 24h1v1h-1zM17 24h1v1h-1zM19 24h10v1h-10zM8 25h1v1h-1zM11 25h3v1h-3zM15 25h2v1h-2zM22 25h3v1h-3zM28 25h1v1h-1zM30 25h2v1h-2zM0 26h7v1h-7zM8 26h1v1h-1zM14 26h4v1h-4zM20 26h3v1h-3zM24 26h1v1h-1zM26 26h1v1h-1zM28 26h2v1h-2zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h4v1h-4zM17 27h2v1h-2zM21 27h1v1h-1zM24 27h1v1h-1zM28 27h1v1h-1zM31 27h1v1h-1zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM10 28h1v1h-1zM13 28h1v1h-1zM15 28h1v1h-1zM18 28h3v1h-3zM24 28h6v1h-6zM32 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM10 29h1v1h-1zM12 29h1v1h-1zM14 29h1v1h-1zM16 29h1v1h-1zM19 29h1v1h-1zM22 29h2v1h-2zM26 29h4v1h-4zM31 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM9 30h4v1h-4zM14 30h1v1h-1zM16 30h4v1h-4zM21 30h2v1h-2zM24 30h1v1h-1zM26 30h3v1h-3zM30 30h1v1h-1zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h2v1h-2zM12 31h3v1h-3zM17 31h1v1h-1zM19 31h4v1h-4zM24 31h1v1h-1zM26 31h1v1h-1zM0 32h7v1h-7zM8 32h1v1h-1zM11 32h2v1h-2zM15 32h1v1h-1zM17 32h2v1h-2zM20 32h5v1h-5zM26 32h1v1h-1zM29 32h1v1h-1zM32 32h1v1h-1z" fill="#2c2c2a"/></svg>'
+  var URL_PORTALE = 'https://formedilpadovacpt.github.io/servizi/'
   var PRIVACY = 'https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf'
   /* la sede apre il navigatore col percorso in auto fino a Via Basilicata (14/09/2026, chiesto dall'utente).
      - iPhone e iPad: Mappe di Apple.
@@ -107,6 +112,33 @@
     s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('class', 's3-i')
     s.innerHTML = ICONE[nome] || ICONE.freccia
     return s
+  }
+  function apriQr() {
+    var velo = el('div', 's3-qr-velo')
+    velo.setAttribute('role', 'dialog'); velo.setAttribute('aria-modal', 'true'); velo.setAttribute('aria-label', 'Codice QR del portale')
+    var box = el('div', 's3-qr-box')
+    var x = bottone('s3-qr-x'); x.setAttribute('aria-label', 'Chiudi'); x.appendChild(icona('chiudi'))
+    box.appendChild(x)
+    box.appendChild(el('h2', null, 'Passa l\'app a qualcuno'))
+    box.appendChild(el('p', null, 'Fai inquadrare il codice con la fotocamera del telefono: si apre il portale dei servizi, che si può poi installare come app.'))
+    var q = el('div', 's3-qr-grande'); q.innerHTML = QR_SVG
+    box.appendChild(q)
+    box.appendChild(el('div', 's3-qr-url', 'formedilpadovacpt.github.io/servizi/'))
+    var invia = bottone('s3-qr-invia', 'Invia il link')
+    invia.onclick = function () {
+      var dati = { title: 'Servizi CPT - Formedil Padova', text: 'Portale dei servizi dell\'Area Sicurezza e Salute di Formedil Padova: visite, consulenze, RLST, conferenze di cantiere, segnalazioni.', url: URL_PORTALE }
+      if (navigator.share) { navigator.share(dati).catch(function () {}); return }
+      if (navigator.clipboard) navigator.clipboard.writeText(URL_PORTALE).then(function () { invia.textContent = 'Link copiato'; setTimeout(function () { invia.textContent = 'Invia il link' }, 1800) }).catch(function () {})
+    }
+    box.appendChild(invia)
+    velo.appendChild(box)
+    function chiudi() { document.removeEventListener('keydown', tasto); velo.remove() }
+    function tasto(e) { if (e.key === 'Escape') chiudi() }
+    velo.onclick = function (e) { if (e.target === velo) chiudi() }
+    x.onclick = chiudi
+    document.addEventListener('keydown', tasto)
+    document.body.appendChild(velo)
+    x.focus()
   }
   function vai(id) { if (typeof window.showPage === 'function') window.showPage(id) }
   function paginaDi(nodo) { var m = String(nodo.getAttribute('onclick') || '').match(/showPage\('([^']+)'\)/); return m ? m[1] : null }
@@ -286,6 +318,19 @@
     cg.appendChild(team)
     ct.appendChild(cg)
     h.appendChild(ct)
+
+    // passa l'app a qualcuno (26/09/2026, chiesto dall'utente): in fondo alla pagina, per non
+    // disturbare; chi ha il portale sul telefono lo fa inquadrare a un altro, come i tecnici
+    // fanno col gestionale in cantiere
+    var passa = bottone('s3-passa')
+    passa.setAttribute('aria-label', 'Passa l\'app a qualcuno: mostra il codice QR da inquadrare')
+    var mini = el('span', 's3-passa-qr'); mini.innerHTML = QR_SVG
+    var pt = el('span', 's3-passa-t')
+    pt.appendChild(el('b', null, 'Passa l\'app a qualcuno'))
+    pt.appendChild(el('span', null, 'Mostra il codice QR: basta inquadrarlo con la fotocamera'))
+    passa.appendChild(mini); passa.appendChild(pt); passa.appendChild(icona('freccia'))
+    passa.onclick = apriQr
+    h.appendChild(passa)
 
     // piede con l'informativa sulla privacy
     var piede = el('footer', 's3-piede')
