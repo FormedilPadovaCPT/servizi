@@ -190,6 +190,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="login-title">Accesso pannello notizie</div>
     <div class="lf"><label>Email</label><input type="email" id="l-email" placeholder="nome@formedilpadova.it" autocomplete="email"></div>
     <div class="lf"><label>Password</label><input type="password" id="l-pwd" placeholder="••••••••" autocomplete="current-password"></div>
+    <label style="display:flex;align-items:center;gap:6px;margin:-4px 0 14px;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer"><input type="checkbox" id="l-mostra" onchange="document.getElementById('l-pwd').type=this.checked?'text':'password'"> Mostra la password che sto scrivendo</label>
     <button class="login-btn" onclick="doLogin()">Accedi</button>
     <div class="login-err" id="l-err"></div>
   </div>
