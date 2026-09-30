@@ -7,8 +7,8 @@ montare dentro le pagine del sito dell'ente come **blocchi**. Il modulo resta qu
 controlli, invio e ricevuta li teniamo noi, e quando un modulo cambia cambia anche nel sito, senza
 interventi. A chi sviluppa il sito spettano due cose: **dove** metterlo e **come vestirlo**.
 
-> L'indirizzo usato negli esempi è quello di oggi, `https://formedilpadovacpt.github.io/servizi/`.
-> Prima della messa online vi confermiamo quello definitivo.
+> L'indirizzo del portale è `https://formedilpadovacpt.github.io/servizi/`: è quello degli esempi qui sotto
+> ed è quello da usare nel sito.
 
 ## 1. Montare un blocco
 
