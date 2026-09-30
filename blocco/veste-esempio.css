@@ -1,0 +1,50 @@
+/* ============================================================
+   VESTE DI ESEMPIO per i blocchi del portale servizi (30/09/2026)
+
+   NON e' la grafica del sito: e' un esempio di quanto si puo' cambiare, e di
+   come. Si vede con  ?blocco=<nome>&veste=esempio  (o, in incorpora.js,
+   data-formedil-veste="esempio"). La veste vera la scrive chi sviluppa il
+   sito dell'ente e sta sul sito dell'ente.
+
+   Due livelli, dal piu' semplice:
+   1. le variabili: colori, carattere, raggio dei bordi;
+   2. le regole sui nomi di classe, scritte semplici — senza prefissi e senza
+      !important: questo foglio si carica per ultimo e a parita' di selettore
+      vince lui.
+   Nomi di classe e variabili: blocco/LEGGIMI.md.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* 1. variabili */
+:root {
+  --carattere: 'Poppins', system-ui, sans-serif;
+  --corpo: 15px;
+  --accento: #FF571D;
+  --accento-scuro: #d9420c;
+  --tinta: #fff1ea;
+  --testo: #2b2b2b;
+  --testo-tenue: #5d6b73;
+  --bordo: #cfd6da;
+  --campo: #ffffff;
+  --riquadro: #f5f5f5;
+  --raggio: 0px;
+  --ok: #2f6b3a;
+  --ok-sfondo: #e9f4ec;
+}
+
+/* 2. regole */
+.section-title {
+  font-size: 18px; font-weight: 600; text-transform: none; letter-spacing: 0;
+  color: #445761; border-bottom: 2px solid #445761; padding-bottom: 8px; margin-top: 36px;
+}
+label { font-size: 13px; color: #445761; }
+input[type=text], input[type=email], input[type=tel], input[type=date], input[type=number], select, textarea {
+  border-width: 0 0 2px 0; border-color: #9aa7ae; background: #f5f5f5; padding: 11px 12px;
+}
+.btn-send {
+  border-radius: 999px; text-transform: uppercase; letter-spacing: .06em; padding: 13px 34px;
+}
+.btn-reset { border-radius: 999px; padding: 13px 24px; }
+.prog-bar { height: 3px; }
+.privacy-box { border: 0; border-left: 3px solid var(--accento); }
+.fi-icon { display: none !important; }   /* via le icone a emoji */

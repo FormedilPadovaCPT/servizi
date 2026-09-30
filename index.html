@@ -3,6 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ══════════════════════════════════════════════════════
+       MODO «BLOCCO» (30/09/2026) — un solo modulo, nudo, da incorporare nel sito dell'ente.
+       Con ?blocco=<nome> il portale mostra SOLO quel modulo: niente testata, menu, barra in
+       basso, invito a installare, avvisi, service worker; la veste «Sito 3» non si applica
+       (si toglie data-veste: veste-sito3.css e veste-sito3.js non trovano piu' niente da fare).
+       Il modulo e' LO STESSO dell'app — stesso HTML, stessi controlli, stesso invio — quindi
+       una modifica a un modulo vale insieme per l'app e per il sito. Il resto (stile neutro,
+       veste del sito ospite, altezza del riquadro) sta in blocco/blocco.css e blocco/blocco.js,
+       che chi usa l'app non scarica. Chi incorpora usa incorpora.js. Guida: blocco/LEGGIMI.md.
+       ⚠️ Un blocco nuovo si aggiunge QUI (nome → pagine che puo' mostrare): un nome che non
+       e' in elenco apre il portale normale.
+       ══════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    var BLOCCHI = {
+      rlst: ['rlst'], rls: ['rls'], conferenza: ['conferenza'], visita: ['visita'],
+      consulenza: ['consulenza'], attestazione: ['attestazione'], notifica: ['notifica'],
+      segnalazione: ['segnalazione'], questionario: ['questionario'],
+      iscrizioni: ['iscrizioni', 'iscrizione'],
+      /* il campionario per chi scrive la veste: il modulo della visita piu' gli elementi
+         che li' non compaiono; non invia niente (blocco/blocco.js) */
+      campionario: ['visita']
+    };
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    var nome = (q.get('blocco') || '').trim();
+    if (!nome || !Object.prototype.hasOwnProperty.call(BLOCCHI, nome)) return;
+    var h = document.documentElement;
+    h.removeAttribute('data-veste');
+    h.setAttribute('data-blocco', nome);
+    if (q.get('intro') === '1') h.setAttribute('data-blocco-intro', '');
+    window.__BLOCCO = { nome: nome, pagine: BLOCCHI[nome], veste: (q.get('veste') || '').trim() };
+  })();
+  </script>
+  <!-- nel modo «blocco» il corpo resta nascosto finche' blocco.js non ha caricato gli stili:
+       senza, si vedrebbe per un attimo il portale intero dentro la pagina del sito -->
+  <style>html[data-blocco] body { visibility: hidden; } html[data-blocco] #splash { display: none !important; }</style>
   <!-- Veste grafica «Sito 3 · Sportello», scelta il 14/09/2026 come unica veste del portale. Testata, home, barra in basso
        e intestazioni delle pagine le costruisce veste-sito3.js leggendo le schede della home qui sotto (restano la fonte di
        titoli, descrizioni ed etichette); lo stile sta in veste-sito3.css, tutto sotto html[data-veste="sito3"].
@@ -4221,6 +4258,9 @@ const PAGE_TITLES = {
    Una volta per sessione e per pagina, e se il conteggio non riesce non
    succede niente: è un numero, non un dato di servizio. */
 function contaVisita(id) {
+  /* un blocco montato nel sito non e' una visita al portale: le richieste che
+     arrivano da li' si riconoscono dal campo origine_pagina */
+  if (window.__BLOCCO) return;
   try {
     const chiave = 'formedil_vista_' + id;
     if (sessionStorage.getItem(chiave)) return;
@@ -4242,6 +4282,13 @@ window.addEventListener('load', () => {
 });
 
 function showPage(id) {
+  /* modo «blocco»: si mostrano solo le pagine di quel blocco. Una richiesta per
+     un'altra pagina («Torna alla home», un rimando alle notizie) la gestisce
+     blocco.js: ricomincia il modulo, oppure apre il portale in un'altra scheda. */
+  if (window.__BLOCCO && window.__BLOCCO.pagine.indexOf(id) < 0) {
+    if (window.bloccoFuoriPagina) window.bloccoFuoriPagina(id);
+    return;
+  }
   contaVisita(id);
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -5058,6 +5105,9 @@ async function submitForm(formId, prefix, buildPayload) {
     payload.timestamp     = new Date().toISOString();
     payload.privacy       = 'Sì – autorizzo il trattamento dei dati personali';
     payload.submission_id = idPerModulo(prefix);   // stabile finché non è confermata
+    /* da dove arriva: il modulo è lo stesso, ma in segreteria serve distinguere
+       ciò che è stato compilato nel sito dell'ente da ciò che viene dall'app */
+    if (window.__BLOCCO) payload.origine_pagina = 'sito';
 
     /* 1. si salva PRIMA di inviare: da qui in avanti il dato non si
           perde comunque vada la rete — se la memoria del dispositivo e'
@@ -5074,6 +5124,9 @@ async function submitForm(formId, prefix, buildPayload) {
     if (esito.ok) {
       await codaTogli(payload.submission_id);
       chiudiCompilazione(prefix);              // da qui in poi è una richiesta nuova
+      /* modo «blocco»: si avvisa la pagina che ospita (solo «è stata inviata»,
+         nessun dato: serve a chi tiene il sito per contare le richieste) */
+      if (window.bloccoEvento) window.bloccoEvento('inviata');
       const dove = payload.email || payload.pec || '';
       /* un questionario anonimo non ha una pratica e non si segue: dargli un
          numero direbbe a chi ha risposto che da qualche parte c'è una riga
@@ -5674,10 +5727,12 @@ function closeLightbox() {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-// Avvio: carica badge e attiva realtime
-bgNewsRefresh();
-startRealtime();
-setInterval(bgNewsRefresh, 15 * 60 * 1000);
+// Avvio: carica badge e attiva realtime (non nel modo «blocco»: lì le notizie non ci sono)
+if (!window.__BLOCCO) {
+  bgNewsRefresh();
+  startRealtime();
+  setInterval(bgNewsRefresh, 15 * 60 * 1000);
+}
 
 // ══════════════════════════════════════════════════════
 //  INIT
@@ -5690,6 +5745,8 @@ document.getElementById('topbarLogo').style.display  = 'block';
 document.getElementById('topbarTitle').style.display = 'none';
 // Scorciatoie dell'icona dell'app (PWA/manifest.json): ?pagina=segnalazione apre subito quella pagina
 (function () {
+  /* modo «blocco»: si parte dalla pagina del blocco, la home non esiste */
+  if (window.__BLOCCO) { showPage(window.__BLOCCO.pagine[0]); return; }
   var p = new URLSearchParams(location.search).get('pagina');
   if (p && p !== 'home' && /^[a-z]+$/.test(p) && document.getElementById('page-' + p)) showPage(p);
 })();
@@ -5725,6 +5782,9 @@ document.getElementById('topbarTitle').style.display = 'none';
 </div>
 <script>
 (function () {
+  /* modo «blocco»: dentro la pagina di un altro sito non si registra il service
+     worker e non si invita a installare niente */
+  if (window.__BLOCCO) return;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       var vecchio = new URL('PWA/', location.href).href;
@@ -5847,7 +5907,7 @@ document.getElementById('topbarTitle').style.display = 'none';
   var RINNOVO = 'servizi.avvisi.rinnovatoIl';
   var ATTIVATO = 'servizi.avvisi.attivatiUnaVolta';
   var box = document.getElementById('avvisi-box');
-  if (!box) return;
+  if (!box || window.__BLOCCO) return;   // modo «blocco»: niente avvisi delle notizie
   var tit = document.getElementById('avvisi-titolo');
   var sub = document.getElementById('avvisi-sub');
   var btn = document.getElementById('avvisi-btn');
@@ -6817,7 +6877,7 @@ document.getElementById('topbarTitle').style.display = 'none';
        veste non c'e', la scheda qui sopra resta quella buona. */
   }
   window.aggiornaTesseraIscrizioni = aggiornaTessera;
-  aggiornaTessera();
+  if (!window.__BLOCCO) aggiornaTessera();   // la tessera sta in home: nel modo «blocco» non c'è
 
   window.caricaIscrizioniAperte = elenco;
   if (document.querySelector('#page-iscrizioni.active')) elenco();
@@ -7259,6 +7319,21 @@ document.getElementById('topbarTitle').style.display = 'none';
   nDom = 1;
   showPage('testdocente');
 })();
+</script>
+
+<!-- MODO «BLOCCO» (30/09/2026): stile neutro, veste del sito ospite, altezza del riquadro,
+     campionario. Si carica solo con ?blocco=…: chi usa l'app non lo scarica.
+     ⚠️ Quando si modifica blocco/blocco.js o blocco/blocco.css si alza ?v=N qui e in blocco.js. -->
+<script>
+if (window.__BLOCCO) {
+  (function () {
+    var s = document.createElement('script');
+    s.src = 'blocco/blocco.js?v=1';
+    /* se lo script non arriva, il modulo si mostra lo stesso: nudo ma utilizzabile */
+    s.onerror = function () { document.body.style.visibility = 'visible'; };
+    document.body.appendChild(s);
+  })();
+}
 </script>
 </body>
 </html>

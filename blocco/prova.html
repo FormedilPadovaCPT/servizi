@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Pagina di prova — un modulo del portale dentro un altro sito</title>
+  <!-- ══════════════════════════════════════════════════════
+       PAGINA DI PROVA (30/09/2026). Finge di essere una pagina del sito dell'ente:
+       testata fissa, testo, piede, e in mezzo un modulo montato con incorpora.js.
+       Serve a provare altezza, scorrimento ed eventi, e a far vedere a chi sviluppa
+       il sito come si presenta un blocco. La grafica qui intorno e' inventata.
+
+         prova.html?modulo=segnalazione            quale modulo
+         prova.html?modulo=visita&veste=esempio    con la veste di esempio
+         prova.html?intro=si                       con l'introduzione al servizio
+         prova.html?da=http://127.0.0.1:8767/      incorpora.js (e quindi il modulo) da un'altra
+                                                   origine: e' la situazione vera, sito e portale
+                                                   su indirizzi diversi
+       ══════════════════════════════════════════════════════ -->
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.6 Georgia, 'Times New Roman', serif; color: #1f2a30; background: #fff; }
+    header { position: sticky; top: 0; z-index: 10; background: #1f2a30; color: #fff; padding: 0 24px; height: 64px;
+      display: flex; align-items: center; gap: 24px; }
+    header b { font-size: 18px; letter-spacing: .02em; }
+    header nav { display: flex; gap: 18px; font: 14px/1 system-ui, sans-serif; opacity: .8; }
+    main { max-width: 860px; margin: 0 auto; padding: 40px 24px 60px; }
+    h1 { font-size: 34px; line-height: 1.15; margin: 0 0 12px; }
+    .scelte { font: 13px/1.5 system-ui, sans-serif; background: #f2f5f6; border: 1px solid #d5dde1; padding: 12px 14px; margin: 0 0 28px; }
+    .scelte a { margin-right: 10px; white-space: nowrap; }
+    .registro { font: 12px/1.5 ui-monospace, Consolas, monospace; background: #111; color: #9fe39f; padding: 10px 12px;
+      margin: 28px 0 0; min-height: 40px; white-space: pre-wrap; }
+    footer { background: #e9edef; padding: 40px 24px; text-align: center; font: 13px/1.6 system-ui, sans-serif; color: #55646c; }
+    @media (max-width: 600px) { h1 { font-size: 26px; } header nav { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <b>SITO DI PROVA</b>
+    <nav><span>Chi siamo</span><span>Aziende</span><span>Lavoratori</span><span>Contatti</span></nav>
+  </header>
+
+  <main>
+    <h1 id="titolo">Un servizio dell'Area Sicurezza e Salute</h1>
+    <p>Questo testo, il titolo, la testata e il piede sono della pagina che ospita. Il modulo qui sotto è un blocco
+       del portale servizi: lo stesso dell'app, aggiornato insieme a lei.</p>
+
+    <div class="scelte" id="scelte"></div>
+
+    <div id="qui"></div>
+
+    <div class="registro" id="registro">eventi del blocco:</div>
+  </main>
+
+  <footer>Piede della pagina ospite · se il riquadro è alto quanto il modulo, qui non ci sono barre di scorrimento doppie</footer>
+
+  <script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var MODULI = ['visita', 'segnalazione', 'rlst', 'rls', 'conferenza', 'consulenza', 'attestazione', 'notifica',
+                  'questionario', 'iscrizioni', 'campionario'];
+    var modulo = MODULI.indexOf(q.get('modulo')) >= 0 ? q.get('modulo') : 'visita';
+    var veste = q.get('veste') === 'esempio' ? 'esempio' : '';
+    var intro = q.get('intro') === 'si';
+    var da = (q.get('da') || '').trim();
+
+    function indirizzo(m, v, i) {
+      var p = new URLSearchParams();
+      p.set('modulo', m);
+      if (v) p.set('veste', v);
+      if (i) p.set('intro', 'si');
+      if (da) p.set('da', da);
+      return '?' + p.toString();
+    }
+    var s = document.getElementById('scelte');
+    function voce(testo, href, ora) {
+      var a = document.createElement('a');
+      a.href = href; a.textContent = testo;
+      if (ora) a.style.fontWeight = '700';
+      s.appendChild(a);
+    }
+    s.appendChild(document.createTextNode('Modulo: '));
+    MODULI.forEach(function (m) { voce(m, indirizzo(m, veste, intro), m === modulo); });
+    s.appendChild(document.createElement('br'));
+    s.appendChild(document.createTextNode('Veste: '));
+    voce('neutra', indirizzo(modulo, '', intro), !veste);
+    voce('di esempio', indirizzo(modulo, 'esempio', intro), !!veste);
+    s.appendChild(document.createTextNode(' · Introduzione: '));
+    voce('no', indirizzo(modulo, veste, false), !intro);
+    voce('sì', indirizzo(modulo, veste, true), intro);
+
+    document.getElementById('titolo').textContent = 'Modulo «' + modulo + '» dentro una pagina del sito';
+
+    var d = document.createElement('div');
+    d.setAttribute('data-formedil-modulo', modulo);
+    if (veste) d.setAttribute('data-formedil-veste', veste);
+    if (intro) d.setAttribute('data-formedil-introduzione', 'si');
+    d.setAttribute('data-formedil-margine', '84');
+    document.getElementById('qui').appendChild(d);
+
+    var reg = document.getElementById('registro');
+    ['formedil:pronto', 'formedil:inviata'].forEach(function (n) {
+      document.addEventListener(n, function () {
+        reg.textContent += '\n' + new Date().toLocaleTimeString('it-IT') + '  ' + n;
+      });
+    });
+
+    var sc = document.createElement('script');
+    sc.src = (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/$/.test(da) ? da : '../') + 'incorpora.js';
+    sc.async = true;
+    document.body.appendChild(sc);
+  })();
+  </script>
+</body>
+</html>

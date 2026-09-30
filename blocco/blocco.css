@@ -1,0 +1,194 @@
+/* ============================================================
+   MODO «BLOCCO» del portale servizi — stile neutro (30/09/2026)
+
+   Si carica solo con ?blocco=<nome> (lo aggiunge blocco/blocco.js), DOPO lo
+   stile del portale e PRIMA della veste del sito che ospita il blocco.
+
+   Tre parti:
+   1. le VARIABILI DELLA VESTE: sono il modo piu' semplice, per chi tiene il
+      sito, di dare al modulo i propri colori e il proprio carattere;
+   2. che cosa NON si vede in un blocco (testata, menu, titolo, piede…);
+   3. lo stile neutro dei moduli, scritto sulle variabili.
+
+   ⚠️ Le regole della parte 3 stanno dentro :where(): non aggiungono peso ai
+   selettori. Cosi' la veste del sito, caricata dopo, vince scrivendo i nomi
+   di classe semplici (.btn-send { … }), senza !important e senza prefissi.
+
+   ⚠️ I nomi delle variabili della parte 1 e i nomi di classe elencati in
+   blocco/LEGGIMI.md sono un IMPEGNO verso chi ha scritto la veste del sito:
+   non si rinominano senza avvisare.
+   ============================================================ */
+
+/* ── 1. VARIABILI DELLA VESTE ─────────────────────────────── */
+:where(html[data-blocco]) {
+  --carattere: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --corpo: 14px;                 /* testo dentro i campi */
+  --accento: #E7500F;            /* pulsante di invio, titoli di sezione, stato attivo */
+  --accento-scuro: #c94208;
+  --tinta: #fdf3ee;              /* sfondo tenue delle scelte selezionate e delle note */
+  --testo: #2c2c2a;
+  --testo-tenue: #5f5e5a;        /* etichette, testi di aiuto */
+  --bordo: #d4d2ca;
+  --campo: #ffffff;              /* sfondo dei campi */
+  --riquadro: #f9f8f5;           /* sfondo dei riquadri: sezioni ripetute, privacy */
+  --raggio: 6px;
+  --errore: #e24b4a;
+  --errore-sfondo: #fcebeb;
+  --errore-testo: #a32d2d;
+  --ok: #3b6d11;
+  --ok-sfondo: #eaf3de;
+}
+/* ponte verso i nomi che il portale usa da sempre (qui serve il peso pieno:
+   devono vincere sul :root del portale) */
+html[data-blocco] {
+  --orange: var(--accento);
+  --orange2: var(--accento-scuro);
+  --text: var(--testo);
+  --muted: var(--testo-tenue);
+  --border: var(--bordo);
+  --radius: var(--raggio);
+  --green: var(--ok);
+  --bg: transparent;
+  scroll-behavior: auto;
+  background: transparent;
+}
+
+/* ── 2. CHE COSA NON SI VEDE IN UN BLOCCO ─────────────────── */
+html[data-blocco] #splash,
+html[data-blocco] .sidebar,
+html[data-blocco] .sidebar-overlay,
+html[data-blocco] .topbar,
+html[data-blocco] .app-invito,
+html[data-blocco] #lightbox,
+html[data-blocco] .page-hero,
+html[data-blocco] .btn-back,
+html[data-blocco] .form-header,
+html[data-blocco] .page-footer { display: none !important; }
+/* l'introduzione al servizio (testi prima del modulo) la scrive il sito; si
+   mostra solo se chi incorpora la chiede (data-formedil-introduzione="si") */
+html[data-blocco]:not([data-blocco-intro]) [data-intro] { display: none !important; }
+/* nell'iscrizione serve poter tornare all'elenco dei corsi */
+html[data-blocco="iscrizioni"] #iz-indietro { display: inline-flex !important; }
+
+/* flow-root: i margini del primo e dell'ultimo elemento restano DENTRO il corpo,
+   altrimenti l'altezza misurata sarebbe piu' corta del contenuto e il riquadro
+   taglierebbe il fondo del modulo */
+html[data-blocco] body { min-height: 0; background: transparent; display: flow-root; }
+/* un filo di margine: l'alone del campo attivo non deve essere tagliato dal bordo del riquadro */
+:where(html[data-blocco]) body { padding: 4px; }
+html[data-blocco] .shell { display: block; min-height: 0; }
+html[data-blocco] .main { display: block; }
+html[data-blocco] .page { padding: 0; max-width: none; }
+
+/* ── 3. STILE NEUTRO DEI MODULI ───────────────────────────── */
+:where(html[data-blocco]) body { font-family: var(--carattere); color: var(--text); }
+:where(html[data-blocco]) input[type=text],
+:where(html[data-blocco]) input[type=email],
+:where(html[data-blocco]) input[type=tel],
+:where(html[data-blocco]) input[type=date],
+:where(html[data-blocco]) input[type=number],
+:where(html[data-blocco]) select,
+:where(html[data-blocco]) textarea {
+  font-family: var(--carattere); font-size: var(--corpo);
+  background: var(--campo); border-radius: var(--raggio);
+}
+:where(html[data-blocco]) input:focus,
+:where(html[data-blocco]) select:focus,
+:where(html[data-blocco]) textarea:focus {
+  border-color: var(--accento);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .08);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accento) 16%, transparent);
+}
+:where(html[data-blocco]) input.err,
+:where(html[data-blocco]) select.err,
+:where(html[data-blocco]) textarea.err { border-color: var(--errore); }
+
+:where(html[data-blocco]) .info-box { background: var(--tinta); }
+:where(html[data-blocco]) .conditions-box,
+:where(html[data-blocco]) .cantiere-block { background: var(--riquadro); }
+:where(html[data-blocco]) .prog-bar { background: var(--bordo); }
+:where(html[data-blocco]) .section-title { border-bottom-color: var(--bordo); }
+
+:where(html[data-blocco]) .radio-opt,
+:where(html[data-blocco]) .check-opt { border-radius: var(--raggio); }
+:where(html[data-blocco]) .radio-opt:hover,
+:where(html[data-blocco]) .check-opt:hover,
+:where(html[data-blocco]) .radio-opt.sel,
+:where(html[data-blocco]) .check-opt.sel,
+:where(html[data-blocco]) .request-card:hover,
+:where(html[data-blocco]) .request-card.selected { background: var(--tinta); }
+:where(html[data-blocco]) .radio-opt input,
+:where(html[data-blocco]) .check-opt input { background: var(--campo); }
+/* la scelta singola e' un tondo col pallino, e chi si muove con la tastiera
+   vede dov'e': nello stile del portale il quadratino resta vuoto e col fuoco
+   perde il bordo (li' la riga intera cambia colore, e basta quello) */
+:where(html[data-blocco]) .radio-opt input { border-radius: 50%; }
+:where(html[data-blocco]) .radio-opt input:focus,
+:where(html[data-blocco]) .check-opt input:focus { border: 2px solid var(--bordo); }
+:where(html[data-blocco]) .radio-opt input:checked {
+  border: 2px solid var(--accento); background: var(--accento);
+  box-shadow: inset 0 0 0 3px var(--campo);
+}
+:where(html[data-blocco]) .check-opt input:checked { border: 2px solid var(--accento); background: var(--accento); }
+:where(html[data-blocco]) .radio-opt input:focus-visible,
+:where(html[data-blocco]) .check-opt input:focus-visible { outline: 2px solid var(--accento); outline-offset: 2px; }
+:where(html[data-blocco]) .scale-btn { background: var(--campo); border-radius: var(--raggio); }
+
+:where(html[data-blocco]) .file-area,
+:where(html[data-blocco]) .photo-upload-area { background: var(--campo); }
+:where(html[data-blocco]) .file-name.ok { color: var(--ok); }
+:where(html[data-blocco]) .file-name.err-msg,
+:where(html[data-blocco]) .request-err { color: var(--errore); }
+
+:where(html[data-blocco]) .privacy-box { background: var(--riquadro); }
+:where(html[data-blocco]) .privacy-box input[type=checkbox] {
+  accent-color: var(--accento); border-color: var(--accento); background-color: var(--campo);
+}
+:where(html[data-blocco]) .privacy-box input[type=checkbox]:checked { background-color: var(--accento); }
+:where(html[data-blocco]) .privacy-box input[type=checkbox]:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accento) 30%, transparent);
+}
+
+:where(html[data-blocco]) .btn-reset,
+:where(html[data-blocco]) .btn-send,
+:where(html[data-blocco]) .btn-back,
+:where(html[data-blocco]) .success-banner .btn-new {
+  font-family: var(--carattere); border-radius: var(--raggio);
+}
+:where(html[data-blocco]) .btn-reset:hover,
+:where(html[data-blocco]) .btn-back:hover { background: var(--riquadro); }
+
+:where(html[data-blocco]) .success-banner {
+  background: var(--ok-sfondo); border-color: var(--ok); color: var(--ok);
+}
+:where(html[data-blocco]) .success-banner .btn-new { background: var(--ok); }
+:where(html[data-blocco]) .error-banner {
+  background: var(--errore-sfondo); border-color: var(--errore); color: var(--errore-testo);
+}
+:where(html[data-blocco]) .error-banner a { color: var(--errore-testo); }
+
+/* avviso al posto delle finestre «alert»: dentro la pagina di un altro sito
+   il browser non le mostra */
+:where(html[data-blocco]) .fb-avviso {
+  background: var(--errore-sfondo); border: 1px solid var(--errore); color: var(--errore-testo);
+  border-radius: var(--raggio); padding: 12px 14px; margin: 0 0 16px;
+  font-size: 13px; line-height: 1.5; white-space: pre-line;
+  display: flex; gap: 12px; align-items: flex-start; justify-content: space-between;
+}
+:where(html[data-blocco]) .fb-avviso button {
+  background: none; border: 0; color: inherit; cursor: pointer;
+  font: inherit; font-weight: 700; text-decoration: underline; flex-shrink: 0;
+}
+
+/* ── CAMPIONARIO (?blocco=campionario) ────────────────────── */
+:where(html[data-blocco]) .fb-campione {
+  margin-top: 40px; padding-top: 8px; border-top: 2px dashed var(--bordo);
+}
+:where(html[data-blocco]) .fb-campione-nota {
+  font-size: 12.5px; color: var(--testo-tenue); line-height: 1.6; margin: 10px 0 0;
+}
+:where(html[data-blocco]) .fb-campione-nome {
+  font: 600 11px/1.4 ui-monospace, Consolas, monospace; color: var(--testo-tenue);
+  margin: 26px 0 8px;
+}
