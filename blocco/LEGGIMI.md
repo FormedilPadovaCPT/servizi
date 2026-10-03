@@ -1,6 +1,6 @@
 # I moduli del portale servizi dentro un altro sito — guida per chi sviluppa
 
-Formedil Padova · Area Sicurezza e Salute — versione del 30/09/2026
+Formedil Padova · Area Sicurezza e Salute — versione del 03/10/2026
 
 I moduli con cui si chiedono i servizi dell'Area (visita in cantiere, RLST, segnalazione…) si possono
 montare dentro le pagine del sito dell'ente come **blocchi**. Il modulo resta quello del portale: campi,
@@ -41,6 +41,11 @@ si chiama `FormedilModuli.monta()`.
 | `questionario` | Valutazione del sopralluogo | — |
 | `iscrizioni` | Corsi e incontri con le iscrizioni aperte, e il modulo di iscrizione | file Excel facoltativo |
 | `campionario` | Tutti gli elementi dei moduli, per scrivere lo stile. **Non invia niente** | — |
+
+> **Il questionario di gradimento e il test finale dei corsi non vanno nel sito**, in nessuna pagina e in
+> nessuna forma: non sono blocchi e non vanno né incorporati né collegati. I partecipanti li aprono soltanto
+> dal collegamento personale che mandiamo loro per mail. Il blocco `questionario` qui sopra è un'altra cosa:
+> è la valutazione del sopralluogo fatta dall'impresa visitata.
 
 ### Opzioni, sul `<div>`
 
