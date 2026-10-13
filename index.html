@@ -3616,6 +3616,76 @@
     </div>
 
     <!-- ════════════════════════════════
+         9-quater. FIRMA DI PRESENZA DAL QR DEL CORSO      (13/10/2026)
+         Ci si arriva dal QR in copertina del registro o dal foglio esposto in
+         aula (?presenza=<codice>.<firma>). Chi firma si riconosce col codice
+         personale stampato accanto al suo nome sul registro — lo stesso del
+         test. ENTRATA O USCITA LO DECIDE IL SERVER sull'ora di adesso, non il
+         telefono: qui si dice prima che cosa si sta per firmare, e un solo
+         pulsante. Niente nomi interi, niente codice fiscale. Senza rete si
+         firma lo stesso: la firma resta in coda e parte quando torna la
+         connessione (vale l'ora di arrivo).
+    ════════════════════════════════ -->
+    <div class="page" id="page-presenza">
+      <style>
+        #page-presenza [hidden]{display:none!important}
+        .pz-io{border:1.5px solid var(--orange);background:#fdece3;border-radius:12px;padding:14px;margin-bottom:16px}
+        .pz-io b{font-size:19px}
+        .pz-cosa{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center}
+        .pz-cosa b{display:block;font-size:22px;margin:4px 0;color:var(--text)}
+        .pz-cosa.fuori{border-color:#c94208;background:#fff6f2}
+        .pz-ora{color:var(--muted);font-size:13px;line-height:1.4}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
+      <div class="form-header">
+        <h2>Firma di presenza</h2>
+        <p id="pz-sotto">Scrivi il tuo codice personale: è stampato accanto al tuo nome sul registro.</p>
+      </div>
+
+      <div class="qz-rif" id="pz-rif" hidden></div>
+      <div class="qe-avviso" id="pz-avviso" hidden></div>
+
+      <!-- 1 · chi sei -->
+      <div id="pz-chi" hidden>
+        <div class="field">
+          <label for="pz-codice">Il tuo codice personale</label>
+          <input id="pz-codice" maxlength="12" autocomplete="off" autocapitalize="characters"
+                 placeholder="es. K7PQR" style="text-transform:uppercase;letter-spacing:.12em;font-size:20px">
+          <p class="hint">Te lo dà il docente: è stampato accanto al tuo nome sul registro.</p>
+        </div>
+        <div class="error-banner" id="pz-chi-err">Questo codice non risulta fra i partecipanti di questo corso.</div>
+        <button type="button" class="btn-send" id="pz-cerca">Avanti</button>
+      </div>
+
+      <!-- 2 · sei tu? e che cosa stai per firmare: un pulsante solo -->
+      <form id="form-presenza" novalidate hidden data-senza-ricevuta>
+        <div class="pz-io">
+          <div class="hint" style="margin-bottom:4px">Stai per firmare come</div>
+          <b id="pz-iniziali">—</b>
+          <p class="hint" style="margin:8px 0 0">Mostriamo solo le iniziali: il tuo nome per intero non passa di qui.</p>
+        </div>
+        <div class="pz-cosa" id="pz-cosa">
+          <div class="hint" id="pz-cosa-tit">Oggi</div>
+          <b id="pz-cosa-txt">—</b>
+          <div class="pz-ora" id="pz-cosa-ora"></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn-reset" id="pz-nonsonoio">Non sono io</button>
+          <button type="submit" class="btn-send" id="prs-btnSend" style="flex:1">Firmo</button>
+        </div>
+
+        <div class="error-banner" id="prs-error">Errore durante l'invio.</div>
+        <div class="success-banner" id="prs-success">
+          <h2>✓ Firma registrata</h2>
+          <p id="pz-fatto">Il docente la conferma sul registro della giornata.</p>
+          <button class="btn-new" onclick="showPage('home')">Chiudi</button>
+        </div>
+      </form>
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> · Formedil Padova – Area Sicurezza e Salute</div>
+    </div>
+
+    <!-- ════════════════════════════════
          9-ter. IL TEST SCRITTO DAL DOCENTE      (19/09/2026)
          Ci si arriva SOLO dal link targato che manda la segreteria: nessuna
          tessera in home, nessuna voce di menu. Quello che il docente scrive
@@ -4240,6 +4310,7 @@ const PAGE_TITLES = {
   questionario: ['Valutazione Sopralluogo', ''],
   qevento: ['Questionario dell\'evento', ''],
   test: ['Verifica finale', ''],
+  presenza: ['Firma di presenza', ''],
   iscrizioni: ['Corsi e incontri aperti', ''],
   progetti: ['I nostri progetti', ''],
   iscrizione: ['Iscrizione', ''],
@@ -7099,6 +7170,184 @@ document.getElementById('topbarTitle').style.display = 'none';
   if (!v) return;
   rif = v.slice(0, 120);
   showPage('test');
+  apri();
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FIRMA DI PRESENZA DAL QR DEL CORSO                           (13/10/2026)
+
+   Lotto 4 del fascicolo corso digitale. Il QR è uno per corso (copertina del
+   registro e foglio in aula); l'allievo scrive il suo codice personale, vede
+   «sei tu? C. L.» e un solo pulsante con la scritta decisa dal server:
+   «Firmo l'entrata delle 8:30» / «Firmo l'uscita delle 13:30».
+   - apri_presenza(codice, firma)         → corso, giornate, aperto o no
+   - pres_che_cosa(codice, firma, cod.)   → iniziali e che cosa si firma,
+                                            con la stessa regola del Gestionale
+   - il modulo «prs» va alla cassetta come gli altri; la decisione che vale
+     è quella del Gestionale al ritiro (ora del server, non del telefono).
+   SENZA RETE: si firma lo stesso. Il codice personale si accetta senza la
+   conferma del nome, la firma entra nella coda di submitForm e parte quando
+   torna la connessione: il docente la vedrà con l'ora di arrivo. */
+(function () {
+  var rif = '', codice = '', firma = '', dati = null, personale = '', cosa = null, senzaRete = false;
+  var mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+  function el(tag, cls, testo) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (testo != null) n.textContent = testo;
+    return n;
+  }
+  function avviso(t, spento) {
+    var a = document.getElementById('pz-avviso');
+    a.textContent = t; a.classList.toggle('spento', !!spento); a.hidden = false;
+  }
+  function mostra(quale) {
+    ['pz-chi', 'form-presenza'].forEach(function (id) {
+      document.getElementById(id).hidden = id !== quale;
+    });
+  }
+  function dataIt(iso) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return '';
+    var q = iso.split('-');
+    return (+q[2]) + ' ' + mesi[+q[1] - 1] + ' ' + q[0];
+  }
+  function fascia(g) {
+    var a = g.dalle && g.alle ? g.dalle + '–' + g.alle : '';
+    var b = g.dalle2 && g.alle2 ? g.dalle2 + '–' + g.alle2 : '';
+    return [a, b].filter(Boolean).join(' · ');
+  }
+  /* la scritta del pulsante: la decide il server, qui si mette in parole */
+  function etichetta(c) {
+    if (senzaRete) {
+      return { t: 'Firmo la presenza di adesso', s: 'Senza rete: la firma parte da sola quando torna la connessione, e l\'ora che vale è quella di arrivo. Il docente la vedrà così.', fuori: true };
+    }
+    if (!c || !c.tipo) {
+      return { t: 'Firmo la presenza di adesso', s: 'La giornata non ha orari in calendario: entrata o uscita le decide il docente.', fuori: true };
+    }
+    var verbo = c.tipo === 'entrata' ? 'l\'entrata' : 'l\'uscita';
+    var t = 'Firmo ' + verbo + (c.ora_turno ? ' delle ' + c.ora_turno : '');
+    var s;
+    if (c.oggi === false) s = 'Oggi non c\'è lezione in calendario: la firma andrà sulla giornata del ' + dataIt(c.giornata) + ', e la vedrà il docente.';
+    else if (c.fuori_orario) s = 'Fuori orario: la firma vale con l\'ora di adesso, e il docente decide se accettarla.';
+    else s = 'Vale l\'ora in cui la firma arriva, non quella del telefono.';
+    return { t: t, s: s, fuori: !!c.fuori_orario || c.oggi === false };
+  }
+
+  async function apri() {
+    var p = rif.indexOf('.');
+    if (p < 1) { avviso('Il collegamento non è completo. Riprovate a inquadrare il codice.', true); return; }
+    codice = rif.slice(0, p); firma = rif.slice(p + 1);
+    var r;
+    try { r = await _sb.rpc('apri_presenza', { p_codice: codice, p_firma: firma }); }
+    catch (e) { r = { error: e }; }
+    /* errore del server o della rete ≠ codice che non esiste: senza rete si
+       firma lo stesso, e la firma aspetta in coda */
+    if (!r || r.error) {
+      senzaRete = true;
+      avviso('Sei senza rete (o il servizio non risponde): puoi firmare lo stesso. La firma parte da sola quando torna la connessione, con l\'ora di arrivo.', false);
+      mostra('pz-chi');
+      document.getElementById('pz-codice').focus();
+      return;
+    }
+    if (!r.data || r.data.trovato !== true) {
+      avviso('Questo codice non corrisponde a nessun corso con le firme aperte. Se lo avete digitato a mano, controllate le lettere.', true);
+      return;
+    }
+    dati = r.data;
+
+    var box = document.getElementById('pz-rif');
+    box.textContent = '';
+    var t = el('div'); t.appendChild(el('b', null, dati.titolo || 'Corso'));
+    box.appendChild(t);
+    var oggi = (dati.giornate || []).filter(function (g) { return g.data === dati.oggi; });
+    var riga = oggi.length
+      ? 'Oggi ' + dataIt(dati.oggi) + (fascia(oggi[0]) ? ' · ' + fascia(oggi[0]) : '')
+      : [dataIt(dati.quando), dati.sede].filter(Boolean).join(' · ');
+    if (riga) box.appendChild(el('div', null, riga));
+    box.hidden = false;
+
+    if (dati.aperto !== true) { avviso('Le firme di questo corso sono chiuse: parlane col docente.', true); return; }
+    mostra('pz-chi');
+    document.getElementById('pz-codice').focus();
+  }
+
+  function mostraFirma() {
+    var e = etichetta(cosa);
+    document.getElementById('pz-iniziali').textContent = senzaRete ? ('codice ' + personale) : (cosa && cosa.iniziali) || '—';
+    document.getElementById('pz-cosa-tit').textContent = senzaRete ? 'Senza rete'
+      : (cosa && cosa.giornata && cosa.oggi === false ? 'Giornata del ' + dataIt(cosa.giornata) : 'Oggi');
+    document.getElementById('pz-cosa-txt').textContent = e.t;
+    document.getElementById('pz-cosa-ora').textContent = e.s;
+    document.getElementById('pz-cosa').classList.toggle('fuori', !!e.fuori);
+    var btn = document.getElementById('prs-btnSend');
+    btn.disabled = false;
+    btn.textContent = senzaRete ? 'Firmo (parte quando c\'è rete)' : e.t;
+    document.getElementById('pz-fatto').textContent = senzaRete
+      ? 'La firma è salvata su questo telefono e parte da sola quando torna la rete: lascia il portale aperto un momento quando sei connesso.'
+      : 'Hai firmato ' + e.t.replace(/^Firmo /, '') + '. Il docente la conferma sul registro della giornata.';
+    document.getElementById('pz-sotto').textContent = 'Controlla che le iniziali siano le tue, poi premi il pulsante.';
+    mostra('form-presenza');
+  }
+
+  document.getElementById('pz-cerca').addEventListener('click', async function (ev) {
+    var v = document.getElementById('pz-codice').value.trim().toUpperCase();
+    var err = document.getElementById('pz-chi-err');
+    err.style.display = 'none';
+    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul registro.'; err.style.display = 'block'; return; }
+    if (senzaRete) { personale = v; cosa = null; mostraFirma(); return; }
+    ev.target.disabled = true;
+    var r;
+    try { r = await _sb.rpc('pres_che_cosa', { p_codice: codice, p_firma: firma, p_personale: v }); }
+    catch (e) { r = { error: e }; }
+    ev.target.disabled = false;
+    if (r.error) {
+      /* la rete è caduta fra l'apertura e adesso: si prosegue senza conferma
+         del nome, come se fosse mancata dall'inizio */
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        senzaRete = true; personale = v; cosa = null;
+        avviso('La rete è andata via: puoi firmare lo stesso, la firma parte quando torna.', false);
+        mostraFirma();
+        return;
+      }
+      err.textContent = 'Non riesco a raggiungere il servizio, riprova fra poco.';
+      err.style.display = 'block';
+      return;
+    }
+    if (!r.data || r.data.trovato !== true) {
+      err.textContent = 'Questo codice non risulta fra i partecipanti di questo corso. Chiedi al docente: se sei stato aggiunto oggi, serve un minuto.';
+      err.style.display = 'block';
+      return;
+    }
+    personale = v; cosa = r.data;
+    mostraFirma();
+  });
+
+  document.getElementById('pz-nonsonoio').addEventListener('click', function () {
+    personale = ''; cosa = null;
+    document.getElementById('pz-codice').value = '';
+    document.getElementById('pz-sotto').textContent = 'Scrivi il tuo codice personale: è stampato accanto al tuo nome sul registro.';
+    mostra('pz-chi');
+  });
+
+  document.getElementById('form-presenza').addEventListener('submit', function (e) {
+    e.preventDefault();
+    submitForm('form-presenza', 'prs', async function (form) {
+      var f = collectFields(form);
+      f.riferimento      = rif;
+      f.codice           = codice;
+      f.codice_personale = personale;
+      /* indicativa: fa fede l'ora in cui arriva al Gestionale */
+      f.ora_dispositivo  = new Date().toISOString();
+      return f;
+    });
+  });
+
+  var q = new URLSearchParams(location.search);
+  var v = (q.get('presenza') || '').trim();
+  if (!v) return;
+  rif = v.slice(0, 120);
+  showPage('presenza');
   apri();
 })();
 
