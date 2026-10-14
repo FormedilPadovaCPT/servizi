@@ -6355,6 +6355,24 @@ document.getElementById('topbarTitle').style.display = 'none';
     dati = r.data;
     intesta();
 
+    /* aperto a un'ora data (14/10/2026): prima di quell'ora si dice quando,
+       e la pagina lasciata aperta si riapre da sola. A decidere è sempre il
+       server: l'orologio del telefono serve solo a sapere quando richiedere. */
+    if (dati.non_ancora === true) {
+      var ap = new Date(dati.apre_il);
+      var quandoApre = isNaN(ap.getTime()) ? 'più tardi'
+        : ap.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', timeZone: 'Europe/Rome' })
+          + ' alle ' + ap.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome' });
+      avviso('Il questionario si apre il ' + quandoApre + '. Tenete aperta questa pagina: '
+           + 'le domande compaiono da sole a quell’ora (oppure inquadrate di nuovo il QR).', false);
+      var attesa = ap.getTime() - Date.now() + 3000;
+      if (!isNaN(attesa) && attesa < 12 * 3600 * 1000) {
+        setTimeout(function () { document.getElementById('qe-avviso').hidden = true; apri(); },
+                   Math.max(attesa, 30000));
+      }
+      return;
+    }
+
     if (dati.aperto !== true) {
       avviso('Il questionario di questo incontro è chiuso: si poteva rispondere nelle 48 ore successive. '
            + 'Se avete qualcosa da dirci, scriveteci a cpt@formedilpadova.it.', true);
