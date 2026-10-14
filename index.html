@@ -3526,7 +3526,7 @@
 
          L'opposto del questionario, e non si devono somigliare: il test è
          NOMINATIVO, perché l'esito vale per l'attestato. Chi risponde dice chi
-         è col proprio CODICE PERSONALE, stampato accanto al nome sul registro
+         è col proprio CODICE PERSONALE, che dal 14/10/2026 riceve su un biglietto (non più accanto al nome sul registro)
          — non scegliendo da un elenco di nomi, che si vedrebbero tutti e da
          cui chiunque potrebbe prendere il posto di un altro.
 
@@ -3564,7 +3564,7 @@
           <label for="te-codice">Il tuo codice personale</label>
           <input id="te-codice" maxlength="12" autocomplete="off" autocapitalize="characters"
                  placeholder="es. K7PQR" style="text-transform:uppercase;letter-spacing:.12em;font-size:20px">
-          <p class="hint">Te lo dà il docente: è stampato accanto al tuo nome sul registro.</p>
+          <p class="hint">È sul biglietto personale che ti ha dato il docente.</p>
         </div>
         <div class="error-banner" id="te-chi-err">Questo codice non risulta fra i partecipanti di questo corso.</div>
         <button type="button" class="btn-send" id="te-cerca">Avanti</button>
@@ -3619,8 +3619,11 @@
          9-quater. FIRMA DI PRESENZA DAL QR DEL CORSO      (13/10/2026)
          Ci si arriva dal QR in copertina del registro o dal foglio esposto in
          aula (?presenza=<codice>.<firma>). Chi firma si riconosce col codice
-         personale stampato accanto al suo nome sul registro — lo stesso del
-         test. ENTRATA O USCITA LO DECIDE IL SERVER sull'ora di adesso, non il
+         personale — lo stesso del test, consegnato su un biglietto — e, dal
+         14/10/2026, con l'ANNO DI NASCITA: il codice non sta più accanto al
+         nome sul registro, che gira in aula (verifica di legge del 14/10).
+         Online un anno sbagliato ferma la firma; senza rete la firma parte lo
+         stesso e il docente la vede segnata. ENTRATA O USCITA LO DECIDE IL SERVER sull'ora di adesso, non il
          telefono: qui si dice prima che cosa si sta per firmare, e un solo
          pulsante. Niente nomi interi, niente codice fiscale. Senza rete si
          firma lo stesso: la firma resta in coda e parte quando torna la
@@ -3640,7 +3643,7 @@
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
       <div class="form-header">
         <h2>Firma di presenza</h2>
-        <p id="pz-sotto">Scrivi il tuo codice personale: è stampato accanto al tuo nome sul registro.</p>
+        <p id="pz-sotto">Scrivi il codice del tuo biglietto e il tuo anno di nascita.</p>
       </div>
 
       <div class="qz-rif" id="pz-rif" hidden></div>
@@ -3652,10 +3655,24 @@
           <label for="pz-codice">Il tuo codice personale</label>
           <input id="pz-codice" maxlength="12" autocomplete="off" autocapitalize="characters"
                  placeholder="es. K7PQR" style="text-transform:uppercase;letter-spacing:.12em;font-size:20px">
-          <p class="hint">Te lo dà il docente: è stampato accanto al tuo nome sul registro.</p>
+          <p class="hint">È sul biglietto personale che ti ha dato il docente.</p>
+        </div>
+        <div class="field">
+          <label for="pz-anno">Il tuo anno di nascita</label>
+          <input id="pz-anno" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" autocomplete="off"
+                 placeholder="es. 1985" style="letter-spacing:.12em;font-size:20px;max-width:9em">
+          <p class="hint">Serve a essere sicuri che sia proprio tu a firmare.</p>
         </div>
         <div class="error-banner" id="pz-chi-err">Questo codice non risulta fra i partecipanti di questo corso.</div>
         <button type="button" class="btn-send" id="pz-cerca">Avanti</button>
+        <p class="hint" style="margin-top:14px;font-size:12px;line-height:1.45">
+          <strong>Informativa privacy (Reg. UE 2016/679)</strong> — Titolare: Formedil Padova, Via Basilicata 10, Padova.
+          Per tenere il registro delle presenze del corso (Accordo Stato-Regioni 17/04/2025) registriamo il tuo codice
+          personale, l'anno di nascita che scrivi, l'ora in cui arriva la firma e l'ora del telefono. Non registriamo
+          la tua posizione e il tuo nome per intero non passa da questa pagina. I dati restano nel fascicolo del corso
+          per almeno dieci anni; puoi chiedere di vederli o correggerli alla segreteria (cptpd@did.formedilpadova.it).
+          <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.
+        </p>
       </div>
 
       <!-- 2 · sei tu? e che cosa stai per firmare: un pulsante solo -->
@@ -7101,7 +7118,7 @@ document.getElementById('topbarTitle').style.display = 'none';
     var v = document.getElementById('te-codice').value.trim().toUpperCase();
     var err = document.getElementById('te-chi-err');
     err.style.display = 'none';
-    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul registro.'; err.style.display = 'block'; return; }
+    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul tuo biglietto.'; err.style.display = 'block'; return; }
     ev.target.disabled = true;
     var r;
     try { r = await _sb.rpc('chi_sono', { p_codice: codice, p_firma: firma, p_personale: v }); }
@@ -7189,7 +7206,7 @@ document.getElementById('topbarTitle').style.display = 'none';
    conferma del nome, la firma entra nella coda di submitForm e parte quando
    torna la connessione: il docente la vedrà con l'ora di arrivo. */
 (function () {
-  var rif = '', codice = '', firma = '', dati = null, personale = '', cosa = null, senzaRete = false;
+  var rif = '', codice = '', firma = '', dati = null, personale = '', anno = '', cosa = null, senzaRete = false;
   var mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 
   function el(tag, cls, testo) {
@@ -7292,20 +7309,25 @@ document.getElementById('topbarTitle').style.display = 'none';
 
   document.getElementById('pz-cerca').addEventListener('click', async function (ev) {
     var v = document.getElementById('pz-codice').value.trim().toUpperCase();
+    var a = document.getElementById('pz-anno').value.replace(/\D/g, '');
     var err = document.getElementById('pz-chi-err');
     err.style.display = 'none';
-    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul registro.'; err.style.display = 'block'; return; }
-    if (senzaRete) { personale = v; cosa = null; mostraFirma(); return; }
+    if (v.length < 3) { err.textContent = 'Scrivi il codice che trovi sul tuo biglietto.'; err.style.display = 'block'; return; }
+    var annoOra = new Date().getFullYear();
+    if (!/^\d{4}$/.test(a) || +a < annoOra - 100 || +a > annoOra - 14) {
+      err.textContent = 'Scrivi il tuo anno di nascita con quattro cifre, per esempio 1985.'; err.style.display = 'block'; return;
+    }
+    if (senzaRete) { personale = v; anno = a; cosa = null; mostraFirma(); return; }
     ev.target.disabled = true;
     var r;
-    try { r = await _sb.rpc('pres_che_cosa', { p_codice: codice, p_firma: firma, p_personale: v }); }
+    try { r = await _sb.rpc('pres_che_cosa', { p_codice: codice, p_firma: firma, p_personale: v, p_anno: a }); }
     catch (e) { r = { error: e }; }
     ev.target.disabled = false;
     if (r.error) {
       /* la rete è caduta fra l'apertura e adesso: si prosegue senza conferma
          del nome, come se fosse mancata dall'inizio */
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-        senzaRete = true; personale = v; cosa = null;
+        senzaRete = true; personale = v; anno = a; cosa = null;
         avviso('La rete è andata via: puoi firmare lo stesso, la firma parte quando torna.', false);
         mostraFirma();
         return;
@@ -7314,19 +7336,25 @@ document.getElementById('topbarTitle').style.display = 'none';
       err.style.display = 'block';
       return;
     }
+    if (r.data && r.data.anno_errato) {
+      err.textContent = 'Codice e anno di nascita non corrispondono. Controlla il biglietto e l\'anno; se è tutto giusto, parlane col docente.';
+      err.style.display = 'block';
+      return;
+    }
     if (!r.data || r.data.trovato !== true) {
       err.textContent = 'Questo codice non risulta fra i partecipanti di questo corso. Chiedi al docente: se sei stato aggiunto oggi, serve un minuto.';
       err.style.display = 'block';
       return;
     }
-    personale = v; cosa = r.data;
+    personale = v; anno = a; cosa = r.data;
     mostraFirma();
   });
 
   document.getElementById('pz-nonsonoio').addEventListener('click', function () {
-    personale = ''; cosa = null;
+    personale = ''; anno = ''; cosa = null;
     document.getElementById('pz-codice').value = '';
-    document.getElementById('pz-sotto').textContent = 'Scrivi il tuo codice personale: è stampato accanto al tuo nome sul registro.';
+    document.getElementById('pz-anno').value = '';
+    document.getElementById('pz-sotto').textContent = 'Scrivi il codice del tuo biglietto e il tuo anno di nascita.';
     mostra('pz-chi');
   });
 
@@ -7337,6 +7365,7 @@ document.getElementById('topbarTitle').style.display = 'none';
       f.riferimento      = rif;
       f.codice           = codice;
       f.codice_personale = personale;
+      f.anno_nascita     = anno;
       /* indicativa: fa fede l'ora in cui arriva al Gestionale */
       f.ora_dispositivo  = new Date().toISOString();
       return f;
