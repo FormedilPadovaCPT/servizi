@@ -4461,7 +4461,10 @@ function calcProgressForm(prefix) {
   const pct = total > 0 ? Math.round(n / total * 100) : 0;
   if (fill)  fill.style.width = pct + '%';
   if (label) label.textContent = 'Compilazione: ' + pct + '%';
-  if (btn)   btn.disabled = !(privCb && privCb.checked);
+  /* un modulo già inviato resta inviato finché non lo si svuota: prima ogni
+     tocco successivo (una faccina, la casella privacy) riaccendeva «✓ Inviata»,
+     e premerlo mandava una seconda risposta identica (20/10/2026) */
+  if (btn)   btn.disabled = form.dataset.inviata === '1' || !(privCb && privCb.checked);
 }
 
 function checkAllDichiarazioni() {
@@ -4927,6 +4930,7 @@ function resetForm(formId, prefix) {
   const form = document.getElementById(formId);
   if (!form) return;
   form.reset();
+  delete form.dataset.inviata;            // svuotato: si può compilare e mandare di nuovo
   // Reset cards
   form.querySelectorAll('.request-card').forEach(c => c.classList.remove('selected'));
   form.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('sel'));
@@ -5132,6 +5136,15 @@ async function submitForm(formId, prefix, buildPayload) {
   const errBox = document.getElementById(prefix + '-error');
   const okBox  = document.getElementById(prefix + '-success');
 
+  /* ── UN INVIO PER COMPILAZIONE ────────────────────────────────────────
+     Dopo la conferma l'identificativo della compilazione si chiude, quindi un
+     secondo «Invia» sullo stesso modulo nasceva come richiesta NUOVA e il
+     server non poteva riconoscerla. Il 18 e il 19/10/2026 due questionari di
+     gradimento sono arrivati doppi, identici, a 7 e 15 secondi l'uno
+     dall'altro: il pulsante si era riacceso al primo tocco sul modulo.
+     Per mandarne un altro si preme «Cancella» (resetForm). */
+  if (form.dataset.inviata === '1') return;
+
   // Validazione base
   let ok = true;
   form.querySelectorAll('[required]:not(input[type=checkbox]):not(input[type=radio])').forEach(el => {
@@ -5212,6 +5225,7 @@ async function submitForm(formId, prefix, buildPayload) {
     if (esito.ok) {
       await codaTogli(payload.submission_id);
       chiudiCompilazione(prefix);              // da qui in poi è una richiesta nuova
+      form.dataset.inviata = '1';              // …ma solo dopo «Cancella»: vedi in cima
       /* modo «blocco»: si avvisa la pagina che ospita (solo «è stata inviata»,
          nessun dato: serve a chi tiene il sito per contare le richieste) */
       if (window.bloccoEvento) window.bloccoEvento('inviata');
@@ -7316,6 +7330,9 @@ document.getElementById('topbarTitle').style.display = 'none';
     document.getElementById('pz-cosa-ora').textContent = e.s;
     document.getElementById('pz-cosa').classList.toggle('fuori', !!e.fuori);
     var btn = document.getElementById('prs-btnSend');
+    /* la firma di presenza è l'unico modulo che si rimanda dalla stessa pagina
+       (entrata e poi uscita): ogni nuova firma è una compilazione nuova */
+    delete document.getElementById('form-presenza').dataset.inviata;
     btn.disabled = false;
     btn.textContent = senzaRete ? 'Firmo (parte quando c\'è rete)' : e.t;
     document.getElementById('pz-fatto').textContent = senzaRete
