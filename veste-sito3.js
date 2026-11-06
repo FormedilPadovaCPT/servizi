@@ -486,7 +486,12 @@
       var b = bottone('s3-nz' + (evid ? ' s3-nz-evid' : ''))
       var foto = el('span', 's3-nz-foto')
       var u = copertina(n)
-      if (u) { var img = el('img'); img.src = u; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.onerror = function () { img.remove(); foto.appendChild(icona('notizie')) }; foto.appendChild(img) }
+      if (u) {
+        var img = el('img'); img.src = u; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'
+        foto.style.setProperty('--s3-sfondo', 'url(' + JSON.stringify(u) + ')')
+        img.onerror = function () { img.remove(); foto.style.removeProperty('--s3-sfondo'); foto.appendChild(icona('notizie')) }
+        foto.appendChild(img)
+      }
       else foto.appendChild(icona('notizie'))
       b.appendChild(foto)
       var tx = el('span', 's3-nz-testo')

@@ -47,8 +47,8 @@
        Le vesti provate prima (Ciclo, Sito nuovo, Sito nuovo 2, Sito 4) sono archiviate in
        proposte_grafiche/2026_09_11_portale-servizi/vesti_provate_nel_portale/.
        ⚠️ Quando si modificano i due file si alza ?v=N qui E nell'elenco DA_SALVARE di sw.js. -->
-  <link rel="stylesheet" href="veste-sito3.css?v=23">
-  <script src="veste-sito3.js?v=23" defer></script>
+  <link rel="stylesheet" href="veste-sito3.css?v=24">
+  <script src="veste-sito3.js?v=24" defer></script>
   <title>Formedil Padova – Area Sicurezza e Salute</title>
 
   <!-- PWA Meta Tags -->
@@ -425,7 +425,12 @@
     .nz-card { background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:14px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
     .nz-card.urg { border-color:#f0b49a; }
     .nz-media { position:relative; background:var(--light); }
-    .nz-media img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; cursor:zoom-in; }
+    /* Copertina intera (06/11/2026, chiesto dall'utente): prima era un 16:9
+       ritagliato e le grafiche quadrate o verticali perdevano le scritte in
+       alto e in basso. Ora l'immagine tiene le sue proporzioni; solo se è
+       molto alta si ferma a 75vh e si vede tutta dentro il riquadro. */
+    .nz-media { background:#fff; }
+    .nz-media img { width:100%; height:auto; max-height:75vh; object-fit:contain; display:block; margin:0 auto; cursor:zoom-in; }
     .nz-flag { position:absolute; top:10px; left:10px; display:flex; gap:6px; pointer-events:none; }
     .nz-flag span { font-size:10.5px; font-weight:800; letter-spacing:.03em; padding:4px 9px; border-radius:999px; background:var(--orange); color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.25); }
     .nz-flag span.nuovo { background:var(--green); color:#1d1d1b; }
@@ -472,7 +477,7 @@
 
     /* video: si vede la copertina, il lettore di YouTube nasce solo al tocco */
     .nz-vid { position:relative; cursor:pointer; background:#000; }
-    .nz-vid img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; opacity:.85; }
+    .nz-vid img { width:100%; aspect-ratio:16/9; object-fit:contain; display:block; opacity:.85; }
     .nz-play { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
     .nz-play i { width:74px; height:52px; border-radius:12px; background:#f00; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(0,0,0,.4); transition:transform .18s; }
     .nz-play i::after { content:''; border-left:18px solid #fff; border-top:11px solid transparent; border-bottom:11px solid transparent; margin-left:4px; }

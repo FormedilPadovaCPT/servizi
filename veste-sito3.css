@@ -105,7 +105,10 @@ html[data-veste="sito3"] .s3-nz{flex:0 0 240px;scroll-snap-align:start;display:f
 html[data-veste="sito3"] .s3-nz:hover{border-color:var(--s3-grigio)}
 html[data-veste="sito3"] .s3-nz-evid{border-top:4px solid var(--s3-arancio)}
 html[data-veste="sito3"] .s3-nz-foto{display:grid;place-items:center;aspect-ratio:16/10;background:var(--s3-arancio-chiaro);color:var(--s3-arancio-scuro);overflow:hidden}
-html[data-veste="sito3"] .s3-nz-foto img{width:100%;height:100%;object-fit:cover;display:block}
+html[data-veste="sito3"] .s3-nz-foto{position:relative}
+/* 06/11/2026: la copertina si vede intera (contain); il vuoto ai lati lo riempie la stessa immagine sfocata (--s3-sfondo, messa da strisciaNotizie) */
+html[data-veste="sito3"] .s3-nz-foto::before{content:"";position:absolute;inset:-12px;background:var(--s3-sfondo,none) center/cover no-repeat;filter:blur(12px) brightness(.9);opacity:.55}
+html[data-veste="sito3"] .s3-nz-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 html[data-veste="sito3"] .s3-nz-foto svg{width:34px;height:34px}
 html[data-veste="sito3"] .s3-nz-testo{display:block;padding:11px 13px 14px}
 html[data-veste="sito3"] .s3-nz-testo em{display:block;font:600 11.5px/1.2 Barlow,sans-serif;font-style:normal;letter-spacing:.06em;text-transform:uppercase;color:var(--s3-tenue);margin-bottom:5px}
