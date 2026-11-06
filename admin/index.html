@@ -100,6 +100,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .bu{background:#fff3ee;color:var(--orange)}
 .bp{background:#f0f9e6;color:var(--green2)}
 .bd{background:#f1f5f9;color:var(--muted)}
+.bprog{background:#eff6ff;color:#1d4ed8}
+.bscad{background:#fdf2f2;color:#b42318}
+.td-date{font-size:12px;color:var(--muted);white-space:nowrap;line-height:1.5}
+.field-nota{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
 .cat{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
 .cat-chips-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .cat-chip{display:inline-flex;align-items:center;padding:5px 11px;border-radius:20px;cursor:pointer;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:#fff;color:var(--muted);transition:all .15s;user-select:none}
@@ -232,7 +236,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <table class="ntable" id="ntable" style="display:none">
           <thead><tr>
             <th>Titolo / Categoria</th><th>Priorità</th><th>Stato</th>
-            <th>Autore</th><th>Data</th><th>Azioni</th>
+            <th>Autore</th><th>Pubblicazione</th><th>Azioni</th>
           </tr></thead>
           <tbody id="ntbody"></tbody>
         </table>
@@ -325,9 +329,12 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
                 <div class="cat-err" id="cat-err">Seleziona almeno una categoria.</div>
               </div>
               <div class="field"><label>Autore / Firma</label><input type="text" id="f-autore" placeholder="Es. Renato Squizzato"></div>
-              <div class="field"><label>Data pubblicazione</label><input type="date" id="f-data"></div>
+              <div class="field"><label>Data pubblicazione</label><input type="date" id="f-data">
+                <div class="field-nota">Se è nel futuro, la notizia resta nascosta fino a quel giorno e compare da sola.</div></div>
+              <div class="field"><label>Fine pubblicazione <span style="font-weight:400;color:var(--muted)">(facoltativa)</span></label><input type="date" id="f-fine">
+                <div class="field-nota">Ultimo giorno in cui si vede: dal giorno dopo sparisce dal portale. Vuota = resta sempre.</div></div>
               <div class="tog-row">
-                <span class="tog-label">Pubblica subito</span>
+                <span class="tog-label">Pubblica (dalla data indicata)</span>
                 <label class="toggle"><input type="checkbox" id="f-pub" checked><span class="toggle-sl"></span></label>
               </div>
             </div>
@@ -402,7 +409,26 @@ function onLogin(user) {
   document.getElementById('sb-uname').textContent = name;
   document.getElementById('f-autore').value = name;
   initQuill(); loadList();
-  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-data').value = oggiRoma();
+}
+
+// ── DATE DI PUBBLICAZIONE (06/11/2026) ────────────────────────
+// Il giorno è quello italiano: toISOString() dà il giorno UTC, che fra
+// mezzanotte e l'una (le due d'estate) è ancora ieri. Il filtro vero sta nel
+// database (policy «Lettura pubblica notizie in vetrina»): qui si mostra lo stato.
+function oggiRoma(){
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+}
+function statoNotizia(n){
+  const oggi=oggiRoma();
+  if(!n.pubblicata) return {cls:'bd', testo:'○ Bozza'};
+  if(n.data_pubbl && n.data_pubbl>oggi) return {cls:'bprog', testo:'◷ Programmata'};
+  if(n.fine_pubbl && n.fine_pubbl<oggi) return {cls:'bscad', testo:'✕ Scaduta'};
+  return {cls:'bp', testo:'● Pubblicata'};
+}
+function aggiornaMinFine(){
+  const da=document.getElementById('f-data').value;
+  document.getElementById('f-fine').min = da || '';
 }
 
 async function doLogout(){ await sb.auth.signOut(); location.reload(); }
@@ -421,7 +447,8 @@ function initQuill(){
     ]}
   });
   quill.on('text-change', updSum);
-  ['f-titolo','f-autore','f-data','f-prio'].forEach(id=>{
+  document.getElementById('f-data').addEventListener('input', aggiornaMinFine);
+  ['f-titolo','f-autore','f-data','f-fine','f-prio'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
     el.addEventListener('input', updSum);
@@ -471,16 +498,22 @@ async function loadList(){
   const {data,error} = await sb.from(TABLE).select('*').order('data_pubbl',{ascending:false}).order('created_at',{ascending:false});
   document.getElementById('ll').style.display='none';
   if(error){toast('Errore: '+error.message,'error');return;}
-  document.getElementById('list-count').textContent=`${data.length} notizie · ${data.filter(n=>n.pubblicata).length} pubblicate`;
+  const stati=data.map(statoNotizia);
+  const conta=t=>stati.filter(s=>s.cls===t).length;
+  document.getElementById('list-count').textContent=
+    `${data.length} notizie · ${conta('bp')} visibili ora` +
+    (conta('bprog')?` · ${conta('bprog')} programmate`:'') +
+    (conta('bscad')?` · ${conta('bscad')} scadute`:'') +
+    (conta('bd')?` · ${conta('bd')} bozze`:'');
   if(!data.length){document.getElementById('nempty').style.display='block';return;}
   document.getElementById('ntable').style.display='table';
   document.getElementById('ntbody').innerHTML = data.map(n=>`
     <tr>
       <td class="td-title">${esc(n.titolo)}<small>${(Array.isArray(n.categoria)?n.categoria:[n.categoria||'notizie']).map(c=>`<span class="cat cat-${c}">${c}</span>`).join(' ')}</small></td>
       <td><span class="badge ${pCls(n.priorita)}">${pIcon(n.priorita)} ${n.priorita||'normale'}</span></td>
-      <td><span class="badge ${n.pubblicata?'bp':'bd'}">${n.pubblicata?'● Pubblicata':'○ Bozza'}</span></td>
+      <td><span class="badge ${statoNotizia(n).cls}">${statoNotizia(n).testo}</span></td>
       <td style="font-size:12px;color:var(--gray)">${esc(n.autore||'—')}</td>
-      <td style="font-size:12px;color:var(--muted);white-space:nowrap">${fDate(n.data_pubbl)}</td>
+      <td class="td-date">dal ${fDate(n.data_pubbl)}<br>${n.fine_pubbl?'al '+fDate(n.fine_pubbl):'<span style="opacity:.6">senza fine</span>'}</td>
       <td class="td-actions">
         <button class="btn btn-secondary btn-sm" onclick="editN('${n.id}')">✏️ Modifica</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDel('${n.id}','${esc(n.titolo)}')">🗑</button>
@@ -495,7 +528,9 @@ function newNotizia(){
   document.querySelectorAll('#cat-chips-admin .cat-chip').forEach(c => c.classList.remove('sel'));
   document.getElementById('cat-err').style.display = 'none';
   document.getElementById('f-prio').value='normale';
-  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-data').value=oggiRoma();
+  document.getElementById('f-fine').value='';
+  aggiornaMinFine();
   document.getElementById('f-pub').checked=true;
   clrF('img'); clrF('att');
   document.querySelectorAll('.popt').forEach(el=>{
@@ -524,6 +559,8 @@ async function editN(id){
   document.getElementById('f-prio').value=data.priorita||'normale';
   document.getElementById('f-autore').value=data.autore||'';
   document.getElementById('f-data').value=data.data_pubbl||'';
+  document.getElementById('f-fine').value=data.fine_pubbl||'';
+  aggiornaMinFine();
   document.getElementById('f-pub').checked=!!data.pubblicata;
   document.querySelectorAll('.popt').forEach(el=>{
     el.className='popt'+(el.dataset.v===data.priorita?` s${data.priorita[0]}`:'');
@@ -545,6 +582,11 @@ async function save(pub){
     document.getElementById('cat-err').style.display = 'block';
     toast('Seleziona almeno una categoria','error'); return;
   }
+  const dataPubbl=document.getElementById('f-data').value||oggiRoma();
+  const finePubbl=document.getElementById('f-fine').value||null;
+  if(finePubbl && finePubbl<dataPubbl){
+    toast('La fine pubblicazione non può venire prima della data di pubblicazione','error'); return;
+  }
   const btn=document.getElementById(pub?'btn-pub':'btn-dft');
   btn.disabled=true; btn.innerHTML='<span class="spinner" style="border-top-color:#fff"></span> Salvataggio…';
   const payload={
@@ -553,7 +595,8 @@ async function save(pub){
     priorita:document.getElementById('f-prio').value,
     categoria:cats,
     autore:document.getElementById('f-autore').value.trim(),
-    data_pubbl:document.getElementById('f-data').value||new Date().toISOString().split('T')[0],
+    data_pubbl:dataPubbl,
+    fine_pubbl:finePubbl,
     video_url:document.getElementById('f-youtube').value.trim() || null,
     link_esterno:document.getElementById('f-link').value.trim() || null,
     pubblicata:pub,
@@ -578,7 +621,11 @@ async function save(pub){
     toast('Non salvata: nessuna riga modificata (permessi?)','error');
     return;
   }
-  toast(pub?'Notizia pubblicata ✓':'Bozza salvata ✓','success');
+  const st=statoNotizia(payload);
+  toast(!pub ? 'Bozza salvata ✓'
+    : st.cls==='bprog' ? `Programmata ✓ — compare sul portale il ${fDate(dataPubbl)}`
+    : st.cls==='bscad' ? 'Salvata, ma è già scaduta: sul portale non si vede'
+    : 'Notizia pubblicata ✓', st.cls==='bscad'?'error':'success');
   setTimeout(()=>cancelEdit(), 900);
 }
 
@@ -729,7 +776,10 @@ function updSum(){
   const ca = getSelectedCats();
   const pr=document.getElementById('f-prio')?.value;
   const da=document.getElementById('f-data')?.value;
+  const fi=document.getElementById('f-fine')?.value;
   const pu=document.getElementById('f-pub')?.checked;
+  const st=statoNotizia({pubblicata:pu, data_pubbl:da||oggiRoma(), fine_pubbl:fi||null});
+  const fineErr=fi && fi<(da||oggiRoma());
   const ch=quill?quill.getText().trim().length:0;
   document.getElementById('summary').innerHTML=`<div style="display:flex;flex-direction:column;gap:7px">
     <div><strong>Titolo:</strong> ${ti?esc(ti):'<em style="opacity:.4">—</em>'}</div>
@@ -737,11 +787,12 @@ function updSum(){
     <div><strong>Priorità:</strong> <span class="badge ${pCls(pr)}">${pIcon(pr)} ${esc(pr||'normale')}</span></div>
     <div><strong>Autore:</strong> ${au?esc(au):'<em style="opacity:.4">—</em>'}</div>
     <div><strong>Data:</strong> ${da?esc(fDate(da)):'<em style="opacity:.4">oggi</em>'}</div>
+    <div><strong>Fine:</strong> ${fi?esc(fDate(fi)):'<em style="opacity:.4">nessuna, resta sempre</em>'}${fineErr?' <span style="color:#b42318;font-weight:700">⚠ prima della data di pubblicazione</span>':''}</div>
     <div><strong>Caratteri:</strong> ${ch}</div>
     <div><strong>Immagini:</strong> ${upImg?(upImgs.length?`✓ ${upImgs.length+1} — carosello`:'✓ una, copertina'):'—'}</div>
     <div><strong>Video:</strong> ${document.getElementById('f-youtube')?.value.trim()?'▶ YouTube':'—'}</div>
     <div><strong>Allegato:</strong> ${upAtt?'✓ '+esc(upAtt.name):'—'}</div>
-    <div><strong>Stato:</strong> <span class="badge ${pu?'bp':'bd'}">${pu?'● Pubblica':'○ Bozza'}</span></div>
+    <div><strong>Stato:</strong> <span class="badge ${st.cls}">${st.testo}</span></div>
   </div>`;
 }
 

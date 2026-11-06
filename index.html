@@ -47,8 +47,8 @@
        Le vesti provate prima (Ciclo, Sito nuovo, Sito nuovo 2, Sito 4) sono archiviate in
        proposte_grafiche/2026_09_11_portale-servizi/vesti_provate_nel_portale/.
        ⚠️ Quando si modificano i due file si alza ?v=N qui E nell'elenco DA_SALVARE di sw.js. -->
-  <link rel="stylesheet" href="veste-sito3.css?v=24">
-  <script src="veste-sito3.js?v=24" defer></script>
+  <link rel="stylesheet" href="veste-sito3.css?v=25">
+  <script src="veste-sito3.js?v=25" defer></script>
   <title>Formedil Padova – Area Sicurezza e Salute</title>
 
   <!-- PWA Meta Tags -->
@@ -5968,6 +5968,18 @@ function nzFiltri() {
     voci.map(c => `<button class="nz-chip ${_nzFiltro === c ? 'on' : ''}" data-cat="${escHtml(c)}">${escHtml(c)}<span class="nz-n">${conta[c]}</span></button>`).join('');
 }
 
+// Date di pubblicazione (06/11/2026). Il filtro vero è nel database (policy
+// «Lettura pubblica notizie in vetrina»: programmate e scadute non escono
+// nemmeno dall'API). Qui si ripete solo per la copia in memoria del telefono,
+// che può essere di ieri: una notizia scaduta stanotte non deve riapparire.
+function nzOggiRoma() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+}
+function nzInVetrina(n) {
+  const oggi = nzOggiRoma();
+  return !(n.data_pubbl && n.data_pubbl > oggi) && !(n.fine_pubbl && n.fine_pubbl < oggi);
+}
+
 function renderNews(items) {
   const loader = document.getElementById('news-loader');
   const list   = document.getElementById('news-list');
@@ -5975,7 +5987,7 @@ function renderNews(items) {
   loader.style.display = 'none';
   list.style.display   = 'flex';
 
-  _nzItems = (items || []).filter(n => n.pubblicata);
+  _nzItems = (items || []).filter(n => n.pubblicata && nzInVetrina(n));
   const readIds = getReadIds();
   const daLeggere = _nzItems.filter(n => !readIds.includes(n.id)).length;
   lbl.textContent = _nzItems.length

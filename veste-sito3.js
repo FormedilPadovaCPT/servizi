@@ -439,7 +439,12 @@
      ne sono altre. Non scorre da sola. Toccando una carta si apre proprio quella notizia.
      La notizia in evidenza sparisce da se' alla data di «evidenza_fino_al», come prima. */
   var NZ_MAX = 6
-  var NZ_CAMPI = 'id,titolo,corpo,data_pubbl,created_at,pubblicata,evidenza_fino_al,immagine_url,immagini,video_url,link_esterno'
+  var NZ_CAMPI = 'id,titolo,corpo,data_pubbl,fine_pubbl,created_at,pubblicata,evidenza_fino_al,immagine_url,immagini,video_url,link_esterno'
+  /* 06/11/2026: il giorno italiano, non quello UTC di toISOString(). Programmate
+     e scadute le scarta già il database; qui si ripete per la copia in memoria. */
+  var oggiRoma = function () {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  }
   var dataBreve = function (iso) { var d = String(iso || '').slice(0, 10); return d ? d.split('-').reverse().join('/') : '' }
   var ytId = function (url) {
     var m = String(url || '').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/)
@@ -503,7 +508,11 @@
       return b
     }
     var disegna = function (ultime, evid) {
-      var buone = function (x) { return x && x.pubblicata !== false && x.titolo }
+      var oggi = oggiRoma()
+      var buone = function (x) {
+        return x && x.pubblicata !== false && x.titolo &&
+          !(x.data_pubbl && x.data_pubbl > oggi) && !(x.fine_pubbl && x.fine_pubbl < oggi)
+      }
       var e = evid && buone(evid) ? evid : null
       var altre = (ultime || []).filter(buone).filter(function (x) { return !(e && (x.id === e.id || x.titolo === e.titolo)) })
       var lista = (e ? [e] : []).concat(altre).slice(0, NZ_MAX)
@@ -524,7 +533,7 @@
     var client = null
     try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
     if (client) {
-      var oggi = new Date().toISOString().slice(0, 10)
+      var oggi = oggiRoma()
       Promise.all([
         client.from('notizie').select(NZ_CAMPI).eq('pubblicata', true)
           .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(NZ_MAX + 1),
