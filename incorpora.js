@@ -90,6 +90,9 @@
       f.src = BASE + '?' + q.toString();
       f.title = NOMI[nome] + ' – Formedil Padova, Area Sicurezza e Salute';
       f.setAttribute('scrolling', 'no');
+      /* (06/11/2026) la richiesta di visita può chiedere la posizione del cantiere a chi è sul posto:
+         senza questo permesso un riquadro di un altro sito non la ottiene, e il pulsante resta nascosto */
+      f.setAttribute('allow', 'geolocation');
       var provvisoria = parseInt(c.getAttribute('data-formedil-altezza'), 10);
       if (!(provvisoria > 0 && provvisoria < 20000)) provvisoria = 600;
       f.style.cssText = 'display:block;width:100%;border:0;height:' + provvisoria + 'px;background:transparent;';

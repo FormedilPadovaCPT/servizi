@@ -2139,8 +2139,8 @@
             <input type="text" id="vis-rag_soc" name="ragione_sociale" placeholder="Denominazione impresa" required>
           </div>
           <div class="field">
-            <label for="vis-ceiv">Codice iscrizione CEIV <span class="req">*</span></label>
-            <input type="text" id="vis-ceiv" name="codice_ceiv" placeholder="es. PD-000000" required>
+            <label for="vis-ceiv">Codice iscrizione CEIV <small>(se iscritta)</small></label>
+            <input type="text" id="vis-ceiv" name="codice_ceiv" placeholder="es. PD-000000">
           </div>
           <div class="field">
             <label for="vis-piva">Partita IVA <span class="req">*</span></label>
@@ -2165,6 +2165,10 @@
           <div class="field">
             <label for="vis-cell">Cellulare</label>
             <input type="tel" id="vis-cell" name="cellulare" placeholder="333 0000000">
+          </div>
+          <div class="field col-full">
+            <label for="vis-email">E-mail dell'impresa <span class="req">*</span> <small>(qui arriva il verbale della visita)</small></label>
+            <input type="email" id="vis-email" name="email" placeholder="nome@impresa.it" required>
           </div>
         </div>
 
@@ -2197,19 +2201,136 @@
           </div>
         </div>
 
-        <div class="section-title">Localizzazione cantiere</div>
+        <!-- (06/11/2026, deciso dall'utente) i dati del cantiere si raccolgono qui: chi chiede il servizio li conosce,
+             e la segreteria apre la scheda del cantiere già completa. Voci e fasce sono quelle dell'Osservatorio
+             nazionale, le stesse del gestionale (app-data.js: TIP_INT_LABELS, TIP_OPE_LABELS, IMP_LBL). -->
+        <div class="section-title">Il cantiere</div>
         <div class="grid-2">
-          <div class="field col-full">
+          <div class="field">
             <label for="vis-ind_cant">Indirizzo cantiere <span class="req">*</span></label>
-            <input type="text" id="vis-ind_cant" name="indirizzo_cantiere" placeholder="Via / Piazza, numero civico" required>
+            <input type="text" id="vis-ind_cant" name="indirizzo_cantiere" placeholder="Via / Piazza" required onchange="visMappaIndirizzoCambiato()">
+          </div>
+          <div class="field">
+            <label for="vis-civ_cant">Numero civico <small>(se non c'è, lasciare vuoto)</small></label>
+            <input type="text" id="vis-civ_cant" name="civico_cantiere" placeholder="es. 12/A" onchange="visMappaIndirizzoCambiato()">
           </div>
           <div class="field col-full">
             <label for="vis-com_cant">Comune cantiere <span class="req">*</span></label>
-            <select id="vis-com_cant" name="comune_cantiere" required>
+            <select id="vis-com_cant" name="comune_cantiere" required onchange="visMappaIndirizzoCambiato()">
               <option value="">— seleziona comune —</option>
             </select>
           </div>
+          <div class="field col-full">
+            <label>Posizione del cantiere sulla mappa <small>(facoltativa, ma ci aiuta a trovarlo subito)</small></label>
+            <div id="vis-mappa-chiusa">
+              <button type="button" onclick="visMappaApri()" style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border:1px dashed var(--orange);border-radius:6px;background:transparent;color:var(--orange);cursor:pointer">🗺️ Indica il punto sulla mappa</button>
+            </div>
+            <div id="vis-mappa-aperta" style="display:none">
+              <div id="vis-mappa" style="height:280px;border:1px solid var(--border);border-radius:var(--radius);margin:4px 0"></div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button type="button" id="vis-mappa-gps" onclick="visMappaGps()" style="font-family:'Barlow',sans-serif;font-size:12.5px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer">📍 Sono in cantiere</button>
+                <button type="button" onclick="visMappaCerca(true)" style="font-family:'Barlow',sans-serif;font-size:12.5px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer">🔎 Trova l'indirizzo</button>
+                <button type="button" onclick="visMappaTogli()" style="font-family:'Barlow',sans-serif;font-size:12.5px;padding:6px 12px;border:none;background:transparent;color:var(--muted);cursor:pointer">✕ Togli il punto</button>
+              </div>
+              <div id="vis-mappa-msg" style="font-size:12px;color:var(--muted);margin-top:4px">Tocca la mappa o trascina il segnaposto sul punto esatto del cantiere.</div>
+            </div>
+            <input type="hidden" id="vis-lat" name="cant_lat">
+            <input type="hidden" id="vis-lng" name="cant_lng">
+          </div>
+          <div class="field col-full">
+            <label for="vis-descr">Descrizione dei lavori <span class="req">*</span></label>
+            <input type="text" id="vis-descr" name="cant_descrizione" placeholder="es. Ampliamento della scuola, nuovi spogliatoi della palestra" required>
+          </div>
+          <div class="field">
+            <label for="vis-tipint">Tipo di intervento <span class="req">*</span></label>
+            <select id="vis-tipint" name="cant_tip_int" required>
+              <option value="">— seleziona —</option>
+              <option value="1">Costruzione</option><option value="2">Ristrutturazione</option>
+              <option value="3">Demolizione</option><option value="4">Ampliamento</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="vis-tipope">Tipo di opera <span class="req">*</span></label>
+            <select id="vis-tipope" name="cant_tip_ope" required onchange="visOperaAltro()">
+              <option value="">— seleziona —</option>
+              <option value="1">Industriale</option><option value="2">Civile</option><option value="3">Commerciale</option>
+              <option value="4">Ospedaliera</option><option value="5">Stradale</option><option value="6">Rurale</option>
+              <option value="7">Funeraria</option><option value="8">Scolastica</option><option value="9">Ferroviaria</option>
+              <option value="10">Marittima</option><option value="11">Fluviale</option><option value="12">Sportiva</option>
+              <option value="13">Carceraria</option><option value="14">Campi eolici</option><option value="15">Fotovoltaica</option>
+              <option value="16">Altro</option>
+            </select>
+          </div>
+          <div class="field col-full" id="vis-tipope-altro-box" style="display:none">
+            <label for="vis-tipope-altro">Di che opera si tratta? <span class="req">*</span></label>
+            <input type="text" id="vis-tipope-altro" name="cant_tip_ope_altro" placeholder="es. parcheggio multipiano">
+          </div>
+          <div class="field">
+            <label for="vis-inizio">Data di inizio lavori <span class="req">*</span> <small>(anche presunta)</small></label>
+            <input type="date" id="vis-inizio" name="cant_data_inizio" required>
+          </div>
+          <div class="field">
+            <label for="vis-fine">Data prevista di fine lavori</label>
+            <input type="date" id="vis-fine" name="cant_data_fine">
+          </div>
+          <div class="field">
+            <label for="vis-importo">Importo dei lavori <span class="req">*</span> <small>(anche stimato)</small></label>
+            <select id="vis-importo" name="cant_importo" required>
+              <option value="">— seleziona —</option>
+              <option value="1">fino a 250.000 €</option><option value="2">250.001 – 500.000 €</option>
+              <option value="3">500.001 – 1.000.000 €</option><option value="4">1.000.001 – 1.500.000 €</option>
+              <option value="5">1.500.001 – 2.500.000 €</option><option value="6">2.500.001 – 3.500.000 €</option>
+              <option value="7">3.500.001 – 5.000.000 €</option><option value="8">5.000.001 – 10.000.000 €</option>
+              <option value="9">10.000.001 – 15.000.000 €</option><option value="10">oltre 15.000.000 €</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="vis-cnce">Codice cantiere della Cassa Edile (CNCE) <small>(se il cantiere è già notificato)</small></label>
+            <input type="text" id="vis-cnce" name="cant_cnce" style="text-transform:uppercase" placeholder="es. C9013755684">
+          </div>
         </div>
+
+        <div class="section-title">Il committente</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Il committente è <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="vis_comm_natura" value="pubblico" required><span>Pubblico</span></label>
+              <label class="radio-opt"><input type="radio" name="vis_comm_natura" value="privato"><span>Privato</span></label>
+            </div>
+          </div>
+          <div class="field">
+            <label>ed è <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="vis_comm_tipo" value="fisica" required onchange="visCommittenteTipo()"><span>Una persona</span></label>
+              <label class="radio-opt"><input type="radio" name="vis_comm_tipo" value="giuridica" onchange="visCommittenteTipo()"><span>Una società o un ente</span></label>
+            </div>
+          </div>
+          <div class="field vis-comm-fisica" style="display:none">
+            <label for="vis-comm_nome">Nome <span class="req">*</span></label>
+            <input type="text" id="vis-comm_nome" name="comm_nome" placeholder="Nome">
+          </div>
+          <div class="field vis-comm-fisica" style="display:none">
+            <label for="vis-comm_cog">Cognome <span class="req">*</span></label>
+            <input type="text" id="vis-comm_cog" name="comm_cognome" placeholder="Cognome">
+          </div>
+          <div class="field col-full vis-comm-giuridica" style="display:none">
+            <label for="vis-comm_rag">Denominazione <span class="req">*</span></label>
+            <input type="text" id="vis-comm_rag" name="comm_ragione_sociale" placeholder="es. Comune di Abano Terme">
+          </div>
+          <div class="field">
+            <label for="vis-comm_cf">Codice fiscale o partita IVA del committente</label>
+            <input type="text" id="vis-comm_cf" name="comm_cf" maxlength="16" style="text-transform:uppercase" placeholder="se noto">
+          </div>
+          <div class="field">
+            <label for="vis-comm_contatto">Telefono o e-mail del committente</label>
+            <input type="text" id="vis-comm_contatto" name="comm_contatto" placeholder="se noto">
+          </div>
+        </div>
+
+        <div class="section-title">Altre imprese presenti in cantiere <small style="font-weight:400;text-transform:none;letter-spacing:0">(facoltativo)</small></div>
+        <div id="vis-imprese-container"></div>
+        <button type="button" onclick="addImpresaVis()" style="font-family:'Barlow',sans-serif;font-size:12.5px;font-weight:600;padding:8px 16px;border:1px dashed var(--orange);border-radius:6px;background:transparent;color:var(--orange);cursor:pointer;margin:0 0 14px">＋ Aggiungi un'impresa</button>
 
         <div class="section-title">Referente per il sopralluogo</div>
         <div class="grid-3">
@@ -4924,6 +5045,164 @@ function toggleCommittenteGiuridica(show) {
 }
 
 // ══════════════════════════════════════════════════════
+//  RICHIESTA VISITA: IL CANTIERE (06/11/2026, deciso dall'utente)
+//  Mappa col segnaposto, opera «Altro», committente, altre imprese.
+//  La mappa (Leaflet + OpenStreetMap) si carica solo quando chi
+//  compila la apre: il resto del portale non la paga. La posizione
+//  è facoltativa: se la mappa non si carica, il modulo si manda lo
+//  stesso e lo dice.
+// ══════════════════════════════════════════════════════
+const VIS_MAPPA_CENTRO = [45.4064, 11.8768];   // Padova
+let visMappa = null, visSegnaposto = null, visLeafletIn = null;
+
+function visCaricaLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+  if (visLeafletIn) return visLeafletIn;
+  visLeafletIn = new Promise((ok, no) => {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    css.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    css.crossOrigin = '';
+    document.head.appendChild(css);
+    const js = document.createElement('script');
+    js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    js.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+    js.crossOrigin = '';
+    js.onload = () => ok(window.L);
+    js.onerror = () => { visLeafletIn = null; no(new Error('mappa non caricata')); };
+    document.head.appendChild(js);
+  });
+  return visLeafletIn;
+}
+
+function visMappaMsg(t, errore) {
+  const m = document.getElementById('vis-mappa-msg');
+  if (m) { m.textContent = t; m.style.color = errore ? '#c0392b' : 'var(--muted)'; }
+}
+
+function visMettiPunto(lat, lng, zoom) {
+  if (!visMappa) return;
+  const p = [Number(lat.toFixed(6)), Number(lng.toFixed(6))];
+  if (!visSegnaposto) {
+    visSegnaposto = L.marker(p, { draggable: true }).addTo(visMappa);
+    visSegnaposto.on('dragend', () => { const q = visSegnaposto.getLatLng(); visScriviPunto(q.lat, q.lng); });
+  } else visSegnaposto.setLatLng(p);
+  if (zoom) visMappa.setView(p, zoom);
+  visScriviPunto(p[0], p[1]);
+}
+function visScriviPunto(lat, lng) {
+  document.getElementById('vis-lat').value = Number(lat).toFixed(6);
+  document.getElementById('vis-lng').value = Number(lng).toFixed(6);
+  visMappaMsg('Punto segnato (' + Number(lat).toFixed(5) + ', ' + Number(lng).toFixed(5) + '). Puoi ancora trascinarlo.');
+}
+
+async function visMappaApri() {
+  document.getElementById('vis-mappa-chiusa').style.display = 'none';
+  document.getElementById('vis-mappa-aperta').style.display = '';
+  /* il GPS dentro il sito di un altro (riquadro senza permesso) non c'è: il pulsante non si promette */
+  const gps = document.getElementById('vis-mappa-gps');
+  const gpsOk = !!navigator.geolocation && !(document.featurePolicy && document.featurePolicy.allowsFeature && !document.featurePolicy.allowsFeature('geolocation'));
+  if (gps) gps.style.display = gpsOk ? '' : 'none';
+  if (visMappa) { setTimeout(() => visMappa.invalidateSize(), 50); return; }
+  visMappaMsg('Un istante, carico la mappa…');
+  try { await visCaricaLeaflet(); }
+  catch (e) { visMappaMsg('La mappa non si è caricata: puoi mandare la richiesta lo stesso, senza il punto.', true); return; }
+  visMappa = L.map('vis-mappa').setView(VIS_MAPPA_CENTRO, 10);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+  }).addTo(visMappa);
+  visMappa.on('click', (e) => visMettiPunto(e.latlng.lat, e.latlng.lng));
+  visMappaMsg('Tocca la mappa o trascina il segnaposto sul punto esatto del cantiere.');
+  const lat = parseFloat(document.getElementById('vis-lat').value), lng = parseFloat(document.getElementById('vis-lng').value);
+  if (isFinite(lat) && isFinite(lng)) visMettiPunto(lat, lng, 17);
+  else visMappaCerca(false);
+}
+
+/* centra la mappa sull'indirizzo scritto (OpenStreetMap); il punto lo mette solo se chi compila lo chiede */
+async function visMappaCerca(mettiPunto) {
+  if (!visMappa) return;
+  const via = document.getElementById('vis-ind_cant').value.trim();
+  const civ = document.getElementById('vis-civ_cant').value.trim();
+  const com = document.getElementById('vis-com_cant').value.trim();
+  if (!via && !com) { if (mettiPunto) visMappaMsg('Scrivi prima indirizzo e comune del cantiere.', true); return; }
+  const q = [[via, civ].filter(Boolean).join(' '), com.replace(/\s*-\s*Q\d.*$/i, ''), 'Italia'].filter(Boolean).join(', ');
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&accept-language=it&q=' + encodeURIComponent(q));
+    const a = r.ok ? await r.json() : [];
+    if (!a.length) { visMappaMsg('Indirizzo non trovato sulla mappa: sposta la mappa e tocca il punto del cantiere.', mettiPunto); return; }
+    const lat = parseFloat(a[0].lat), lng = parseFloat(a[0].lon);
+    if (mettiPunto) visMettiPunto(lat, lng, 18);
+    else { visMappa.setView([lat, lng], via ? 17 : 13); visMappaMsg('Ecco la zona dell\'indirizzo: tocca il punto esatto del cantiere.'); }
+  } catch (e) { visMappaMsg('Non sono riuscito a cercare l\'indirizzo: sposta la mappa e tocca il punto del cantiere.', mettiPunto); }
+}
+function visMappaIndirizzoCambiato() { if (visMappa && !document.getElementById('vis-lat').value) visMappaCerca(false); }
+
+function visMappaGps() {
+  if (!navigator.geolocation) { visMappaMsg('Questo dispositivo non dà la posizione: tocca il punto sulla mappa.', true); return; }
+  visMappaMsg('Un istante, chiedo la posizione al dispositivo…');
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      visMettiPunto(pos.coords.latitude, pos.coords.longitude, 18);
+      if (pos.coords.accuracy > 100) visMappaMsg('Posizione approssimata (circa ' + Math.round(pos.coords.accuracy) + ' m): controlla e trascina il segnaposto sul punto giusto.');
+    },
+    () => visMappaMsg('Posizione non disponibile (permesso negato o segnale assente): tocca il punto sulla mappa.', true),
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+}
+function visMappaTogli() {
+  document.getElementById('vis-lat').value = '';
+  document.getElementById('vis-lng').value = '';
+  if (visSegnaposto && visMappa) { visMappa.removeLayer(visSegnaposto); visSegnaposto = null; }
+  visMappaMsg('Nessun punto segnato.');
+}
+function visMappaAzzera() {
+  if (visSegnaposto && visMappa) { visMappa.removeLayer(visSegnaposto); visSegnaposto = null; }
+  if (visMappa) visMappa.setView(VIS_MAPPA_CENTRO, 10);
+  const ch = document.getElementById('vis-mappa-chiusa'), ap = document.getElementById('vis-mappa-aperta');
+  if (ch) ch.style.display = ''; if (ap) ap.style.display = 'none';
+}
+
+/* opera «Altro»: si chiede quale, ed è obbligatorio solo allora */
+function visOperaAltro() {
+  const altro = document.getElementById('vis-tipope').value === '16';
+  const box = document.getElementById('vis-tipope-altro-box'), inp = document.getElementById('vis-tipope-altro');
+  box.style.display = altro ? '' : 'none';
+  inp.required = altro;
+  if (!altro) inp.value = '';
+  calcProgressForm('vis');
+}
+
+/* committente persona o società: obbligatori i campi della scelta fatta, gli altri si svuotano */
+function visCommittenteTipo() {
+  const t = (document.querySelector('input[name=vis_comm_tipo]:checked') || {}).value || '';
+  document.querySelectorAll('.vis-comm-fisica').forEach((el) => { el.style.display = t === 'fisica' ? '' : 'none'; });
+  document.querySelectorAll('.vis-comm-giuridica').forEach((el) => { el.style.display = t === 'giuridica' ? '' : 'none'; });
+  ['vis-comm_nome', 'vis-comm_cog'].forEach((id) => { const el = document.getElementById(id); el.required = t === 'fisica'; if (t !== 'fisica') el.value = ''; });
+  const rag = document.getElementById('vis-comm_rag'); rag.required = t === 'giuridica'; if (t !== 'giuridica') rag.value = '';
+  calcProgressForm('vis');
+}
+
+/* altre imprese in cantiere: diventano le «imprese previste» del cantiere, che la segreteria controlla */
+const RUOLI_IMPRESA_VIS = ['Impresa affidataria', 'Impresa esecutrice', 'Impresa subappaltatrice', 'Lavoratore autonomo', 'Altro'];
+function addImpresaVis() {
+  const box = document.getElementById('vis-imprese-container');
+  if (box.querySelectorAll('.cantiere-block').length >= 15) return;
+  const block = document.createElement('div');
+  block.className = 'cantiere-block';
+  block.innerHTML = `
+    <div class="cantiere-block-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Impresa</span>
+      <button type="button" onclick="this.closest('.cantiere-block').remove();calcProgressForm('vis')" style="font-family:'Barlow',sans-serif;font-size:12px;border:none;background:transparent;color:var(--muted);cursor:pointer">✕ Rimuovi</button>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Ragione sociale</label><input type="text" data-f="ragione_sociale" placeholder="Ragione sociale"></div>
+      <div class="field"><label>Partita IVA</label><input type="text" data-f="piva" maxlength="11" placeholder="es. 01234567890"></div>
+      <div class="field"><label>Ruolo in cantiere</label><select data-f="ruolo"><option value="">— seleziona —</option>${RUOLI_IMPRESA_VIS.map((r) => `<option>${r}</option>`).join('')}</select></div>
+    </div>`;
+  box.appendChild(block);
+}
+
+// ══════════════════════════════════════════════════════
 //  RESET FORM
 // ══════════════════════════════════════════════════════
 function resetForm(formId, prefix) {
@@ -4940,6 +5219,13 @@ function resetForm(formId, prefix) {
   form.querySelectorAll('.file-area').forEach(a => a.style.borderColor='');
   form.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
   form.querySelectorAll('.request-err').forEach(el => el.style.display='none');
+  if (prefix === 'vis') {
+    const vc = document.getElementById('vis-imprese-container');
+    if (vc) vc.innerHTML = '';
+    if (typeof visMappaAzzera === 'function') visMappaAzzera();
+    if (typeof visOperaAltro === 'function') visOperaAltro();
+    if (typeof visCommittenteTipo === 'function') visCommittenteTipo();
+  }
   if (prefix === 'not') {
     const fc = document.getElementById('not-figure-container');
     const ic = document.getElementById('not-imprese-container');
@@ -5355,6 +5641,13 @@ document.getElementById('form-visita').addEventListener('submit', e => {
     const tipoVisita = form.querySelector('input[name=vis_tipo_visita]:checked');
     f.vis_tipo_visita = tipoVisita ? tipoVisita.value : '';
     f.tipo_visita = f.vis_tipo_visita;
+    /* (06/11/2026) il committente: pubblico o privato, persona o società */
+    const natura = form.querySelector('input[name=vis_comm_natura]:checked');
+    const tipoComm = form.querySelector('input[name=vis_comm_tipo]:checked');
+    f.comm_natura = natura ? natura.value : '';
+    f.comm_tipo = tipoComm ? tipoComm.value : '';
+    const imprese = raccogliBlocchi('vis-imprese-container');
+    if (imprese.length) f.imprese_json = JSON.stringify(imprese);
     return f;
   });
 });
