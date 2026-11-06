@@ -180,6 +180,12 @@ Con una Content-Security-Policy vanno ammessi, per l'indirizzo del portale: `scr
 `incorpora.js`) e `frame-src` (per il riquadro). Nient'altro: le chiamate ai nostri sistemi partono da
 dentro il riquadro, non dalla pagina.
 
+**Posizione del cantiere (dal 6 novembre 2026).** La richiesta di visita ha una mappa con il pulsante
+«📍 Sono in cantiere», che chiede la posizione al telefono. `incorpora.js` crea il riquadro con
+`allow="geolocation"`: se il sito manda un'intestazione `Permissions-Policy`, deve lasciare
+`geolocation` al nostro indirizzo, altrimenti il pulsante non compare (la mappa e il segnaposto funzionano
+lo stesso). Chi monta il riquadro a mano, senza `incorpora.js`, aggiunge `allow="geolocation"` all'`<iframe>`.
+
 ## 5. Provare
 
 `…/servizi/blocco/prova.html` è una pagina finta con testata fissa, testo e piede, in cui si sceglie il
