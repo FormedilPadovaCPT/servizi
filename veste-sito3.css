@@ -71,7 +71,7 @@ html[data-veste="sito3"] .s3-filtri button:hover{border-color:var(--s3-grigio);c
 html[data-veste="sito3"] .s3-filtri button[aria-pressed="true"]{background:var(--s3-testo);border-color:var(--s3-testo);color:#fff}
 
 /* ── in evidenza: segnalazione e ultima notizia ── */
-html[data-veste="sito3"] .s3-evidenza{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px;margin-top:28px}
+html[data-veste="sito3"] .s3-evidenza{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:28px}
 html[data-veste="sito3"] .s3-evidenza[hidden]{display:none}
 html[data-veste="sito3"] .s3-segnala,html[data-veste="sito3"] .s3-notizia{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;border-radius:18px;padding:20px 22px;text-align:left;font:inherit;cursor:pointer}
 html[data-veste="sito3"] .s3-segnala{background:var(--s3-arancio);color:#fff;border:0}
@@ -91,6 +91,29 @@ html[data-veste="sito3"] .s3-notizia em{display:block;font:600 11.5px/1 Barlow,s
 html[data-veste="sito3"] .s3-evidenza .s3-vai{font:600 15px/1 Barlow,sans-serif;white-space:nowrap}
 html[data-veste="sito3"] .s3-segnala .s3-vai{background:#fff;color:var(--s3-arancio-scuro);border-radius:999px;padding:10px 16px}
 html[data-veste="sito3"] .s3-notizia .s3-vai{color:var(--s3-arancio-scuro)}
+
+/* ── la striscia delle notizie (06/11/2026, proposta C): carte con la foto sopra e il titolo sotto, si scorrono col dito ── */
+html[data-veste="sito3"] .s3-notizie{margin-top:26px}
+html[data-veste="sito3"] .nz-card{scroll-margin-top:84px}
+html[data-veste="sito3"] .s3-notizie[hidden],html[data-veste="sito3"] .s3-notizie.s3-fuori{display:none}
+html[data-veste="sito3"] .s3-notizie-testa{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+html[data-veste="sito3"] .s3-notizie-testa h2{margin:0;font:700 24px/1.05 "Barlow Condensed",Barlow,sans-serif;color:var(--s3-testo)}
+html[data-veste="sito3"] .s3-notizie-tutte{background:none;border:0;padding:4px 0;font:600 15px/1 Barlow,sans-serif;color:var(--s3-arancio-scuro);cursor:pointer}
+html[data-veste="sito3"] .s3-striscia{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 2px;padding:2px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html[data-veste="sito3"] .s3-striscia::-webkit-scrollbar{display:none}
+html[data-veste="sito3"] .s3-nz{flex:0 0 240px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--s3-bianco);border:1px solid var(--s3-linea);border-radius:16px;overflow:hidden;padding:0;text-align:left;font:inherit;color:var(--s3-testo);cursor:pointer}
+html[data-veste="sito3"] .s3-nz:hover{border-color:var(--s3-grigio)}
+html[data-veste="sito3"] .s3-nz-evid{border-top:4px solid var(--s3-arancio)}
+html[data-veste="sito3"] .s3-nz-foto{display:grid;place-items:center;aspect-ratio:16/10;background:var(--s3-arancio-chiaro);color:var(--s3-arancio-scuro);overflow:hidden}
+html[data-veste="sito3"] .s3-nz-foto img{width:100%;height:100%;object-fit:cover;display:block}
+html[data-veste="sito3"] .s3-nz-foto svg{width:34px;height:34px}
+html[data-veste="sito3"] .s3-nz-testo{display:block;padding:11px 13px 14px}
+html[data-veste="sito3"] .s3-nz-testo em{display:block;font:600 11.5px/1.2 Barlow,sans-serif;font-style:normal;letter-spacing:.06em;text-transform:uppercase;color:var(--s3-tenue);margin-bottom:5px}
+html[data-veste="sito3"] .s3-nz-evid .s3-nz-testo em{color:var(--s3-arancio-scuro)}
+html[data-veste="sito3"] .s3-nz-testo strong{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font:700 19px/1.12 "Barlow Condensed",Barlow,sans-serif}
+html[data-veste="sito3"] .s3-nz-tutte{flex-basis:150px;justify-content:center;align-items:center;background:var(--s3-fondo);border-style:dashed;color:var(--s3-arancio-scuro)}
+html[data-veste="sito3"] .s3-nz-tutte strong{font:700 18px/1.1 "Barlow Condensed",Barlow,sans-serif;padding:16px;text-align:center}
+@media(max-width:760px){html[data-veste="sito3"] .s3-striscia{margin:0 -16px;padding:2px 16px 8px;scroll-padding:0 16px}html[data-veste="sito3"] .s3-nz{flex-basis:72%}html[data-veste="sito3"] .s3-nz-tutte{flex-basis:42%}}
 
 /* ── elenco dei servizi ── */
 html[data-veste="sito3"] .s3-elenco{margin-top:38px;scroll-margin-top:90px}

@@ -7,8 +7,9 @@
    - Home che parte da «Cosa ti serve?»: ricerca che capisce anche le
      parole di chi scrive («patente a crediti», «corso», «pericolo») e
      quattro situazioni; i servizi sono righe con icona, nome, frase ed
-     etichetta. In evidenza la segnalazione di un cantiere pericoloso e
-     l'ultima notizia; in fondo i contatti, col telefono che si tocca.
+     etichetta. In evidenza la segnalazione di un cantiere pericoloso, poi
+     la striscia delle notizie (dal 06/11/2026); in fondo i contatti, col
+     telefono che si tocca.
    - Pagine dei servizi con un'intestazione semplice e «Tutti i servizi».
    - Sul telefono una barra in basso: Servizi, Notizie, Segnala, Contatti.
 
@@ -246,12 +247,9 @@
     seg.appendChild(el('span', 's3-vai', 'Segnala'))
     seg.onclick = function () { vai('segnalazione') }
     ev.appendChild(seg)
-    ev.appendChild(ultimaNotizia())
-    /* la carta «in evidenza» si aggiunge solo se c'e' qualcosa da mettere in
-       evidenza, e sparisce da sola alla scadenza: la segnalazione resta in
-       testa, che e' quel che l'utente ha chiesto */
-    ev.appendChild(inEvidenza())
     h.appendChild(ev)
+    /* (06/11/2026) le notizie: una striscia sola, la notizia in evidenza per prima (vedi strisciaNotizie) */
+    h.appendChild(strisciaNotizie())
 
     // elenco
     var elenco = el('section', 's3-elenco'); elenco.id = 's3-servizi'; elenco.setAttribute('aria-label', 'Servizi')
@@ -420,6 +418,9 @@
     })
     var ev = document.querySelector('.s3-evidenza')
     if (ev) ev.hidden = !!(parole.length || stato.sit !== 'tutti')
+    /* la striscia delle notizie segue la parte in evidenza (06/11/2026); con una classe, perché «hidden» lo usa già lei quando non ci sono notizie */
+    var nz = document.querySelector('.s3-notizie')
+    if (nz) nz.classList.toggle('s3-fuori', !!(parole.length || stato.sit !== 'tutti'))
     var v = document.getElementById('s3-vuoto')
     if (v) {
       v.hidden = visibili > 0
@@ -429,82 +430,108 @@
       }
     }
   }
-  function ultimaNotizia() {
-    var b = bottone('s3-notizia')
-    var c = el('span', 's3-cerchio'); c.appendChild(icona('notizie')); b.appendChild(c)
-    var tx = el('span')
-    var et = el('em', null, 'Notizie dell\'Area')
-    var tit = el('strong', null, 'Comunicazioni, normative ed eventi')
-    var est = el('small', null, 'Le novità per imprese e cantieri, aggiornate in tempo reale.')
-    tx.appendChild(et); tx.appendChild(tit); tx.appendChild(est); b.appendChild(tx)
-    b.appendChild(el('span', 's3-vai', 'Tutte ›'))
-    b.onclick = function () { vai('notizie') }
-    var mostra = function (items) {
-      var n = (items || []).filter(function (x) { return x && x.pubblicata !== false && x.titolo })[0]
-      if (!n) return
-      var d = String(n.data_pubbl || n.created_at || '').slice(0, 10)
-      et.textContent = 'Ultima notizia' + (d ? ' · ' + d.split('-').reverse().join('/') : '')
-      tit.textContent = n.titolo
-      var testo = ''
-      try { testo = new DOMParser().parseFromString(String(n.corpo || ''), 'text/html').body.textContent || '' } catch (e) { testo = '' }
-      testo = testo.replace(/\s+/g, ' ').trim()
-      if (testo) est.textContent = testo.length > 160 ? testo.slice(0, 157).replace(/\s+\S*$/, '') + '…' : testo
+  /* ── LA STRISCIA DELLE NOTIZIE (06/11/2026, proposta C scelta dall'utente) ──────────────
+     Prima c'erano due carte, «Ultima notizia» e «In evidenza», che leggevano la notizia ognuna
+     per conto suo: quando la notizia in evidenza era anche l'ultima, la home la mostrava due
+     volte. Ora c'e' una striscia sola che si scorre col dito: per prima la notizia in evidenza
+     (bordo arancione e «fino al»), poi le piu' recenti senza ripeterla, con la copertina sopra e
+     il titolo sotto; in fondo «Tutte le notizie». La carta tagliata sul bordo dice da sola che ce
+     ne sono altre. Non scorre da sola. Toccando una carta si apre proprio quella notizia.
+     La notizia in evidenza sparisce da se' alla data di «evidenza_fino_al», come prima. */
+  var NZ_MAX = 6
+  var NZ_CAMPI = 'id,titolo,corpo,data_pubbl,created_at,pubblicata,evidenza_fino_al,immagine_url,immagini,video_url,link_esterno'
+  var dataBreve = function (iso) { var d = String(iso || '').slice(0, 10); return d ? d.split('-').reverse().join('/') : '' }
+  var ytId = function (url) {
+    var m = String(url || '').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/)
+    return m ? m[1] : null
+  }
+  /* la prima immagine della notizia: copertina, poi le altre foto, poi l'anteprima del video */
+  var copertina = function (n) {
+    if (n.immagine_url) return n.immagine_url
+    var extra = []
+    try { extra = Array.isArray(n.immagini) ? n.immagini : JSON.parse(n.immagini || '[]') } catch (e) { extra = [] }
+    var u = extra.map(function (x) { return typeof x === 'string' ? x : (x && x.url) }).filter(Boolean)[0]
+    if (u) return u
+    var y = ytId(n.video_url) || ytId(n.link_esterno)
+    return y ? 'https://i.ytimg.com/vi/' + y + '/hqdefault.jpg' : null
+  }
+  /* dalla home alla notizia: si apre la pagina Notizie e, appena la carta c'e', la si apre e ci si va */
+  var apriNotizia = function (id) {
+    vai('notizie')
+    if (id == null) return
+    var tentativi = 0
+    var cerca = function () {
+      var c = document.querySelector('.nz-card[data-id="' + String(id).replace(/"/g, '') + '"]')
+      if (c) {
+        if (!c.classList.contains('aperta')) { var p = c.querySelector('.nz-piu'); if (p) p.click() }
+        c.scrollIntoView({ block: 'start' })
+        return
+      }
+      if (++tentativi < 30) setTimeout(cerca, 150)
     }
+    setTimeout(cerca, 100)
+  }
+  function strisciaNotizie() {
+    var sez = el('section', 's3-notizie'); sez.setAttribute('aria-label', 'Notizie dell\'Area')
+    var testa = el('div', 's3-notizie-testa')
+    testa.appendChild(el('h2', null, 'Notizie dell\'Area'))
+    var tutte = bottone('s3-notizie-tutte'); tutte.textContent = 'Tutte ›'; tutte.onclick = function () { apriNotizia(null) }
+    testa.appendChild(tutte)
+    sez.appendChild(testa)
+    var striscia = el('div', 's3-striscia')
+    sez.appendChild(striscia)
+    sez.hidden = true
+
+    var carta = function (n, evid) {
+      var b = bottone('s3-nz' + (evid ? ' s3-nz-evid' : ''))
+      var foto = el('span', 's3-nz-foto')
+      var u = copertina(n)
+      if (u) { var img = el('img'); img.src = u; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'; img.onerror = function () { img.remove(); foto.appendChild(icona('notizie')) }; foto.appendChild(img) }
+      else foto.appendChild(icona('notizie'))
+      b.appendChild(foto)
+      var tx = el('span', 's3-nz-testo')
+      var giorno = dataBreve(n.evidenza_fino_al)
+      tx.appendChild(el('em', null, evid ? (giorno ? 'In evidenza · fino al ' + giorno : 'In evidenza') : dataBreve(n.data_pubbl || n.created_at)))
+      tx.appendChild(el('strong', null, n.titolo))
+      b.appendChild(tx)
+      b.onclick = function () { apriNotizia(n.id) }
+      return b
+    }
+    var disegna = function (ultime, evid) {
+      var buone = function (x) { return x && x.pubblicata !== false && x.titolo }
+      var e = evid && buone(evid) ? evid : null
+      var altre = (ultime || []).filter(buone).filter(function (x) { return !(e && (x.id === e.id || x.titolo === e.titolo)) })
+      var lista = (e ? [e] : []).concat(altre).slice(0, NZ_MAX)
+      if (!lista.length) return
+      striscia.textContent = ''
+      lista.forEach(function (n, i) { striscia.appendChild(carta(n, !!e && i === 0)) })
+      var fine = bottone('s3-nz s3-nz-tutte')
+      fine.appendChild(el('strong', null, 'Tutte le notizie ›'))
+      fine.onclick = function () { apriNotizia(null) }
+      striscia.appendChild(fine)
+      sez.hidden = false
+    }
+
+    /* subito quello che c'e' in memoria, poi il database */
     var cache = null
     try { cache = JSON.parse(localStorage.getItem('formedil_news_cache_v2') || 'null') } catch (e) { cache = null }
-    mostra(cache && cache.items)
-    var client = null
-    try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
-    if (client) {
-      client.from('notizie').select('id,titolo,corpo,data_pubbl,created_at,pubblicata').eq('pubblicata', true)
-        .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(1)
-        .then(function (r) { if (r && r.data) mostra(r.data) })
-        .catch(function () { /* resta quella in cache */ })
-    }
-    return b
-  }
-
-  /* ── la notizia IN EVIDENZA (18/09/2026) ──────────────────────────────────
-     Serve a spingere una cosa che ha una data: un corso da riempire, un
-     convegno con le iscrizioni aperte. Il campo nuovo e' uno solo,
-     «evidenza_fino_al», e la parte che conta e' proprio quello: passata la
-     data la carta sparisce da se', senza che nessuno debba ricordarsi di
-     toglierla. Finche' non c'e' niente in evidenza, la carta non esiste. */
-  function inEvidenza() {
-    var b = bottone('s3-notizia'); b.hidden = true
-    b.style.borderLeft = '4px solid var(--s3-arancio)'
-    var c = el('span', 's3-cerchio'); c.appendChild(icona('cor')); b.appendChild(c)
-    var tx = el('span')
-    var et = el('em', null, 'In evidenza')
-    var tit = el('strong', null, '')
-    var est = el('small', null, '')
-    tx.appendChild(et); tx.appendChild(tit); tx.appendChild(est); b.appendChild(tx)
-    b.appendChild(el('span', 's3-vai', 'Apri ›'))
-
-    var mostra = function (n) {
-      if (!n || !n.titolo) return
-      tit.textContent = n.titolo
-      var giorno = String(n.evidenza_fino_al || '').slice(0, 10)
-      et.textContent = giorno ? 'In evidenza · fino al ' + giorno.split('-').reverse().join('/') : 'In evidenza'
-      var testo = ''
-      try { testo = new DOMParser().parseFromString(String(n.corpo || ''), 'text/html').body.textContent || '' } catch (e) { testo = '' }
-      testo = testo.replace(/\s+/g, ' ').trim()
-      est.textContent = testo.length > 170 ? testo.slice(0, 167).replace(/\s+\S*$/, '') + '…' : testo
-      b.onclick = function () { vai('notizie') }
-      b.hidden = false
-    }
-
+    if (cache && cache.items) disegna(cache.items, null)
     var client = null
     try { client = (typeof _sb !== 'undefined') ? _sb : null } catch (e) { client = null }
     if (client) {
       var oggi = new Date().toISOString().slice(0, 10)
-      client.from('notizie').select('id,titolo,corpo,data_pubbl,created_at,pubblicata,evidenza_fino_al')
-        .eq('pubblicata', true).gte('evidenza_fino_al', oggi)
-        .order('evidenza_fino_al', { ascending: true }).limit(1)
-        .then(function (r) { if (r && r.data && r.data[0]) mostra(r.data[0]) })
-        .catch(function () { /* niente in evidenza: la carta resta nascosta */ })
+      Promise.all([
+        client.from('notizie').select(NZ_CAMPI).eq('pubblicata', true)
+          .order('data_pubbl', { ascending: false }).order('created_at', { ascending: false }).limit(NZ_MAX + 1),
+        client.from('notizie').select(NZ_CAMPI).eq('pubblicata', true).gte('evidenza_fino_al', oggi)
+          .order('evidenza_fino_al', { ascending: true }).limit(1),
+      ]).then(function (r) {
+        var ultime = r[0] && r[0].data
+        var evid = r[1] && r[1].data && r[1].data[0]
+        if (ultime) disegna(ultime, evid || null)
+      }).catch(function () { /* resta quello in memoria, o la striscia nascosta */ })
     }
-    return b
+    return sez
   }
 
   /* ── pagine dei servizi: intestazione semplice ── */
