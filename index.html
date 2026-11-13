@@ -5376,6 +5376,39 @@ async function inviaConUnaSecondaOccasione(payload) {
   return secondo.ok ? secondo : { ...secondo, motivo: secondo.motivo + ', anche al secondo tentativo' };
 }
 
+/* ── una richiesta che esce dalla coda SENZA essere arrivata si dice ──
+   (13/11/2026) Prima una richiesta scaduta dopo 7 giorni, o rifiutata dal
+   server, spariva dalla coda senza una parola: chi l'aveva compilata la
+   credeva in viaggio. Ora compare un avviso in cima alla pagina, che resta
+   finché non lo si chiude. Niente dati personali nel testo: solo il giorno. */
+function avvisaCodaPersa(rec, perche) {
+  const quando = rec && rec.creato ? new Date(rec.creato).toLocaleDateString('it-IT') : '';
+  let box = document.getElementById('coda-avviso');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'coda-avviso';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:sticky;top:0;z-index:9999;background:#fdecea;color:#7a1f1c;'
+      + 'border-bottom:2px solid #e24b4a;padding:12px 16px;font-size:15px;line-height:1.4';
+    document.body.insertBefore(box, document.body.firstChild);
+  }
+  const riga = document.createElement('div');
+  riga.style.cssText = 'display:flex;gap:12px;align-items:flex-start;margin:4px 0';
+  const testo = document.createElement('span');
+  testo.style.flex = '1';
+  testo.innerHTML = '<strong>Una richiesta' + (quando ? ' compilata il ' + escHtml(quando) : '')
+    + ' non è arrivata all\'ufficio</strong> (' + escHtml(perche) + '). '
+    + 'Va compilata di nuovo, oppure chiama lo ' + TEL_UFFICIO
+    + ' o scrivi a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
+  const chiudi = document.createElement('button');
+  chiudi.type = 'button';
+  chiudi.textContent = 'Ho capito';
+  chiudi.style.cssText = 'border:1px solid #7a1f1c;background:#fff;color:#7a1f1c;border-radius:6px;padding:4px 10px;cursor:pointer';
+  chiudi.onclick = () => { riga.remove(); if (!box.children.length) box.remove(); };
+  riga.appendChild(testo); riga.appendChild(chiudi);
+  box.appendChild(riga);
+}
+
 /* ── ritentativo: all'apertura della pagina e al ritorno online ───── */
 let codaInCorso = false;
 async function ritentaCoda() {
@@ -5384,7 +5417,12 @@ async function ritentaCoda() {
   try {
     const righe = await codaTutte();
     for (const rec of righe || []) {
-      if (Date.now() - (rec.creato || 0) > CODA_GIORNI * 86400000) { await codaTogli(rec.submission_id); continue; }
+      if (Date.now() - (rec.creato || 0) > CODA_GIORNI * 86400000) {
+        await codaTogli(rec.submission_id);
+        avvisaCodaPersa(rec, 'sono passati più di ' + CODA_GIORNI + ' giorni senza riuscire a inviarla'
+          + (rec.ultimo_errore ? ': ' + rec.ultimo_errore : ''));
+        continue;
+      }
       if (inVolo.has(rec.submission_id)) continue;   // la sta già mandando il modulo aperto
       inVolo.add(rec.submission_id);
       let esito;
@@ -5394,11 +5432,19 @@ async function ritentaCoda() {
         await codaTogli(rec.submission_id);
         if (rec.payload && rec.payload.tipo_modulo) chiudiCompilazione(rec.payload.tipo_modulo);
         console.log('Richiesta in coda consegnata:', rec.submission_id, '→ n°', esito.progressivo);
+      } else if (esito.riprovabile === false) {
+        /* rifiuto definitivo: rimandarla darebbe lo stesso rifiuto per sempre, e
+           fino al 13/11/2026 restava in testa alla coda fermando le richieste dopo */
+        await codaTogli(rec.submission_id);
+        avvisaCodaPersa(rec, 'il server l\'ha rifiutata: ' + esito.motivo);
       } else {
         rec.tentativi = (rec.tentativi || 0) + 1;
         rec.ultimo_errore = esito.motivo;
         await codaScrivi(rec);
-        break;                       // se il canale è giù, inutile insistere sugli altri
+        /* si prosegue con le altre: una richiesta che non passa (un allegato che
+           il server non riesce a salvare) non deve fermare quelle che passerebbero.
+           Se è il dispositivo a essere offline, invece, insistere non serve. */
+        if (!navigator.onLine) break;
       }
     }
   } finally { codaInCorso = false; }
@@ -5552,6 +5598,23 @@ async function submitForm(formId, prefix, buildPayload) {
       if (fill) fill.style.width = '100%';
       if (lbl)  lbl.textContent  = 'Compilazione: 100%';
       okBox.scrollIntoView({ behavior:'smooth' });
+    } else if (esito.riprovabile === false) {
+      /* rifiuto definitivo (13/11/2026): la richiesta così com'è non passerà
+         mai, quindi NON resta in coda e non si promette un reinvio. Si chiude
+         anche l'identificativo: il server può aver segnato quello come scartato,
+         e un «Riprova» con lo stesso verrebbe rifiutato anche a dato corretto.
+         Nessun rischio di doppione: una richiesta rifiutata non è stata registrata. */
+      console.error('Richiesta rifiutata:', esito.motivo);
+      await codaTogli(payload.submission_id);
+      chiudiCompilazione(prefix);
+      errBox.innerHTML = '<strong>La richiesta non è stata accettata</strong> (' + escHtml(esito.motivo) + ').<br>'
+        + 'Non è stata inviata e non verrà rimandata da sola: controlla i dati e premi «Riprova».'
+        + '<br>Se non riesci chiama lo ' + TEL_UFFICIO
+        + ' o scrivi a <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.';
+      errBox.style.display = 'block';
+      errBox.scrollIntoView({ behavior:'smooth', block:'center' });
+      btn.disabled = false;
+      btn.textContent = 'Riprova';
     } else {
       /* la richiesta resta in coda: verrà reinviata da sola */
       console.error('Invio non riuscito:', esito.motivo);
