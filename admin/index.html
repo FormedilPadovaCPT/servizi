@@ -410,6 +410,66 @@ function onLogin(user) {
   document.getElementById('f-autore').value = name;
   initQuill(); loadList();
   document.getElementById('f-data').value = oggiRoma();
+  // (17/11/2026) le foto già pubblicate senza miniature le prendono adesso, in sottofondo
+  setTimeout(() => miniatureMancanti().catch(e => console.warn('miniature:', e)), 1500);
+}
+
+// ── MINIATURE DELLE FOTO (17/11/2026) ─────────────────────────
+// Sul telefono il portale mostra le foto delle notizie in riquadri da 215 px o
+// a tutta larghezza, e le scaricava all'originale (fino a 3,4 MB). Per ogni foto
+// si salvano accanto tre miniature WebP, min/480, min/960 e min/1600, con lo
+// stesso percorso più «.webp»; il portale sceglie quella giusta per lo schermo
+// e, se una manca, torna all'originale (nzMin in index.html). L'originale resta
+// e serve per l'ingrandimento. Le GIF non si toccano (perderebbero l'animazione).
+const MINIATURE = [480, 960, 1600], MIN_QUALITA = 0.8;
+const conMiniatura = (path) => /^img\/[^?#]+\.(jpe?g|png|webp)$/i.test(path || '');
+async function creaMiniature(fonte, path){
+  if(!conMiniatura(path)) return 0;
+  const bmp = await createImageBitmap(fonte);
+  let fatte = 0;
+  for(const w of MINIATURE){
+    const scala = Math.min(1, w/bmp.width);
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(bmp.width*scala); cv.height = Math.round(bmp.height*scala);
+    cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+    const blob = await new Promise(r=>cv.toBlob(r,'image/webp',MIN_QUALITA));
+    if(!blob) throw new Error('il browser non sa scrivere WebP');
+    const {error} = await sb.storage.from(BUCKET).upload(`min/${w}/${path}.webp`, blob, {upsert:true, contentType:'image/webp'});
+    if(error) throw error;
+    fatte++;
+  }
+  return fatte;
+}
+// il percorso nel bucket di una foto delle notizie, dal suo indirizzo pubblico
+function percorsoDa(url){
+  const m = String(url||'').match(/\/storage\/v1\/object\/public\/notizie-media\/(img\/[^?#]+)$/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+async function miniatureMancanti(){
+  const {data:righe, error} = await sb.from(TABLE).select('immagine_url,immagini');
+  if(error) throw error;
+  const percorsi = new Set();
+  for(const n of righe||[]){
+    let extra = [];
+    try { extra = Array.isArray(n.immagini) ? n.immagini : JSON.parse(n.immagini||'[]'); } catch { extra = []; }
+    for(const u of [n.immagine_url, ...extra.map(x => typeof x==='string' ? x : x && x.url)]){
+      const p = percorsoDa(u); if(p && conMiniatura(p)) percorsi.add(p);
+    }
+  }
+  const {data:gia, error:e2} = await sb.storage.from(BUCKET).list('min/1600/img', {limit:1000});
+  if(e2) throw e2;   // senza l'elenco non si sa che cosa manca: meglio non rifare tutto alla cieca
+  const fatte = new Set((gia||[]).map(f => 'img/' + f.name.replace(/\.webp$/,'')));
+  const mancanti = [...percorsi].filter(p => !fatte.has(p));
+  if(!mancanti.length) return;
+  let ok = 0, ko = 0;
+  for(const p of mancanti){
+    try{
+      const r = await fetch(sb.storage.from(BUCKET).getPublicUrl(p).data.publicUrl, {cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      await creaMiniature(await r.blob(), p); ok++;
+    }catch(e){ ko++; console.warn('miniatura non creata per', p, e); }
+  }
+  toast(ko ? `Miniature delle foto: ${ok} create, ${ko} non riuscite (il portale usa l'originale)` : `Miniature delle foto create: ${ok}`, ko ? 'error' : 'success');
 }
 
 // ── DATE DI PUBBLICAZIONE (06/11/2026) ────────────────────────
@@ -718,6 +778,8 @@ async function upFile(file,type){
   plEl.textContent = isI && file.size<originale ? `Caricata ✓ (${kb(originale)} → ${kb(file.size)})` : 'Caricato ✓';
 
   if(isI){
+    // (17/11/2026) le miniature per il telefono; se non riescono, il portale usa l'originale
+    try{ await creaMiniature(file, path); }catch(e){ console.warn('miniature:', e); toast('Foto caricata, ma senza miniature: sul telefono si scarica l\'originale','error'); }
     const img={url:ud.publicUrl,path,nome:file.name};
     if(!upImg) upImg=img; else upImgs.push(img);      // la prima è la copertina, le altre il carosello
     disegnaGalleria();

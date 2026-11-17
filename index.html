@@ -48,7 +48,7 @@
        proposte_grafiche/2026_09_11_portale-servizi/vesti_provate_nel_portale/.
        ⚠️ Quando si modificano i due file si alza ?v=N qui E nell'elenco DA_SALVARE di sw.js. -->
   <link rel="stylesheet" href="veste-sito3.css?v=25">
-  <script src="veste-sito3.js?v=25" defer></script>
+  <script src="veste-sito3.js?v=26" defer></script>
   <title>Formedil Padova – Area Sicurezza e Salute</title>
 
   <!-- PWA Meta Tags -->
@@ -5945,6 +5945,30 @@ function nzCategorie(n) {
   const c = n.categoria;
   return Array.isArray(c) ? c.filter(Boolean) : (c ? [c] : []);
 }
+// Miniature delle foto delle notizie (17/11/2026): l'admin le salva accanto all'originale,
+// min/480, min/960 e min/1600, con lo stesso percorso più «.webp». Il browser sceglie quella
+// giusta per lo schermo (telefono o PC); se una manca, nzSenzaMin torna all'originale.
+// L'ingrandimento (data-zoom) resta sull'originale. Le GIF non hanno miniature.
+window.nzMin = function (url) {
+  const m = String(url || '').match(/^(https:\/\/[^/]+\/storage\/v1\/object\/public\/notizie-media\/)(img\/[^?#]+\.(?:jpe?g|png|webp))$/i);
+  if (!m) return null;
+  const a = (w) => `${m[1]}min/${w}/${m[2]}.webp`;
+  return { src: a(480), srcset: `${a(480)} 480w, ${a(960)} 960w, ${a(1600)} 1600w` };
+};
+window.nzSenzaMin = function (img) {
+  img.onerror = null;
+  img.removeAttribute('srcset');
+  img.src = img.dataset.orig;
+};
+// gli attributi src/srcset di una foto delle notizie; sizes = quanto è larga nella pagina
+function nzImgAttr(url, sizes) {
+  const t = nzMin(url);
+  return t
+    ? `src="${t.src}" srcset="${t.srcset}" sizes="${sizes}" data-orig="${url}" onerror="nzSenzaMin(this)"`
+    : `src="${url}"`;
+}
+const NZ_LARGHEZZA = '(max-width: 900px) 100vw, 820px';
+
 // Le immagini del carosello: la colonna «immagini», con la copertina in testa.
 function nzImmagini(n) {
   let extra = [];
@@ -5967,18 +5991,18 @@ function nzCard(n, nonLetta) {
     // non manda nulla a Google. Il lettore parte solo al tocco (nzPlay).
     const poster = imgs[0] || `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
     media = `<div class="nz-vid" data-yt="${ytId}">
-        <img src="${poster}" alt="" loading="lazy">
+        <img ${nzImgAttr(poster, NZ_LARGHEZZA)} alt="" loading="lazy" decoding="async">
         <div class="nz-play"><i></i></div>
       </div>
       <div class="nz-vid-nota">Il video si apre su YouTube solo quando lo avvii</div>`;
   } else if (imgs.length > 1) {
     media = `<div class="nz-caro">
-        <div class="nz-track">${imgs.map(u => `<div><img src="${u}" alt="" loading="lazy" data-zoom="${u}"></div>`).join('')}</div>
+        <div class="nz-track">${imgs.map(u => `<div><img ${nzImgAttr(u, NZ_LARGHEZZA)} alt="" loading="lazy" decoding="async" data-zoom="${u}"></div>`).join('')}</div>
         <span class="nz-cnt"><b>1</b>/${imgs.length}</span>
       </div>
       <div class="nz-dots">${imgs.map((_, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
   } else if (imgs.length === 1) {
-    media = `<div class="nz-media"><img src="${imgs[0]}" alt="" loading="lazy" data-zoom="${imgs[0]}">
+    media = `<div class="nz-media"><img ${nzImgAttr(imgs[0], NZ_LARGHEZZA)} alt="" loading="lazy" decoding="async" data-zoom="${imgs[0]}">
         ${n.priorita === 'urgente' ? '<div class="nz-flag"><span>🚨 URGENTE</span></div>' : ''}
       </div>`;
   }

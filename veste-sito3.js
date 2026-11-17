@@ -492,9 +492,20 @@
       var foto = el('span', 's3-nz-foto')
       var u = copertina(n)
       if (u) {
-        var img = el('img'); img.src = u; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'
-        foto.style.setProperty('--s3-sfondo', 'url(' + JSON.stringify(u) + ')')
-        img.onerror = function () { img.remove(); foto.style.removeProperty('--s3-sfondo'); foto.appendChild(icona('notizie')) }
+        var img = el('img'); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async'
+        /* (17/11/2026) la miniatura, non l'originale (fino a 3,4 MB per un riquadro da 215 px);
+           lo sfondo sfocato usa la più piccola; se la miniatura manca si torna all'originale */
+        var mini = window.nzMin ? window.nzMin(u) : null
+        if (mini) { img.src = mini.src; img.srcset = mini.srcset; img.sizes = '230px' } else img.src = u
+        foto.style.setProperty('--s3-sfondo', 'url(' + JSON.stringify(mini ? mini.src : u) + ')')
+        img.onerror = function () {
+          if (mini && img.dataset.orig !== '1') {
+            img.dataset.orig = '1'; img.removeAttribute('srcset'); img.src = u
+            foto.style.setProperty('--s3-sfondo', 'url(' + JSON.stringify(u) + ')')
+            return
+          }
+          img.remove(); foto.style.removeProperty('--s3-sfondo'); foto.appendChild(icona('notizie'))
+        }
         foto.appendChild(img)
       }
       else foto.appendChild(icona('notizie'))

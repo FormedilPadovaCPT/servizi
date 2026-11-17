@@ -61,4 +61,25 @@ for (const f of ['veste-sito3.css', 'veste-sito3.js']) {
   assert.ok(v(html, f), f + ' non trovato in index.html');
   assert.strictEqual(v(sw, f), v(html, f), f + ': il service worker salva una versione diversa da quella della pagina');
 }
-console.log('immagini-leggere: ' + controllate + ' immagini ok');
+// ── foto delle notizie: miniature (17/11/2026) ──
+const vm = require('vm');
+const veste = fs.readFileSync(path.join(R, 'veste-sito3.js'), 'utf8');
+const admin = fs.readFileSync(path.join(R, 'admin', 'index.html'), 'utf8');
+const pezzo = html.slice(html.indexOf('window.nzMin = function'), html.indexOf('const NZ_LARGHEZZA'));
+const ctx = { window: {} };
+vm.runInNewContext(pezzo.replace(/^function nzImgAttr/m, 'window.nzImgAttr = function nzImgAttr').replace(/nzMin\(url\)/, 'window.nzMin(url)'), ctx);
+const B = 'https://qcvwrgjldbdoxcfdsvkq.supabase.co/storage/v1/object/public/notizie-media/';
+const mini = ctx.window.nzMin(B + 'img/123-abc.png');
+assert.strictEqual(mini.src, B + 'min/480/img/123-abc.png.webp');
+assert.strictEqual(mini.srcset, `${B}min/480/img/123-abc.png.webp 480w, ${B}min/960/img/123-abc.png.webp 960w, ${B}min/1600/img/123-abc.png.webp 1600w`);
+assert.strictEqual(ctx.window.nzMin(B + 'img/animata.gif'), null, 'le GIF non hanno miniature');
+assert.strictEqual(ctx.window.nzMin('https://i.ytimg.com/vi/abc/hqdefault.jpg'), null, 'le anteprime di YouTube non si toccano');
+assert.match(ctx.window.nzImgAttr(B + 'img/1.jpg', '100vw'), /data-orig="[^"]+img\/1\.jpg" onerror="nzSenzaMin\(this\)"/, 'se la miniatura manca si torna all\'originale');
+const card = html.slice(html.indexOf('function nzCard('), html.indexOf('function nzCard(') + 2500);
+assert.strictEqual((card.match(/<img \$\{nzImgAttr\(/g) || []).length, 3, 'copertina del video, carosello e foto singola usano le miniature');
+assert.ok(!/<img src="\$\{(u|imgs\[0\]|poster)\}"/.test(card), 'nessuna foto delle notizie all\'originale');
+assert.ok((card.match(/data-zoom="\$\{(u|imgs\[0\])\}"/g) || []).length === 2, 'l\'ingrandimento resta sull\'originale');
+assert.ok(/window\.nzMin \? window\.nzMin\(u\)/.test(veste) && /img\.srcset = mini\.srcset/.test(veste), 'i riquadri della home usano le miniature');
+assert.ok(/const MINIATURE = \[480, 960, 1600\]/.test(admin) && /await creaMiniature\(file, path\)/.test(admin), 'l\'admin crea le miniature al caricamento');
+assert.ok(/miniatureMancanti\(\)/.test(admin) && /list\('min\/1600\/img'/.test(admin), 'e quelle mancanti all\'apertura');
+console.log('immagini-leggere: ' + controllate + ' immagini ok, miniature delle notizie ok');
