@@ -33,7 +33,7 @@
    deregistra da solo).
    ============================================================ */
 
-const VERSIONE = 'servizi-v5';
+const VERSIONE = 'servizi-v6';
 const PREFISSO = 'servizi-';
 const ATTESA_MS = 4000;
 
@@ -49,8 +49,8 @@ const DA_SALVARE = [
   'Formedil_Padova_Positivo_colori.png',
   // la veste grafica (14/09/2026): ?v= deve essere lo stesso di index.html,
   // perché per questi file la copia si cerca con la query
-  'veste-sito3.css?v=22',
-  'veste-sito3.js?v=22',
+  'veste-sito3.css?v=25',
+  'veste-sito3.js?v=25',
   'img/sito/logo-formedil-padova.png',
 ];
 
