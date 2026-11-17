@@ -22,14 +22,18 @@ R = Path(__file__).resolve().parent.parent
 OUT = R / 'img' / 'ridotte'
 OUT.mkdir(parents=True, exist_ok=True)
 
-# foto del team: riquadro quadrato (object-fit: cover), su PC ~260 px, sul telefono ~340 px
+# foto del team: riquadro quadrato (object-fit: cover), su PC ~300 px, sul telefono ~340 px.
+# Il secondo numero, se c'è, dice dove cade il quadrato in altezza (0 = in cima, 0.5 = al centro).
+# (17/11/2026) Caon e Balladore: le foto dei tesserini (versioni senza sfondo), copiate in
+# img/originali/ da 2_AREE/Amministrazione/materiale_stampa_2026/tesserini_tecnici_2026/.
 TEAM = {
     'Andrea Pagnacco.jpg': 'team-andrea-pagnacco',
     'nicola-de marco.jpg': 'team-nicola-de-marco',
     'Renato Squizzato.jpg': 'team-renato-squizzato',
     'Camuffo Marco.jpg': 'team-marco-camuffo',
-    'Caon Franco.jpg': 'team-franco-caon',
     'visentini Tommaso.jpg': 'team-tommaso-visentini',
+    'img/originali/2026_11_06_Caon-Franco_foto-tesserino_senza-sfondo.jpg': ('team-franco-caon-tesserino', 0.24),
+    'img/originali/2026_11_17_Balladore-Paolo_foto-tesserino_senza-sfondo.jpg': ('team-paolo-balladore-tesserino', 0.0),
 }
 # testate dei servizi: a tutta larghezza della pagina (fino a ~820 px)
 TESTATE = {
@@ -78,10 +82,11 @@ def salva_jpg(im, nome, q=82):
 
 
 scritti = []
-for orig, base in TEAM.items():
+for orig, voce in TEAM.items():
+    base, alto = voce if isinstance(voce, tuple) else (voce, 0.5)
     im = rgb(Image.open(R / orig))
     lato = min(im.size)
-    im = ImageOps.fit(im, (lato, lato), Image.LANCZOS)          # quadrato centrato, come lo mostra la pagina
+    im = ImageOps.fit(im, (lato, lato), Image.LANCZOS, centering=(0.5, alto))   # quadrato, come lo mostra la pagina
     for w in (480, 960):
         if w <= lato:
             scritti.append(salva_jpg(im.resize((w, w), Image.LANCZOS), f'{base}-{w}.jpg'))
