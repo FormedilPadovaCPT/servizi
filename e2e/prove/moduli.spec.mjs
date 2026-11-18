@@ -195,6 +195,25 @@ for (const m of MODULI) {
   });
 }
 
+/* (18/11/2026, dalla prova del corso 336) chi ha già firmato quel momento non
+   firma di nuovo: niente pulsante, l'avviso del tutor, e niente parte */
+test('firma di presenza: chi ha già firmato vede «hai già firmato» e non può rifirmare', async ({ page }) => {
+  const inviate = [], errori = [];
+  await prepara(page, inviate, errori);
+  await page.route(`${SB}/rest/v1/rpc/pres_che_cosa*`, (route) => route.fulfill({ status: 200, contentType: 'application/json',
+    body: JSON.stringify({ ...RPC.pres_che_cosa(), gia_firmato: true, gia_ora: '14:16' }) }));
+  await page.goto('?presenza=P1-E2E.abcdef123456');
+  await page.waitForTimeout(800);
+  await page.fill('#pz-codice', 'ABCDE'); await page.fill('#pz-anno', '1980'); await page.click('#pz-cerca');
+  await expect(page.locator('#pz-cosa-txt')).toHaveText("Hai già firmato l'entrata", { timeout: 10_000 });
+  await expect(page.locator('#pz-cosa-ora')).toContainText('alle 14:16');
+  await expect(page.locator('#pz-cosa-ora')).toContainText("tutor d'aula");
+  await expect(page.locator('#prs-btnSend'), 'il pulsante Firmo non deve esserci').toBeHidden();
+  await page.waitForTimeout(500);
+  expect(inviate.length, 'non deve partire niente').toBe(0);
+  expect(errori, 'nessun errore JavaScript').toEqual([]);
+});
+
 test('nessun modulo resta fuori da questa prova', () => {
   const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
   const nelPortale = [...new Set([...html.matchAll(/submitForm\('([\w-]+)',\s*'(\w+)'/g)].map((x) => x[1]))].sort();

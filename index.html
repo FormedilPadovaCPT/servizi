@@ -8148,7 +8148,24 @@ document.getElementById('topbarTitle').style.display = 'none';
        (entrata e poi uscita): ogni nuova firma è una compilazione nuova */
     delete document.getElementById('form-presenza').dataset.inviata;
     btn.disabled = false;
+    btn.hidden = false;
     btn.textContent = senzaRete ? 'Firmo (parte quando c\'è rete)' : e.t;
+    /* (18/11/2026, dall'utente) chi ha già firmato quel momento non firma di
+       nuovo: niente pulsante, e se c'è un errore lo sblocca il tutor dal PC */
+    if (!senzaRete && cosa && cosa.gia_firmato) {
+      var cosaGia = cosa.tipo === 'uscita' ? 'l\'uscita' : 'l\'entrata';
+      document.getElementById('pz-cosa-txt').textContent = 'Hai già firmato ' + cosaGia;
+      document.getElementById('pz-cosa-ora').textContent = (cosa.gia_ora ? 'alle ' + cosa.gia_ora + '. ' : '')
+        + 'Non serve firmare di nuovo. Se c\'è un errore, rivolgiti al tutor d\'aula: può sbloccare la firma e fartela rifare.';
+      document.getElementById('pz-cosa').classList.add('fuori');
+      btn.disabled = true;
+      btn.hidden = true;
+      document.getElementById('pz-sotto').textContent = cosa.tipo === 'uscita'
+        ? 'La tua uscita è già registrata.'
+        : 'La tua entrata è già registrata. Quando vai via inquadra di nuovo il QR per l\'uscita.';
+      mostra('form-presenza');
+      return;
+    }
     document.getElementById('pz-fatto').textContent = senzaRete
       ? 'La firma è salvata su questo telefono e parte da sola quando torna la rete: lascia il portale aperto un momento quando sei connesso.'
       : 'Hai firmato ' + e.t.replace(/^Firmo /, '') + '. Il docente la conferma sul registro della giornata.';
