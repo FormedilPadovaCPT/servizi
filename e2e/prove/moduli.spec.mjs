@@ -124,7 +124,8 @@ async function prepara(page, inviate, errori) {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(f ? f() : null) });
   });
   /* la cassetta: ogni POST verso il database Servizi che non è una rpc */
-  await page.route((url) => url.href.startsWith(SB) && !url.pathname.includes('/rest/v1/rpc/'), async (route) => {
+  /* l'origine si confronta intera (CodeQL js/incomplete-url-substring-sanitization) */
+  await page.route((url) => url.origin === new URL(SB).origin && !url.pathname.includes('/rest/v1/rpc/'), async (route) => {
     const req = route.request();
     if (req.method() === 'POST') {
       let corpo = null;
