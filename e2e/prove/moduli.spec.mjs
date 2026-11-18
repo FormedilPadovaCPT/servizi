@@ -181,6 +181,12 @@ for (const m of MODULI) {
     expect(p.tipo_modulo, 'tipo del modulo').toBe(m.tipo);
     expect(p.submission_id, 'ogni invio porta il suo identificativo').toBeTruthy();
     for (const c of m.campi) expect(p[c], `campo ${c} nel payload`).toBeTruthy();
+    if (m.form === 'form-iscrizione') {
+      /* (18/11/2026) la data di nascita si riempie dal codice fiscale e parte aaaa-mm-gg */
+      const pers = JSON.parse(p.persone);
+      expect(pers[0].nato_il, 'data di nascita presa dal codice fiscale RSSMRA80A01H501U').toBe('1980-01-01');
+      expect(pers[0].nato_il_scritta, 'la data «come scritta» non deve partire').toBeUndefined();
+    }
     const ok = page.locator(`#${m.form} .success-banner`).first();
     await expect(ok, 'chi compila deve vedere la conferma').toBeVisible({ timeout: 5_000 });
     expect(errori, 'nessun errore JavaScript').toEqual([]);

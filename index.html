@@ -7043,6 +7043,48 @@ document.getElementById('topbarTitle').style.display = 'none';
   var TITOLI_ISCR = ['Sig.','Sig.ra','Geom.','Ing.','Arch.','Dott.','Dott.ssa','P.I.','Rag.','Prof.'];
   var PROVINCE_ISCR = ['PD','VE','VI','TV','VR','RO','BL','altra'];
 
+  /* ── la data di nascita, facile (18/11/2026, dall'utente: col calendario del
+     telefono «non è facile, le persone sono anziane») ──────────────────────
+     · si riempie DA SOLA dal codice fiscale (anno, mese e giorno ci sono già
+       dentro: il giorno + 40 per le donne), e si può correggere;
+     · si scrive coi soli numeri: le barre gg/mm/aaaa le mette il modulo;
+     · al Gestionale parte come aaaa-mm-gg, come prima. */
+  var MESI_CF = 'ABCDEHLMPRST';
+  function nascitaDaCf(cf) {
+    cf = String(cf || '').toUpperCase().replace(/\s/g, '');
+    if (!/^[A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/.test(cf)) return '';
+    /* le omocodie sostituiscono le cifre con lettere: si rimettono le cifre */
+    var cifra = function (c) { var k = 'LMNPQRSTUV'.indexOf(c); return k >= 0 ? String(k) : c; };
+    var aa = +(cifra(cf[6]) + cifra(cf[7])), m = MESI_CF.indexOf(cf[8]) + 1, g = +(cifra(cf[9]) + cifra(cf[10]));
+    if (g > 40) g -= 40;
+    if (m < 1 || g < 1 || g > 31) return '';
+    var oggi = new Date().getFullYear() % 100;
+    var anno = (aa > oggi ? 1900 : 2000) + aa;
+    return String(g).padStart(2, '0') + '/' + String(m).padStart(2, '0') + '/' + anno;
+  }
+  function isoDaData(v) {
+    var m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/.exec(String(v || '').trim());
+    if (!m) return /^\d{4}-\d{2}-\d{2}$/.test(String(v || '').trim()) ? String(v).trim() : '';
+    var d = new Date(+m[3], +m[2] - 1, +m[1]);
+    if (d.getFullYear() !== +m[3] || d.getMonth() !== +m[2] - 1 || d.getDate() !== +m[1]) return '';
+    return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+  }
+  window.nascitaDaCf = nascitaDaCf;
+  window.isoDaData = isoDaData;
+  function dataFacile(inp) {
+    inp.type = 'text';
+    inp.setAttribute('inputmode', 'numeric');
+    inp.setAttribute('autocomplete', 'bday');
+    inp.placeholder = 'gg/mm/aaaa';
+    inp.maxLength = 10;
+    inp.addEventListener('input', function () {
+      var c = inp.value.replace(/\D/g, '').slice(0, 8);
+      inp.value = c.length > 4 ? c.slice(0, 2) + '/' + c.slice(2, 4) + '/' + c.slice(4)
+        : c.length > 2 ? c.slice(0, 2) + '/' + c.slice(2) : c;
+      inp.dataset.daCf = '';
+    });
+  }
+
   /* i campi di una scheda: nome del campo, etichetta, opzioni */
   function campo(nome, etichetta, opz) {
     opz = opz || {};
@@ -7090,7 +7132,26 @@ document.getElementById('topbarTitle').style.display = 'none';
       campo('nome', 'Nome', { obbligatorio: true })));
     box.appendChild(due(
       campo('sesso', 'Sesso', { tag: 'select', opzioni: ['\u2014', 'M', 'F'] }),
-      campo('nato_il', 'Data di nascita', { type: 'date' })));
+      campo('nato_il', 'Data di nascita', { max: 10 })));
+    /* la data di nascita: dal codice fiscale, o coi soli numeri (18/11/2026) */
+    (function () {
+      var d = box.querySelector('.p-nato_il'), cf = box.querySelector('.p-cf');
+      dataFacile(d);
+      var nota = el('p', 'hint', 'Si riempie da sola dal codice fiscale.');
+      nota.style.margin = '4px 0 0';
+      d.parentNode.appendChild(nota);
+      cf.addEventListener('input', function () {
+        var n = nascitaDaCf(cf.value);
+        /* si riempie solo se è vuota o l'aveva riempita il codice fiscale */
+        if (n && (!d.value || d.dataset.daCf === '1')) { d.value = n; d.dataset.daCf = '1'; }
+        /* anche il sesso sta nel codice fiscale: il giorno di nascita delle donne è + 40 */
+        var sx = box.querySelector('.p-sesso'), v = String(cf.value || '').toUpperCase();
+        if (n && sx && (!sx.value || sx.dataset.daCf === '1')) {
+          var gg = 'LMNPQRSTUV'.indexOf(v[9]) >= 0 ? 'LMNPQRSTUV'.indexOf(v[9]) : +v[9];
+          sx.value = gg >= 4 ? 'F' : 'M'; sx.dataset.daCf = '1';
+        }
+      });
+    })();
     box.appendChild(due(
       campo('comune_nascita', 'Comune di nascita'),
       campo('stato_nascita', 'Se nato all\u2019estero, lo Stato')));
@@ -7261,8 +7322,8 @@ document.getElementById('topbarTitle').style.display = 'none';
         var n = box.querySelector('.p-' + campo);
         if (!n) return;
         if (campo === 'cf') v = v.toUpperCase();
-        if (campo === 'nato_il' && /^\d{2}[\/.-]\d{2}[\/.-]\d{4}$/.test(v)) {
-          var p = v.split(/[\/.-]/); v = p[2] + '-' + p[1] + '-' + p[0];
+        if (campo === 'nato_il' && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+          var p = v.split('-'); v = p[2] + '/' + p[1] + '/' + p[0];   /* (18/11/2026) il campo mostra gg/mm/aaaa */
         }
         if (n.tagName === 'SELECT') {
           /* un valore che la tendina non ha (un ruolo scritto a modo suo) non
@@ -7337,6 +7398,8 @@ document.getElementById('topbarTitle').style.display = 'none';
        'cittadinanza','ruolo','mansione','email'].forEach(function (k) {
         var n = b.querySelector('.p-' + k);
         var v = n ? String(n.value || '').trim() : '';
+        /* (18/11/2026) la data si scrive gg/mm/aaaa e parte aaaa-mm-gg, come prima */
+        if (k === 'nato_il' && v) { var iso = isoDaData(v); p.nato_il_scritta = v; v = iso; }
         if (v) p[k] = (k === 'cf') ? v.toUpperCase() : v;
       });
       [['imp_rs','ragione_sociale'],['imp_piva','piva'],['imp_indirizzo','indirizzo'],
@@ -7451,6 +7514,8 @@ document.getElementById('topbarTitle').style.display = 'none';
       /* il codice fiscale e' il campo su cui la segreteria riconosce i
          doppioni: senza, ogni omonimo diventa una persona nuova */
       if (!p.cf || !/^[A-Z0-9]{16}$/.test(p.cf)) return ferma('Partecipante ' + (i + 1) + ': il codice fiscale non è di 16 caratteri.');
+      if (p.nato_il_scritta && !p.nato_il) return ferma('Partecipante ' + (i + 1) + ': la data di nascita non è valida (si scrive gg/mm/aaaa).');
+      delete p.nato_il_scritta;
       /* ⚠️ l'impresa si chiede per OGNI partecipante: a un corso come a una
          conferenza si iscrivono persone di imprese diverse */
       if (!p.impresa || !p.impresa.ragione_sociale) return ferma('Partecipante ' + (i + 1) + ': manca la ragione sociale della sua impresa.');
