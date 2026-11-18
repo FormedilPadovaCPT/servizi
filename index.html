@@ -3885,6 +3885,7 @@
         .pz-cosa b{display:block;font-size:22px;margin:4px 0;color:var(--text)}
         .pz-cosa.fuori{border-color:#c94208;background:#fff6f2}
         .pz-ora{color:var(--muted);font-size:13px;line-height:1.4}
+        .btn-send.pz-anticipo{background:#c94208;border-color:#c94208;font-weight:700}
       </style>
 
       <button class="btn-back" onclick="showPage('home')">← Torna alla home</button>
@@ -8052,7 +8053,7 @@ document.getElementById('topbarTitle').style.display = 'none';
    conferma del nome, la firma entra nella coda di submitForm e parte quando
    torna la connessione: il docente la vedrà con l'ora di arrivo. */
 (function () {
-  var rif = '', codice = '', firma = '', dati = null, personale = '', anno = '', cosa = null, senzaRete = false;
+  var rif = '', codice = '', firma = '', dati = null, personale = '', anno = '', cosa = null, senzaRete = false, anticipata = false;
   var mesi = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 
   function el(tag, cls, testo) {
@@ -8149,9 +8150,27 @@ document.getElementById('topbarTitle').style.display = 'none';
     delete document.getElementById('form-presenza').dataset.inviata;
     btn.disabled = false;
     btn.hidden = false;
+    btn.classList.remove('pz-anticipo');
+    anticipata = false;
     btn.textContent = senzaRete ? 'Firmo (parte quando c\'è rete)' : e.t;
     /* (18/11/2026, dall'utente) chi ha già firmato quel momento non firma di
        nuovo: niente pulsante, e se c'è un errore lo sblocca il tutor dal PC */
+    /* (18/11/2026, dall'utente) entrata già firmata e metà turno non ancora
+       arrivata: chi va via prima firma l'uscita anticipata, con un pulsante
+       che si nota; la segreteria la vede segnata */
+    if (!senzaRete && cosa && cosa.gia_firmato && cosa.puo_uscire) {
+      anticipata = true;
+      document.getElementById('pz-cosa-tit').textContent = 'Stai uscendo in anticipo?';
+      document.getElementById('pz-cosa-txt').textContent = 'Hai già firmato l\'entrata' + (cosa.gia_ora ? ' alle ' + cosa.gia_ora : '');
+      document.getElementById('pz-cosa-ora').textContent = 'Se vai via adesso, prima della fine, premi il pulsante qui sotto: è la tua firma di uscita. Se invece sei appena arrivato, non serve fare niente.';
+      document.getElementById('pz-cosa').classList.add('fuori');
+      btn.classList.add('pz-anticipo');
+      btn.textContent = 'Sì, esco in anticipo: firmo l\'uscita';
+      document.getElementById('pz-fatto').textContent = 'Hai firmato l\'uscita anticipata. La segreteria la vede sul registro della giornata.';
+      document.getElementById('pz-sotto').textContent = 'La tua entrata è già registrata.';
+      mostra('form-presenza');
+      return;
+    }
     if (!senzaRete && cosa && cosa.gia_firmato) {
       var cosaGia = cosa.tipo === 'uscita' ? 'l\'uscita' : 'l\'entrata';
       document.getElementById('pz-cosa-txt').textContent = 'Hai già firmato ' + cosaGia;
@@ -8232,6 +8251,7 @@ document.getElementById('topbarTitle').style.display = 'none';
       f.codice           = codice;
       f.codice_personale = personale;
       f.anno_nascita     = anno;
+      if (anticipata) f.uscita_anticipata = 'si';
       /* indicativa: fa fede l'ora in cui arriva al Gestionale */
       f.ora_dispositivo  = new Date().toISOString();
       return f;

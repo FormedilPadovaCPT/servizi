@@ -214,6 +214,26 @@ test('firma di presenza: chi ha già firmato vede «hai già firmato» e non pu�
   expect(errori, 'nessun errore JavaScript').toEqual([]);
 });
 
+/* (18/11/2026) chi ha già l'entrata e va via prima di metà turno firma l'uscita anticipata */
+test('firma di presenza: «Stai uscendo in anticipo?» manda l\'uscita anticipata', async ({ page }) => {
+  const inviate = [], errori = [];
+  await prepara(page, inviate, errori);
+  await page.route(`${SB}/rest/v1/rpc/pres_che_cosa*`, (route) => route.fulfill({ status: 200, contentType: 'application/json',
+    body: JSON.stringify({ ...RPC.pres_che_cosa(), gia_firmato: true, gia_ora: '09:28', puo_uscire: true }) }));
+  await page.goto('?presenza=P1-E2E.abcdef123456');
+  await page.waitForTimeout(800);
+  await page.fill('#pz-codice', 'ABCDE'); await page.fill('#pz-anno', '1980'); await page.click('#pz-cerca');
+  await expect(page.locator('#pz-cosa-tit')).toHaveText('Stai uscendo in anticipo?', { timeout: 10_000 });
+  const btn = page.locator('#prs-btnSend');
+  await expect(btn).toBeVisible();
+  await expect(btn).toContainText('esco in anticipo');
+  await btn.click();
+  await expect.poll(() => inviate.length, { timeout: 15_000 }).toBeGreaterThan(0);
+  expect(inviate[0].uscita_anticipata, 'l\'uscita anticipata deve partire dichiarata').toBe('si');
+  await expect(page.locator('#form-presenza .success-banner').first()).toBeVisible({ timeout: 5_000 });
+  expect(errori, 'nessun errore JavaScript').toEqual([]);
+});
+
 test('nessun modulo resta fuori da questa prova', () => {
   const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
   const nelPortale = [...new Set([...html.matchAll(/submitForm\('([\w-]+)',\s*'(\w+)'/g)].map((x) => x[1]))].sort();
