@@ -51,7 +51,7 @@ jobs:
           ESITO_PROVE: ${{ steps.prove.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          [ -n "${DB_URL:-}" ] || { echo "SUPABASE_DB_URL assente: verdetto non registrato nel cruscotto"; exit 0; }
+          [ -n "${DB_URL:-}" ] || { echo "::warning::SUPABASE_DB_URL assente: verdetto non registrato nel cruscotto della segreteria"; exit 0; }
           case "$ESITO_PROVE" in success) esito=riuscita;; failure) esito=fallita;; *) esito=errore;; esac
           if [ -f risultati.json ]; then
             eval "$(node -e '
