@@ -1,0 +1,83 @@
+name: Prove dei moduli del portale
+
+# Ogni modulo del portale si apre, si compila e la richiesta PARTE (18/11/2026,
+# chiesto dall'utente: «dobbiamo essere certi al 100% che quando uno invia una
+# richiesta, questa parta e venga processata»). Nato dal modulo d'iscrizione,
+# che dal 18/09 al 18/11/2026 non spediva niente senza che nessuno se ne
+# accorgesse. La cassetta è finta: niente arriva al database.
+#
+# - a ogni modifica del portale: prova il codice appena caricato (servito in locale);
+# - ogni mattina feriale: prova il sito PUBBLICATO.
+# Se fallisce il job diventa rosso, GitHub manda l'email e il verdetto va nel
+# cruscotto della segreteria (s_test_automatici, suite «portale»), purché il
+# repository abbia il secret SUPABASE_DB_URL.
+
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'incorpora.js', 'sw.js', 'blocco/**', 'e2e/**', '.github/workflows/prove-moduli.yml']
+  schedule:
+    - cron: '45 5 * * 1-5'     # feriali, 07:45 ora legale / 06:45 ora solare
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: e2e
+    steps:
+      - uses: actions/checkout@v6
+      - name: Installa Playwright e Chromium
+        run: |
+          npm install --no-fund --no-audit
+          npx playwright install --with-deps chromium
+      - name: Prove
+        id: prove
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: risultati.json
+          # la mattina si prova il sito pubblicato, dopo una modifica il codice del commit
+          INDIRIZZO_PORTALE: ${{ github.event_name == 'schedule' && 'https://formedilpadovacpt.github.io/servizi/' || '' }}
+        run: npx playwright test --reporter=list,html,json
+
+      - name: Registra il verdetto in s_test_automatici
+        if: always()
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          ESITO_PROVE: ${{ steps.prove.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -n "${DB_URL:-}" ] || { echo "SUPABASE_DB_URL assente: verdetto non registrato nel cruscotto"; exit 0; }
+          case "$ESITO_PROVE" in success) esito=riuscita;; failure) esito=fallita;; *) esito=errore;; esac
+          if [ -f risultati.json ]; then
+            eval "$(node -e '
+              const r = require("./risultati.json"); const ko = [];
+              const giro = (s) => { for (const x of s.suites || []) giro(x);
+                for (const sp of s.specs || []) for (const tt of sp.tests || [])
+                  if (!["expected", "skipped", "flaky"].includes(tt.status)) ko.push(`[${tt.projectName}] ${sp.title}`); };
+              giro(r);
+              const st = r.stats || {};
+              console.log(`passati=${(st.expected || 0) + (st.flaky || 0)}; n_falliti=${ko.length}; falliti=${JSON.stringify(ko.join("|"))}`);
+            ')"
+          else
+            esito=errore; passati=""; n_falliti=0; falliti=""
+          fi
+          sudo apt-get install -y -qq postgresql-client >/dev/null 2>&1 || true
+          psql "$DB_URL" -q -v ON_ERROR_STOP=1 -v esito="$esito" -v passati="${passati:-}" \
+            -v n_falliti="${n_falliti:-0}" -v falliti="${falliti:-}" -v run="$RUN_URL" <<'SQL'
+          insert into public.s_test_automatici (suite, esito, passati, falliti, elenco_falliti, run_url)
+          values ('portale', :'esito', nullif(:'passati', '')::int, :'n_falliti'::int,
+                  nullif(string_to_array(:'falliti', '|'), '{}'), :'run');
+          SQL
+          echo "Verdetto registrato: $esito"
+      - name: Rapporto (solo se qualcosa non va)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: rapporto-moduli
+          path: e2e/playwright-report
+          retention-days: 7

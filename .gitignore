@@ -1,3 +1,9 @@
 desktop.ini
 **/desktop.ini
 .claude/
+
+# prove nel browser (18/11/2026): mai nel Drive né nel repository
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/risultati.json

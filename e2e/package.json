@@ -1,0 +1,11 @@
+{
+  "name": "servizi-prove-moduli",
+  "private": true,
+  "description": "Prove nel browser del portale servizi (Playwright): ogni modulo parte. Si installano su GitHub Actions o in una cartella FUORI da Drive: node_modules non va mai nel Drive.",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
