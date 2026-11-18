@@ -7522,12 +7522,10 @@ document.getElementById('topbarTitle').style.display = 'none';
       var rs = card.querySelector('.p-imp_rs');
       var lrs = rs && rs.parentNode.querySelector('label');
       if (lrs) lrs.innerHTML = (io ? 'Nome dell\u2019impresa o dell\u2019ente' : 'Ragione sociale') + ' <span class="req">*</span>';
-      /* (18/11/2026, dall'utente) la partita IVA resta anche da soli, facoltativa:
-         chi la scrive ci fa un favore, perché dice con certezza di che impresa si
-         tratta; chi non ce l'ha (sindacalista, professionista) la lascia vuota */
-      var pv = card.querySelector('.p-imp_piva');
-      var lpv = pv && pv.parentNode.querySelector('label');
-      if (lpv) lpv.innerHTML = io ? 'Partita IVA <span class="hint">(facoltativa, se c’è)</span>' : 'Partita IVA';
+      /* (18/11/2026, dall'utente) la partita IVA resta anche da soli: dice con
+         certezza di che impresa si tratta. Non è obbligatoria, ma l'etichetta non
+         lo dice (l'utente: «io vorrei la compilassero»): chi non ce l'ha
+         (sindacalista, professionista) la lascia vuota e il modulo parte lo stesso */
       ['p-imp_indirizzo', 'p-imp_cap'].forEach(function (k) { var n = card.querySelector('.' + k); if (n) n.closest('.iz-2').hidden = io; });
     }
     var pa = document.getElementById('iz-privacy-altri'); if (pa) pa.hidden = io;
