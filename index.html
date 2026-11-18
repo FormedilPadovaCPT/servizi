@@ -3642,7 +3642,7 @@
       <div class="qz-rif" id="sl-rif" hidden></div>
       <div class="iz-avviso" id="sl-avviso" hidden></div>
 
-      <form id="form-sala" novalidate hidden>
+      <form id="form-sala" novalidate hidden data-senza-ricevuta>
         <div class="sl-scelta" id="sl-scelta">
           <button type="button" data-sl-tipo="entrata"><b>&#128682; Sto arrivando</b><small>registro l&rsquo;entrata</small></button>
           <button type="button" data-sl-tipo="uscita"><b>&#128075; Sto andando via</b><small>registro l&rsquo;uscita</small></button>
@@ -7834,7 +7834,7 @@ document.getElementById('topbarTitle').style.display = 'none';
     var vecchia = leggiMemo() || {};
     scriviMemo({ cognome: p.cognome, nome: p.nome, cf: p.cf, ente: p.ente || vecchia.ente || '', ruolo: p.ruolo || vecchia.ruolo || '', email: p.email || vecchia.email || '' });
 
-    var tipoAdesso = tipo;
+    var tipoAdesso = tipo, anticipoAdesso = tipo === 'uscita' && inAnticipo();
     submitForm('form-sala', 'isc', async function () {
       var persona = { cognome: p.cognome, nome: p.nome, cf: p.cf, in_sala: tipoAdesso, ora_dispositivo: new Date().toISOString() };
       if (tipoAdesso === 'entrata') {
@@ -7852,9 +7852,11 @@ document.getElementById('topbarTitle').style.display = 'none';
       if (tipoAdesso === 'entrata' && p.email) f.email = p.email;
       return f;
     }, 'sl').then(function () {
+      /* (18/11/2026, dall'utente) all'uscita niente numero di richiesta né
+         «la segreteria conferma»: un saluto, e basta */
       document.getElementById('sl-fatto').textContent = tipoAdesso === 'entrata'
-        ? 'Entrata registrata alle ' + oraRoma() + '. Quando vai via inquadra di nuovo il QR e premi «Sto andando via». La segreteria conferma la tua presenza dopo l’evento.'
-        : 'Uscita registrata alle ' + oraRoma() + '. Grazie: la segreteria conferma la tua presenza dopo l’evento.';
+        ? 'Entrata registrata alle ' + oraRoma() + '. Quando vai via inquadra di nuovo questo QR: registrerai l’uscita.'
+        : (anticipoAdesso ? 'Uscita anticipata registrata alle ' : 'Uscita registrata alle ') + oraRoma() + '. Grazie della partecipazione, arrivederci!';
     });
   });
 
