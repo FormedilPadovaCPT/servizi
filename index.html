@@ -7673,8 +7673,44 @@ document.getElementById('topbarTitle').style.display = 'none';
    arriva senza iscrizione arriva per definizione dopo la chiusura.
    ══════════════════════════════════════════════════════════════════════════ */
 (function () {
-  var codice = '', firma = '', dati = null, tipo = 'entrata';
+  var codice = '', firma = '', dati = null, tipo = 'entrata', meta = null;
   var MEMO = 'formedil.sala.persona';
+
+  /* (18/11/2026, dall'utente) chi ha già registrato l'entrata non la registra
+     di nuovo: il portale ricorda le registrazioni di oggi per codice fiscale
+     (sala_stato). Senza rete il controllo non si fa e si registra lo stesso:
+     la segreteria vede il doppione alla conferma. */
+  async function stato(cf) {
+    if (!/^[A-Z0-9]{16}$/.test(cf || '')) return null;
+    var r;
+    try { r = await _sb.rpc('sala_stato', { p_codice: codice, p_firma: firma || null, p_cf: cf }); }
+    catch (e) { return null; }
+    if (!r || r.error || !r.data || r.data.trovato !== true) return null;
+    return r.data;
+  }
+  function inAnticipo() {
+    var adesso = minuti(oraRoma());
+    return !!(meta && meta.ini != null && meta.fine != null && adesso != null && adesso < meta.ini + (meta.fine - meta.ini) / 2);
+  }
+  /* applica quello che risulta: 'fermo' (già entrata e uscita), 'uscita', o niente */
+  function applicaStato(st) {
+    var btnE = document.querySelector('#sl-scelta [data-sl-tipo="entrata"]');
+    if (!st) return '';
+    if (st.uscita) {
+      avviso('Hai già registrato l’entrata' + (st.entrata ? ' alle ' + st.entrata : '') + ' e l’uscita alle ' + st.uscita
+        + '. Non serve registrare altro. Se c’è un errore, rivolgiti alla segreteria al banco.', true);
+      document.getElementById('form-sala').hidden = true;
+      return 'fermo';
+    }
+    if (st.entrata) {
+      scegli('uscita');
+      if (btnE) btnE.hidden = true;
+      avviso((inAnticipo() ? 'Stai uscendo in anticipo? ' : '') + 'Hai già registrato l’entrata alle ' + st.entrata
+        + ': qui sotto registri l’uscita. Se c’è un errore, rivolgiti alla segreteria al banco.', false);
+      return 'uscita';
+    }
+    return '';
+  }
 
   function el(tag, testo) { var n = document.createElement(tag); if (testo != null) n.textContent = testo; return n; }
   function oggiRoma() {
@@ -7745,9 +7781,12 @@ document.getElementById('topbarTitle').style.display = 'none';
     }
     /* entrata o uscita: la propone l'ora (prima della metà della mattina = si arriva) */
     var ini = minuti(g.dalle), fine = minuti(g.alle2 || g.alle), adesso = minuti(oraRoma());
+    meta = { ini: ini, fine: fine };
     scegli(ini != null && fine != null && adesso != null && adesso >= ini + (fine - ini) / 2 ? 'uscita' : 'entrata');
     compila();
     document.getElementById('form-sala').hidden = false;
+    var m = leggiMemo();
+    if (m && m.cf) applicaStato(await stato(m.cf));
   }
 
   document.querySelectorAll('#sl-scelta [data-sl-tipo]').forEach(function (b) {
@@ -7758,6 +7797,8 @@ document.getElementById('topbarTitle').style.display = 'none';
     var f = document.getElementById('form-sala');
     f.reset(); f.dataset.inviata = '';
     try { localStorage.removeItem(MEMO); } catch (e) {}
+    var btnE = document.querySelector('#sl-scelta [data-sl-tipo="entrata"]'); if (btnE) btnE.hidden = false;
+    document.getElementById('sl-avviso').hidden = true;
     document.getElementById('sl-success').style.display = 'none';
     document.getElementById('sl-error').style.display = 'none';
     var btn = document.getElementById('sl-btnSend'); btn.disabled = false;
@@ -7765,8 +7806,9 @@ document.getElementById('topbarTitle').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  document.getElementById('form-sala').addEventListener('submit', function (e) {
+  document.getElementById('form-sala').addEventListener('submit', async function (e) {
     e.preventDefault();
+    if (this.dataset.inviata) return;
     var err = document.getElementById('sl-error');
     function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
     var p = {
@@ -7782,6 +7824,13 @@ document.getElementById('topbarTitle').style.display = 'none';
     }
     if (!document.getElementById('sl-privacy').checked) return ferma('Per proseguire serve la spunta sulla privacy.');
     err.style.display = 'none';
+    /* già registrato oggi? (con rete: senza, si registra e lo vede la segreteria) */
+    var st = await stato(p.cf);
+    if (st && st.uscita) { applicaStato(st); return; }
+    if (st && st.entrata && tipo === 'entrata') {
+      applicaStato(st);
+      return ferma('Hai già registrato l’entrata alle ' + st.entrata + '. Se stai andando via, premi il pulsante qui sotto: registra l’uscita.');
+    }
     var vecchia = leggiMemo() || {};
     scriviMemo({ cognome: p.cognome, nome: p.nome, cf: p.cf, ente: p.ente || vecchia.ente || '', ruolo: p.ruolo || vecchia.ruolo || '', email: p.email || vecchia.email || '' });
 
