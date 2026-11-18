@@ -7130,31 +7130,36 @@ document.getElementById('topbarTitle').style.display = 'none';
     box.appendChild(due(
       campo('cognome', 'Cognome', { obbligatorio: true }),
       campo('nome', 'Nome', { obbligatorio: true })));
-    box.appendChild(due(
+    /* (18/11/2026, dall'utente) data, sesso e luogo di nascita NON si chiedono:
+       stanno nel codice fiscale e li ricava il Gestionale (cf_decode). I campi
+       restano nascosti, perché l'import da Excel li può ancora portare. */
+    var nascosti = el('div'); nascosti.hidden = true;
+    nascosti.appendChild(due(
       campo('sesso', 'Sesso', { tag: 'select', opzioni: ['\u2014', 'M', 'F'] }),
       campo('nato_il', 'Data di nascita', { max: 10 })));
     /* la data di nascita: dal codice fiscale, o coi soli numeri (18/11/2026) */
     (function () {
-      var d = box.querySelector('.p-nato_il'), cf = box.querySelector('.p-cf');
+      var d = nascosti.querySelector('.p-nato_il'), cf = box.querySelector('.p-cf');
       dataFacile(d);
-      var nota = el('p', 'hint', 'Si riempie da sola dal codice fiscale.');
-      nota.style.margin = '4px 0 0';
-      d.parentNode.appendChild(nota);
       cf.addEventListener('input', function () {
         var n = nascitaDaCf(cf.value);
         /* si riempie solo se è vuota o l'aveva riempita il codice fiscale */
         if (n && (!d.value || d.dataset.daCf === '1')) { d.value = n; d.dataset.daCf = '1'; }
         /* anche il sesso sta nel codice fiscale: il giorno di nascita delle donne è + 40 */
-        var sx = box.querySelector('.p-sesso'), v = String(cf.value || '').toUpperCase();
+        var sx = nascosti.querySelector('.p-sesso'), v = String(cf.value || '').toUpperCase();
         if (n && sx && (!sx.value || sx.dataset.daCf === '1')) {
           var gg = 'LMNPQRSTUV'.indexOf(v[9]) >= 0 ? 'LMNPQRSTUV'.indexOf(v[9]) : +v[9];
           sx.value = gg >= 4 ? 'F' : 'M'; sx.dataset.daCf = '1';
         }
       });
     })();
-    box.appendChild(due(
+    nascosti.appendChild(due(
       campo('comune_nascita', 'Comune di nascita'),
       campo('stato_nascita', 'Se nato all\u2019estero, lo Stato')));
+    box.appendChild(nascosti);
+    var dalCf = el('p', 'hint', 'Data, luogo di nascita e sesso non servono: li ricaviamo noi dal codice fiscale.');
+    dalCf.style.margin = '2px 0 16px';
+    box.appendChild(dalCf);
     box.appendChild(due(
       campo('cittadinanza', 'Cittadinanza'),
       campo('ruolo', 'Ruolo', { tag: 'select', opzioni: ['\u2014'].concat(RUOLI_ISCR) })));
