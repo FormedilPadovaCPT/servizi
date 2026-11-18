@@ -189,6 +189,9 @@ for (const m of MODULI) {
       const pers = JSON.parse(p.persone);
       expect(pers[0].nato_il, 'data di nascita presa dal codice fiscale RSSMRA80A01H501U').toBe('1980-01-01');
       expect(pers[0].nato_il_scritta, 'la data «come scritta» non deve partire').toBeUndefined();
+      /* (18/11/2026, dall'utente) la partita IVA dell'impresa si chiede anche a chi
+         si iscrive da solo, facoltativa: se la scrive, deve partire */
+      expect(pers[0].impresa?.piva, 'partita IVA dell’impresa nel payload').toBe('00000000000');
     }
     const ok = page.locator(`#${m.form} .success-banner`).first();
     await expect(ok, 'chi compila deve vedere la conferma').toBeVisible({ timeout: 5_000 });

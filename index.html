@@ -7511,9 +7511,9 @@ document.getElementById('topbarTitle').style.display = 'none';
       while (cont.children.length > 1) cont.removeChild(cont.lastChild);
       nPersone = 1;
     }
-    /* da soli: niente «Partecipante 1», dell'impresa basta il nome (un
-       sindacalista o un professionista non ha partita IVA da dare), e la
-       privacy non chiede di aver informato «le persone indicate» */
+    /* da soli: niente «Partecipante 1», dell'impresa basta il nome (la
+       partita IVA è facoltativa), e la privacy non chiede di aver informato
+       «le persone indicate» */
     var card = document.querySelector('#iz-persone .iz-persona');
     if (card) {
       var h4 = card.querySelector('h4'); if (h4) h4.hidden = io;
@@ -7522,7 +7522,12 @@ document.getElementById('topbarTitle').style.display = 'none';
       var rs = card.querySelector('.p-imp_rs');
       var lrs = rs && rs.parentNode.querySelector('label');
       if (lrs) lrs.innerHTML = (io ? 'Nome dell\u2019impresa o dell\u2019ente' : 'Ragione sociale') + ' <span class="req">*</span>';
-      ['p-imp_piva'].forEach(function (k) { var n = card.querySelector('.' + k); if (n) n.closest('.form-group').hidden = io; });
+      /* (18/11/2026, dall'utente) la partita IVA resta anche da soli, facoltativa:
+         chi la scrive ci fa un favore, perché dice con certezza di che impresa si
+         tratta; chi non ce l'ha (sindacalista, professionista) la lascia vuota */
+      var pv = card.querySelector('.p-imp_piva');
+      var lpv = pv && pv.parentNode.querySelector('label');
+      if (lpv) lpv.innerHTML = io ? 'Partita IVA <span class="hint">(facoltativa, se c’è)</span>' : 'Partita IVA';
       ['p-imp_indirizzo', 'p-imp_cap'].forEach(function (k) { var n = card.querySelector('.' + k); if (n) n.closest('.iz-2').hidden = io; });
     }
     var pa = document.getElementById('iz-privacy-altri'); if (pa) pa.hidden = io;
