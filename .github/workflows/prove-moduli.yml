@@ -11,6 +11,8 @@ name: Prove dei moduli del portale
 # Se fallisce il job diventa rosso, GitHub manda l'email e il verdetto va nel
 # cruscotto della segreteria (s_test_automatici, suite «portale»): serve il
 # secret SUPABASE_DB_URL del repository (session pooler), messo il 18/11/2026.
+# Dentro va la password del DATABASE Postgres, non BACKUP_PASSPHRASE (quella
+# cifra solo il file del backup).
 
 on:
   push:
