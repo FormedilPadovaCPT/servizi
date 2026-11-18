@@ -3526,10 +3526,16 @@
         <!-- ⚠️ Qui NON si chiede l'impresa dei partecipanti: ognuno ha la sua,
              dentro la propria scheda. Qui c'è solo chi manda la richiesta, che
              serve per rispondere e per sapere con chi parlare. -->
+        <!-- (18/11/2026, dall'utente) prima la scelta: chi si iscrive da solo non
+             deve scrivere due volte nome ed e-mail («chi compila» e partecipante) -->
+        <div class="iz-scelta" id="iz-scelta">
+          <button type="button" data-iz-modo="io"><b>&#128587; Mi iscrivo io</b><small>scrivo solo i miei dati</small></button>
+          <button type="button" data-iz-modo="altri"><b>&#128101; Iscrivo altre persone</b><small>per un&rsquo;impresa, uno studio o un ente: una o pi&ugrave; persone</small></button>
+        </div>
+        <div id="iz-corpo" hidden>
         <div id="iz-chi-compila">
           <h3 style="margin:0 0 4px;font-size:17px">Chi compila</h3>
-          <p class="hint" style="margin:0 0 14px">Serve per mandarvi la conferma. Se vi iscrivete
-             per voi stessi, rimettete gli stessi dati qui sotto come primo partecipante.</p>
+          <p class="hint" style="margin:0 0 14px">Serve per mandarvi la conferma.</p>
           <div class="iz-2">
             <div class="form-group">
               <label for="iz-ref">Nome e cognome <span class="req">*</span></label>
@@ -3553,7 +3559,7 @@
         </div>
 
         <h3 id="iz-h-persone" style="margin:26px 0 6px;font-size:17px">Chi partecipa</h3>
-        <p class="hint" style="margin:0 0 14px"><strong>Ogni partecipante pu&ograve; appartenere a un&rsquo;impresa diversa.</strong>
+        <p class="hint" id="iz-hint-persone" style="margin:0 0 14px"><strong>Ogni partecipante pu&ograve; appartenere a un&rsquo;impresa diversa.</strong>
            Se sono della stessa, il pulsante «copia impresa» risparmia di riscriverla.</p>
         <!-- ⚠️ Per chi iscrive parecchie persone, riempire le schede a mano è
              il modo più sicuro di sbagliare. Il modello Excel ha le stesse
@@ -3584,7 +3590,7 @@
           <input type="checkbox" id="iz-privacy" name="privacy" required>
           <p><strong>Privacy (Reg. UE 2016/679)</strong><br>
           I dati delle persone iscritte servono a tenere il registro delle presenze e a emettere gli attestati,
-          e restano a Formedil Padova. Dichiarate di aver informato le persone indicate.
+          e restano a Formedil Padova.<span id="iz-privacy-altri"> Dichiarate di aver informato le persone indicate.</span>
           <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.</p>
         </div>
 
@@ -3599,6 +3605,7 @@
              Se qualcosa non torna &mdash; un nome gi&agrave; in elenco, un dato mancante &mdash; vi scriviamo noi.</p>
           <button class="btn-new" onclick="showPage('iscrizioni')">Chiudi</button>
         </div>
+        </div><!-- iz-corpo -->
       </form>
 
       <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
@@ -7170,7 +7177,7 @@ document.getElementById('topbarTitle').style.display = 'none';
     /* \u2500\u2500 l'impresa di questo partecipante \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
     var tit = el('div', null, null);
     tit.setAttribute('style', 'display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:16px 0 8px');
-    tit.appendChild(el('strong', null, 'La sua impresa'));
+    tit.appendChild(el('strong', 'iz-tit-impresa', 'La sua impresa'));
     if (i > 0) {
       var copia = el('button', 'iz-togli', 'copia dal precedente'); copia.type = 'button';
       copia.onclick = function () { copiaImpresa(i); };
@@ -7483,6 +7490,51 @@ document.getElementById('topbarTitle').style.display = 'none';
   }
   window.apriIscrizione = apriEvento;
 
+  /* «Mi iscrivo io» / «Iscrivo altre persone» (18/11/2026, dall'utente): da
+     soli si compila UNA scheda, e la sua e-mail serve per la ricevuta e per la
+     conferma col codice; per un'impresa resta tutto: chi compila, più
+     persone, il modello Excel */
+  var modoIz = '';
+  function scegliModo(m) {
+    modoIz = m;
+    document.querySelectorAll('#iz-scelta [data-iz-modo]').forEach(function (b) { b.classList.toggle('on', b.dataset.izModo === m); });
+    var io = m === 'io';
+    document.getElementById('iz-corpo').hidden = false;
+    ['iz-chi-compila', 'iz-excel', 'iz-piu', 'iz-hint-persone'].forEach(function (id) {
+      var n = document.getElementById(id); if (n) n.hidden = io;
+    });
+    document.getElementById('iz-h-persone').textContent = io ? 'I tuoi dati' : 'Chi partecipa';
+    if (io) {
+      /* da soli si iscrive una persona: le schede in più si tolgono */
+      var cont = document.getElementById('iz-persone');
+      while (cont.children.length > 1) cont.removeChild(cont.lastChild);
+      nPersone = 1;
+    }
+    /* da soli: niente «Partecipante 1», dell'impresa basta il nome (un
+       sindacalista o un professionista non ha partita IVA da dare), e la
+       privacy non chiede di aver informato «le persone indicate» */
+    var card = document.querySelector('#iz-persone .iz-persona');
+    if (card) {
+      var h4 = card.querySelector('h4'); if (h4) h4.hidden = io;
+      var ti = card.querySelector('.iz-tit-impresa');
+      if (ti) ti.textContent = io ? 'Impresa, ente o organizzazione per cui lavori' : 'La sua impresa';
+      var rs = card.querySelector('.p-imp_rs');
+      var lrs = rs && rs.parentNode.querySelector('label');
+      if (lrs) lrs.innerHTML = (io ? 'Nome dell\u2019impresa o dell\u2019ente' : 'Ragione sociale') + ' <span class="req">*</span>';
+      ['p-imp_piva'].forEach(function (k) { var n = card.querySelector('.' + k); if (n) n.closest('.form-group').hidden = io; });
+      ['p-imp_indirizzo', 'p-imp_cap'].forEach(function (k) { var n = card.querySelector('.' + k); if (n) n.closest('.iz-2').hidden = io; });
+    }
+    var pa = document.getElementById('iz-privacy-altri'); if (pa) pa.hidden = io;
+    var em = document.querySelector('#iz-persone .iz-persona .p-email');
+    if (em) {
+      var lab = em.parentNode.querySelector('label');
+      if (lab) lab.innerHTML = io ? 'E-mail <span class="req">*</span> <span class="hint">(per la conferma col codice)</span>' : 'E-mail';
+    }
+  }
+  document.querySelectorAll('#iz-scelta [data-iz-modo]').forEach(function (b) {
+    b.addEventListener('click', function () { scegliModo(b.dataset.izModo); });
+  });
+
   document.getElementById('iz-modello').onclick = scaricaModello;
   document.getElementById('iz-scarica').onclick = scaricaElenco;
   document.getElementById('iz-file').onchange = function (e) {
@@ -7510,8 +7562,10 @@ document.getElementById('topbarTitle').style.display = 'none';
 
     function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 
-    if (!document.getElementById('iz-ref').value.trim()) return ferma('Manca il nome di chi compila.');
-    if (!document.getElementById('iz-email').value.trim()) return ferma('Manca l’e-mail per la conferma.');
+    if (!modoIz) return ferma('Scegli prima se ti iscrivi tu o se iscrivi altre persone.');
+    if (modoIz === 'altri' && !document.getElementById('iz-ref').value.trim()) return ferma('Manca il nome di chi compila.');
+    if (modoIz === 'altri' && !document.getElementById('iz-email').value.trim()) return ferma('Manca l’e-mail per la conferma.');
+    if (modoIz === 'io' && persone[0] && !persone[0].email) return ferma('Manca la tua e-mail: serve per la conferma col codice per firmare.');
     if (!persone.length) return ferma('Non c’è nessun partecipante da iscrivere.');
     for (var i = 0; i < persone.length; i++) {
       var p = persone[i];
@@ -7534,6 +7588,13 @@ document.getElementById('topbarTitle').style.display = 'none';
       /* chi compila ha un'impresa dietro, o si iscrive per se': lo si vede da
          quello che ha scritto, non da un bottone da premere */
       f.per_conto = document.getElementById('iz-rs').value.trim() ? 'impresa' : 'persona';
+      if (modoIz === 'io') {
+        /* da soli: chi compila è la persona stessa */
+        f.per_conto = 'persona';
+        f.referente = [persone[0].cognome, persone[0].nome].filter(Boolean).join(' ');
+        f.email = persone[0].email;
+        delete f.ragione_sociale; delete f.telefono;
+      }
       f.persone = JSON.stringify(persone);
       return f;
     }, 'iz');

@@ -54,7 +54,8 @@ const MODULI = [
   { tipo: 'not', pagina: 'notifica', form: 'form-notifica', campi: [] },
   { tipo: 'seg', pagina: 'segnalazione', form: 'form-segnalazione', campi: [] },
   { tipo: 'qst', link: '?valuta=V2526-0001.abcdef123456', form: 'form-questionario', campi: ['riferimento'] },
-  { tipo: 'isc', link: '?iscrizione=E2E-TEST.abcdef123456', form: 'form-iscrizione', campi: ['riferimento', 'persone'] },
+  { tipo: 'isc', nome: 'iscrizione «mi iscrivo io»', modo: 'io', link: '?iscrizione=E2E-TEST.abcdef123456', form: 'form-iscrizione', campi: ['riferimento', 'persone', 'referente', 'email'] },
+  { tipo: 'isc', nome: 'iscrizione «iscrivo altre persone»', modo: 'altri', link: '?iscrizione=E2E-TEST.abcdef123456', form: 'form-iscrizione', campi: ['riferimento', 'persone', 'referente', 'email'] },
   { tipo: 'isc', nome: 'sala', link: '?sala=E2E-TEST.abcdef123456', form: 'form-sala', campi: ['riferimento', 'persone'] },
   { tipo: 'qev', link: '?evento=Q-E2E.abcdef123456', form: 'form-qevento', campi: [] },
   { tipo: 'tst', link: '?test=T-E2E.abcdef123456', form: 'form-test', campi: [] },
@@ -152,6 +153,7 @@ for (const m of MODULI) {
       await page.fill('#te-codice', 'ABCDE'); await page.click('#te-cerca'); await page.click('#te-inizia');
     }
     if (m.tipo === 'qst') await page.click('#qst-faccine .qz-fac[data-v="4"]');
+    if (m.modo) await page.click(`#iz-scelta [data-iz-modo="${m.modo}"]`);
     await expect(page.locator(`#${m.form}`), 'il modulo si deve vedere').toBeVisible({ timeout: 10_000 });
     await compila(page, m.form);
     if (m.tipo === 'tst') {
@@ -195,7 +197,7 @@ for (const m of MODULI) {
 
 test('nessun modulo resta fuori da questa prova', () => {
   const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
-  const nelPortale = [...html.matchAll(/submitForm\('([\w-]+)',\s*'(\w+)'/g)].map((x) => x[1]).sort();
-  const provati = MODULI.map((m) => m.form).sort();
+  const nelPortale = [...new Set([...html.matchAll(/submitForm\('([\w-]+)',\s*'(\w+)'/g)].map((x) => x[1]))].sort();
+  const provati = [...new Set(MODULI.map((m) => m.form))].sort();
   expect(nelPortale, 'ogni submitForm del portale deve avere la sua riga in MODULI').toEqual(provati);
 });
