@@ -3604,6 +3604,117 @@
       <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
     </div>
 
+    <!-- ════════════════════════════════
+         REGISTRAZIONE IN SALA                    (18/11/2026)
+         Ai convegni arriva sempre chi non si è iscritto. Dal QR esposto
+         all'ingresso («Non ti sei iscritto? Registrati qui») si arriva qui
+         con lo stesso codice firmato dell'iscrizione: la persona manda una
+         richiesta d'iscrizione normale (modulo isc) marcata «in sala», con
+         l'entrata o l'uscita. Chi certifica la presenza è la segreteria,
+         dopo l'evento: qui non si promette nessuna conferma immediata.
+    ════════════════════════════════ -->
+    <div class="page" id="page-sala">
+      <style>
+        #page-sala [hidden]{display:none!important}
+        .sl-scelta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+        .sl-scelta button{flex:1 1 160px;background:#fff;border:1px solid var(--border);border-radius:10px;
+          padding:14px 16px;text-align:left;font:inherit;color:inherit;cursor:pointer;line-height:1.4}
+        .sl-scelta button.on{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange)}
+        .sl-scelta b{display:block;font-size:17px;margin-bottom:2px}
+        .sl-scelta small{color:var(--muted)}
+        .sl-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        @media(max-width:560px){.sl-2{grid-template-columns:1fr}}
+      </style>
+
+      <button class="btn-back" onclick="showPage('home')">&#8592; Torna alla home</button>
+      <div class="form-header">
+        <h2>Registrazione in sala</h2>
+        <p>Non ti sei iscritto in anticipo? Registrati qui: la segreteria conferma la tua presenza dopo l&rsquo;evento.</p>
+      </div>
+
+      <div class="qz-rif" id="sl-rif" hidden></div>
+      <div class="iz-avviso" id="sl-avviso" hidden></div>
+
+      <form id="form-sala" novalidate hidden>
+        <div class="sl-scelta" id="sl-scelta">
+          <button type="button" data-sl-tipo="entrata"><b>&#128682; Sto arrivando</b><small>registro l&rsquo;entrata</small></button>
+          <button type="button" data-sl-tipo="uscita"><b>&#128075; Sto andando via</b><small>registro l&rsquo;uscita</small></button>
+        </div>
+
+        <div class="sl-2">
+          <div class="form-group">
+            <label for="sl-cognome">Cognome <span class="req">*</span></label>
+            <input type="text" id="sl-cognome" maxlength="80" autocomplete="family-name">
+          </div>
+          <div class="form-group">
+            <label for="sl-nome">Nome <span class="req">*</span></label>
+            <input type="text" id="sl-nome" maxlength="80" autocomplete="given-name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="sl-cf">Codice fiscale <span class="req">*</span></label>
+          <input type="text" id="sl-cf" maxlength="16" autocomplete="off" autocapitalize="characters"
+                 style="text-transform:uppercase;letter-spacing:.06em">
+          <p class="hint">Serve a riconoscerti fra chi si è già iscritto e a non registrarti due volte.</p>
+        </div>
+
+        <div id="sl-solo-entrata">
+          <div class="form-group">
+            <label for="sl-ente">Ente, impresa o organizzazione <span class="req">*</span></label>
+            <input type="text" id="sl-ente" maxlength="200" placeholder="es. FILLEA CGIL Padova, Impresa Rossi">
+          </div>
+          <div class="sl-2">
+            <div class="form-group">
+              <label for="sl-ruolo">Il tuo ruolo <span class="req">*</span></label>
+              <select id="sl-ruolo">
+                <option value="">— scegli —</option>
+                <option>RLS</option>
+                <option>RLST</option>
+                <option>Preposto</option>
+                <option>Datore di lavoro</option>
+                <option>Dirigente</option>
+                <option>RSPP / ASPP</option>
+                <option>Coordinatore per la sicurezza (CSP / CSE)</option>
+                <option>Lavoratore</option>
+                <option>Rappresentante sindacale</option>
+                <option>Rappresentante di un ente o di un&rsquo;istituzione</option>
+                <option>Consulente o libero professionista</option>
+                <option>Altro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sl-email">E-mail <span class="hint">(facoltativa)</span></label>
+              <input type="email" id="sl-email" maxlength="160" autocomplete="email">
+            </div>
+          </div>
+        </div>
+        <p class="hint" id="sl-uscita-hint" hidden>All&rsquo;uscita bastano nome, cognome e codice fiscale: il resto
+          l&rsquo;hai scritto entrando. Se sei entrato senza registrarti, registra prima l&rsquo;entrata.</p>
+
+        <div class="privacy-box">
+          <input type="checkbox" id="sl-privacy">
+          <p><strong>Privacy (Reg. UE 2016/679)</strong><br>
+          Titolare: Formedil Padova, Via Basilicata 10, Padova. I tuoi dati e l&rsquo;ora in cui ti registri servono a
+          tenere il registro delle presenze dell&rsquo;evento ed eventualmente a emettere l&rsquo;attestato; restano a
+          Formedil Padova. Non registriamo la tua posizione.
+          <a href="https://www.scuolaedilepadova.net/wp-content/uploads/2020/11/PRIVACY-2020-SCUOLA-EDILE-PADOVA.pdf" target="_blank" rel="noopener">Informativa completa</a>.</p>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn-send" id="sl-btnSend">Registro l&rsquo;entrata</button>
+        </div>
+
+        <div class="error-banner" id="sl-error">Errore durante l&rsquo;invio. Contatta <a href="mailto:cpt@formedilpadova.it">cpt@formedilpadova.it</a>.</div>
+        <div class="success-banner" id="sl-success">
+          <h2>&#10003; Registrazione ricevuta</h2>
+          <p id="sl-fatto">La segreteria conferma la tua presenza dopo l&rsquo;evento.</p>
+          <button type="button" class="btn-new" id="sl-altro">Registra un&rsquo;altra persona</button>
+        </div>
+      </form>
+
+      <div class="page-footer"><a href="https://www.formedilpadova.it" target="_blank">www.formedilpadova.it</a> &middot; Formedil Padova &ndash; Area Sicurezza e Salute</div>
+    </div>
+
     <div class="page" id="page-qevento">
       <style>
         #page-qevento [hidden]{display:none!important}
@@ -4461,6 +4572,7 @@ const PAGE_TITLES = {
   iscrizioni: ['Corsi e incontri aperti', ''],
   progetti: ['I nostri progetti', ''],
   iscrizione: ['Iscrizione', ''],
+  sala: ['Registrazione in sala', ''],
   cor: ['Avvio Corsi Art.37', ''],
   asseverazione: ['Asseverazione', ''],
   cds: ['CDS – Digital Service', ''],
@@ -5471,11 +5583,16 @@ async function fileToBase64(input) {
 // ══════════════════════════════════════════════════════
 //  SUBMIT GENERICO
 // ══════════════════════════════════════════════════════
-async function submitForm(formId, prefix, buildPayload) {
+/* idPrefix (18/11/2026): il prefisso degli id di pulsante e riquadri, quando non
+   coincide col tipo del modulo. Il modulo d'iscrizione ha id «iz-…» e tipo «isc»:
+   dal 18/09 il pulsante non veniva trovato e l'iscrizione non partiva mai. La
+   registrazione in sala usa lo stesso tipo con id «sl-…». */
+async function submitForm(formId, prefix, buildPayload, idPrefix) {
+  const ids    = idPrefix || prefix;
   const form   = document.getElementById(formId);
-  const btn    = document.getElementById(prefix + '-btnSend');
-  const errBox = document.getElementById(prefix + '-error');
-  const okBox  = document.getElementById(prefix + '-success');
+  const btn    = document.getElementById(ids + '-btnSend');
+  const errBox = document.getElementById(ids + '-error');
+  const okBox  = document.getElementById(ids + '-success');
 
   /* ── UN INVIO PER COMPILAZIONE ────────────────────────────────────────
      Dopo la conferma l'identificativo della compilazione si chiude, quindi un
@@ -5596,8 +5713,8 @@ async function submitForm(formId, prefix, buildPayload) {
                   + 'se non arriva entro 15 minuti chiamaci allo ' + TEL_UFFICIO + '.' : '');
       okBox.style.display = 'block';
       btn.textContent = '✓ Inviata';
-      const fill = document.getElementById(prefix + '-progFill');
-      const lbl  = document.getElementById(prefix + '-progLabel');
+      const fill = document.getElementById(ids + '-progFill');
+      const lbl  = document.getElementById(ids + '-progLabel');
       if (fill) fill.style.width = '100%';
       if (lbl)  lbl.textContent  = 'Compilazione: 100%';
       okBox.scrollIntoView({ behavior:'smooth' });
@@ -7349,7 +7466,7 @@ document.getElementById('topbarTitle').style.display = 'none';
       f.per_conto = document.getElementById('iz-rs').value.trim() ? 'impresa' : 'persona';
       f.persone = JSON.stringify(persone);
       return f;
-    });
+    }, 'iz');
   });
 
   /* due porte: il link targato, oppure l'elenco pubblico */
@@ -7402,6 +7519,171 @@ document.getElementById('topbarTitle').style.display = 'none';
 
   window.caricaIscrizioniAperte = elenco;
   if (document.querySelector('#page-iscrizioni.active')) elenco();
+})();
+</script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   REGISTRAZIONE IN SALA                                         (18/11/2026)
+
+   Chiesto dall'utente: ai convegni e ai seminari c'è sempre chi si presenta
+   senza essersi iscritto, e la firma dal QR non lo riconosce (riconosce solo
+   chi è in elenco). Si arriva qui SOLO dal QR esposto all'ingresso:
+   ?sala=<codice>.<firma>, lo stesso codice firmato dell'iscrizione.
+
+   Quello che parte è una RICHIESTA D'ISCRIZIONE (modulo isc) con una persona
+   sola, marcata in_sala: entrata o uscita. La marca viaggia dentro la
+   persona, e il Gestionale la legge da lì (trigger su s_iscrizioni): la
+   funzione che ritira i moduli non cambia. La presenza la certifica la
+   segreteria dopo l'evento (sala_presenze nel Gestionale).
+
+   ⚠️ Si apre solo nel giorno dell'evento: prima o dopo non c'è niente da
+   registrare in sala. Le iscrizioni chiuse NON fermano questa pagina — chi
+   arriva senza iscrizione arriva per definizione dopo la chiusura.
+   ══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var codice = '', firma = '', dati = null, tipo = 'entrata';
+  var MEMO = 'formedil.sala.persona';
+
+  function el(tag, testo) { var n = document.createElement(tag); if (testo != null) n.textContent = testo; return n; }
+  function oggiRoma() {
+    try { return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Rome' }).format(new Date()); }
+    catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  function oraRoma() {
+    try { return new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); }
+    catch (e) { return new Date().toTimeString().slice(0, 5); }
+  }
+  function dataIt(iso) { var p = String(iso || '').slice(0, 10).split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+  function minuti(hhmm) { var m = /^(\d{1,2}):(\d{2})/.exec(hhmm || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  function avviso(t, spento) {
+    var a = document.getElementById('sl-avviso');
+    a.textContent = t; a.className = 'iz-avviso' + (spento ? ' spento' : ''); a.hidden = false;
+  }
+  function v(id) { return (document.getElementById(id).value || '').trim(); }
+
+  /* la persona resta sul telefono (solo qui): all'uscita non si riscrive niente */
+  function leggiMemo() { try { return JSON.parse(localStorage.getItem(MEMO) || 'null'); } catch (e) { return null; } }
+  function scriviMemo(p) { try { localStorage.setItem(MEMO, JSON.stringify(p)); } catch (e) { /* senza memoria si riscrive, pazienza */ } }
+
+  function scegli(t) {
+    tipo = t;
+    document.querySelectorAll('#sl-scelta [data-sl-tipo]').forEach(function (b) { b.classList.toggle('on', b.dataset.slTipo === t); });
+    document.getElementById('sl-solo-entrata').hidden = t === 'uscita';
+    document.getElementById('sl-uscita-hint').hidden = t !== 'uscita';
+    var btn = document.getElementById('sl-btnSend');
+    if (!btn.disabled) btn.textContent = t === 'uscita' ? 'Registro l’uscita' : 'Registro l’entrata';
+  }
+
+  function compila() {
+    var m = leggiMemo();
+    if (!m) return;
+    [['sl-cognome', 'cognome'], ['sl-nome', 'nome'], ['sl-cf', 'cf'], ['sl-ente', 'ente'], ['sl-email', 'email']].forEach(function (c) {
+      var n = document.getElementById(c[0]); if (n && !n.value && m[c[1]]) n.value = m[c[1]];
+    });
+    var r = document.getElementById('sl-ruolo'); if (r && !r.value && m.ruolo) r.value = m.ruolo;
+  }
+
+  async function apri() {
+    showPage('sala');
+    var r;
+    try { r = await _sb.rpc('apri_iscrizione', { p_codice: codice, p_firma: firma || null }); }
+    catch (e) { r = { error: e }; }
+    if (r.error) { avviso('Non riesco a raggiungere il servizio. Controlla la connessione e riprova, oppure registrati al banco della segreteria.', true); return; }
+    if (!r.data || r.data.trovato !== true) {
+      avviso('Questo QR non corrisponde a nessun evento. Registrati al banco della segreteria.', true);
+      return;
+    }
+    dati = r.data;
+    var box = document.getElementById('sl-rif');
+    box.textContent = '';
+    var t = el('div'); t.appendChild(el('b', dati.titolo || 'Evento')); box.appendChild(t);
+    var oggi = oggiRoma();
+    var g = (dati.giornate || []).filter(function (x) { return String(x.data || '').slice(0, 10) === oggi; })[0];
+    var riga = [];
+    if (g) riga.push('oggi ' + dataIt(oggi) + (g.dalle ? ', ' + g.dalle + (g.alle2 || g.alle ? '–' + (g.alle2 || g.alle) : '') : ''));
+    if (dati.sede) riga.push(dati.sede);
+    if (riga.length) box.appendChild(el('div', riga.join(' · ')));
+    box.hidden = false;
+
+    if (!g) {
+      var date = (dati.giornate || []).map(function (x) { return dataIt(x.data); }).filter(Boolean);
+      avviso('La registrazione in sala funziona solo nel giorno dell’evento' + (date.length ? ' (' + date.join(', ') + ')' : '')
+        + '. Per iscriverti prima, chiedi il link alla segreteria: cpt@formedilpadova.it.', true);
+      return;
+    }
+    /* entrata o uscita: la propone l'ora (prima della metà della mattina = si arriva) */
+    var ini = minuti(g.dalle), fine = minuti(g.alle2 || g.alle), adesso = minuti(oraRoma());
+    scegli(ini != null && fine != null && adesso != null && adesso >= ini + (fine - ini) / 2 ? 'uscita' : 'entrata');
+    compila();
+    document.getElementById('form-sala').hidden = false;
+  }
+
+  document.querySelectorAll('#sl-scelta [data-sl-tipo]').forEach(function (b) {
+    b.addEventListener('click', function () { scegli(b.dataset.slTipo); });
+  });
+  document.getElementById('sl-altro').addEventListener('click', function () {
+    /* un'altra persona sullo stesso telefono: modulo pulito e un invio nuovo */
+    var f = document.getElementById('form-sala');
+    f.reset(); f.dataset.inviata = '';
+    try { localStorage.removeItem(MEMO); } catch (e) {}
+    document.getElementById('sl-success').style.display = 'none';
+    document.getElementById('sl-error').style.display = 'none';
+    var btn = document.getElementById('sl-btnSend'); btn.disabled = false;
+    scegli('entrata');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.getElementById('form-sala').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('sl-error');
+    function ferma(t) { err.textContent = t; err.style.display = 'block'; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    var p = {
+      cognome: v('sl-cognome').toUpperCase(), nome: v('sl-nome').toUpperCase(),
+      cf: v('sl-cf').toUpperCase().replace(/\s/g, ''),
+      ente: v('sl-ente'), ruolo: v('sl-ruolo'), email: v('sl-email'),
+    };
+    if (!p.cognome || !p.nome) return ferma('Mancano il cognome o il nome.');
+    if (!/^[A-Z0-9]{16}$/.test(p.cf)) return ferma('Il codice fiscale non è di 16 caratteri.');
+    if (tipo === 'entrata') {
+      if (!p.ente) return ferma('Scrivi l’ente, l’impresa o l’organizzazione per cui sei qui.');
+      if (!p.ruolo) return ferma('Scegli il tuo ruolo.');
+    }
+    if (!document.getElementById('sl-privacy').checked) return ferma('Per proseguire serve la spunta sulla privacy.');
+    err.style.display = 'none';
+    var vecchia = leggiMemo() || {};
+    scriviMemo({ cognome: p.cognome, nome: p.nome, cf: p.cf, ente: p.ente || vecchia.ente || '', ruolo: p.ruolo || vecchia.ruolo || '', email: p.email || vecchia.email || '' });
+
+    var tipoAdesso = tipo;
+    submitForm('form-sala', 'isc', async function () {
+      var persona = { cognome: p.cognome, nome: p.nome, cf: p.cf, in_sala: tipoAdesso, ora_dispositivo: new Date().toISOString() };
+      if (tipoAdesso === 'entrata') {
+        persona.ruolo = p.ruolo;
+        if (p.email) persona.email = p.email;
+        persona.impresa = { ragione_sociale: p.ente };
+      }
+      var f = {
+        riferimento: codice + (firma ? '.' + firma : ''),
+        per_conto: 'persona',
+        referente: p.cognome + ' ' + p.nome,
+        persone: JSON.stringify([persona]),
+        note: 'Registrazione in sala: ' + tipoAdesso + ' alle ' + oraRoma(),
+      };
+      if (tipoAdesso === 'entrata' && p.email) f.email = p.email;
+      return f;
+    }, 'sl').then(function () {
+      document.getElementById('sl-fatto').textContent = tipoAdesso === 'entrata'
+        ? 'Entrata registrata alle ' + oraRoma() + '. Quando vai via inquadra di nuovo il QR e premi «Sto andando via». La segreteria conferma la tua presenza dopo l’evento.'
+        : 'Uscita registrata alle ' + oraRoma() + '. Grazie: la segreteria conferma la tua presenza dopo l’evento.';
+    });
+  });
+
+  var q = new URLSearchParams(location.search);
+  var rif = (q.get('sala') || '').trim().slice(0, 120);
+  if (!rif) return;
+  var k = rif.indexOf('.');
+  codice = k > 0 ? rif.slice(0, k) : rif;
+  firma = k > 0 ? rif.slice(k + 1) : '';
+  apri();
 })();
 </script>
 
